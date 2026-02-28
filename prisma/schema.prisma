@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_URL")
+}
+
+model User{
+  id          Int         @id @default(autoincrement())
+  fullName    String      
+  username    String      @unique
+  email       String      @unique
+  password    String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime?   @updatedAt
+  deletedAt   DateTime?
+  bookshelves Bookshelf[]
+  notes       Note[]
+  reviews     Review[]
+}
+
+model Bookshelf{
+  id          Int             @id @default(autoincrement())
+  name        String
+  type        BookshelfType   @default(CUSTOM)    
+  userId      Int
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  books       BookshelfBook[]
+  deletedAt   DateTime?
+}
+
+enum BookshelfType {
+  READ
+  CURRENTLY_READING
+  TO_BE_READ
+  CUSTOM
+}
+
+model BookshelfBook{
+  id                Int           @id @default(autoincrement())
+  bookshelfId       Int
+  bookshelf         Bookshelf     @relation(fields: [bookshelfId], references: [id])
+  bookId            Int
+  book              Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  readingProgress   Int           @default(0)
+  currentPage       Int?
+  totalPages        Int?
+  startReadingDate  DateTime?
+  endReadingDate    DateTime?
+  deletedAt         DateTime?
+  
+  @@unique([bookshelfId, bookId])
+}
+
+model Book{
+  id                Int         @id @default(autoincrement())
+  apiBookId         String      @unique
+  title             String
+  subtitle          String?
+  authors           String[]
+  description       String?
+  publishedDate     DateTime?
+  coverImageUrl     String?
+  categories        String[]
+  pageCount         Int         @default(0)
+  averageRating     Float?      @default(0)
+  reviewCount       Int         @default(0)
+  reviews           Review[]
+  bookshelves       BookshelfBook[]
+  notes             Note[]
+  deletedAt         DateTime?
+}
+
+model Review{
+  id          Int       @id @default(autoincrement())
+  bookId      Int
+  book        Book      @relation(fields: [bookId], references: [id])
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  rating      Int       
+  review      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model Note{
+  id          Int       @id @default(autoincrement())
+  bookId      Int
+  book        Book      @relation(fields: [bookId], references: [id])
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
