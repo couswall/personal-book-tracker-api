@@ -25,7 +25,9 @@ export class BookDatasourceImpl implements BookDatasource {
             startIndex: (searchBookDto.page - 1) * searchBookDto.maxResults,
             printType: searchBookDto.printType,
             maxResults: searchBookDto.maxResults,
+            key: envs.GOOGLE_BOOKS_API_KEY,
         };
+        
 
         try {
             const data = await this.http.get<ISearchFromAPIResponse>(
@@ -45,9 +47,13 @@ export class BookDatasourceImpl implements BookDatasource {
                 title: googleBook.volumeInfo.title,
                 authors: googleBook.volumeInfo.authors,
                 imageCover:
-                    googleBook.volumeInfo.imageLinks?.smallThumbnail ??
+                    googleBook.volumeInfo.imageLinks?.extralarge ??
+                    googleBook.volumeInfo.imageLinks?.large ??
+                    googleBook.volumeInfo.imageLinks?.medium ??
                     googleBook.volumeInfo.imageLinks?.thumbnail ??
-                    undefined,
+                    googleBook.volumeInfo.imageLinks?.smallThumbnail,
+                averageRating: googleBook.volumeInfo.averageRating ?? 0,
+                reviewCount: googleBook.volumeInfo.ratingsCount ?? 0,
             }));
 
             return {
@@ -84,14 +90,20 @@ export class BookDatasourceImpl implements BookDatasource {
 
     async fetchByIdFromAPI(getBookByIdDto: GetBookByIdDto): Promise<BookEntity> {
         const {bookId} = getBookByIdDto;
+        const params = {key: envs.GOOGLE_BOOKS_API_KEY};
 
         try {
             const googleBook = await this.http.get<IBookFromAPI>(
-                `${envs.BOOKS_API}/volumes/${bookId}`
+                `${envs.BOOKS_API}/volumes/${bookId}`,
+                {params}
             );
             const {id: apiBookId, volumeInfo} = googleBook;
             const bookImgCover =
-                volumeInfo.imageLinks?.smallThumbnail ?? volumeInfo.imageLinks?.thumbnail;
+                volumeInfo.imageLinks?.extralarge ??
+                volumeInfo.imageLinks?.large ??
+                volumeInfo.imageLinks?.medium ??
+                volumeInfo.imageLinks?.thumbnail ??
+                volumeInfo.imageLinks?.smallThumbnail;
 
             const book: ICreateBookEntityFromObject = {
                 id: 0,

@@ -6,4 +6,5 @@ export const envs = {
     PUBLIC_PATH: get('PUBLIC_PATH').required().asString(),
     JWT_SEED: get('JWT_SEED').required().asString(),
     BOOKS_API: get('BOOKS_API').required().asString(),
+    GOOGLE_BOOKS_API_KEY: get('GOOGLE_BOOKS_API_KEY').required().asString(),
 };
