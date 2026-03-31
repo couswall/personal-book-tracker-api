@@ -15,3 +15,12 @@ export interface ICreateBookshelfEntity {
     books?: BookshelfEntity[];
     user?: UserEntity;
 }
+
+export interface IBookshelfWithStatus {
+    id: number;
+    name: string;
+    isSelected: boolean;
+    bookshelfBookId: number | null;
+    bookCount: number;
+    isCustom: boolean;
+}

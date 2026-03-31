@@ -3,7 +3,8 @@ import { CustomError } from "@domain/errors/custom.error";
 import { CreateCustomBookShelfDto } from "@domain/dtos/index";
 import { BookshelfRepository } from "@domain/repositories/bookshelf.repository";
 import { UserRepository } from "@domain/repositories/user.repository";
-import { GetMyBookShelves, CreateCustom } from "@domain/use-cases/index";
+import { GetMyBookShelves, CreateCustom, GetBookshelvesWithStatus } from "@domain/use-cases/index";
+import { GetBookshelvesWithStatusDto } from "@domain/dtos/bookshelf/getBookshelvesWithStatus-bookshelf.dto";
 
 export class BookshelfController{
     constructor(
@@ -58,4 +59,26 @@ export class BookshelfController{
             }))
             .catch(error => CustomError.handleError(error, res));
     }
+
+    public getBookshelvesWithStatus = (req: Request, res: Response) => {
+        const [errorMsg, dto] = GetBookshelvesWithStatusDto.create({
+            userId: req.params.userId,
+            apiBookId: req.params.apiBookId,
+        });
+        if (errorMsg || !dto) {
+            res.status(400).json({success: false, error: {message: errorMsg}});
+            return;
+        }
+
+        new GetBookshelvesWithStatus(this.repository, this.userRepository)
+            .execute(dto)
+            .then((bookshelves) =>
+                res.status(200).json({
+                    success: true,
+                    message: 'Bookshelves with book status fetched successfully.',
+                    data: {bookshelves},
+                })
+            )
+            .catch((error) => CustomError.handleError(error, res));
+    };
 }
