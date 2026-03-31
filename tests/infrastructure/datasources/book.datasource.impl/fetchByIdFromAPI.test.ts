@@ -1,20 +1,20 @@
-import { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { createBookDatasource } from "@tests/infrastructure/datasources/book.datasource.impl/setup";
-import { GetBookByIdDto } from "@domain/dtos";
-import { searchAPIResponseObj } from "@tests/fixtures";
-import { BookEntity } from "@domain/entities/book.entity";
-import { CustomError } from "@domain/errors/custom.error";
-import { ERROR_MESSAGES } from "@infrastructure/constants";
+import {AxiosError, InternalAxiosRequestConfig} from 'axios';
+import {createBookDatasource} from '@tests/infrastructure/datasources/book.datasource.impl/setup';
+import {GetBookByIdDto} from '@domain/dtos';
+import {searchAPIResponseObj} from '@tests/fixtures';
+import {BookEntity} from '@domain/entities/book.entity';
+import {CustomError} from '@domain/errors/custom.error';
+import {ERROR_MESSAGES} from '@infrastructure/constants';
 
-describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
-    const { bookDatasourceImpl, mockHttpAdapter } = createBookDatasource();
+describe('BookDatasourceImpl.fetchByIdFromAPI', () => {
+    const {bookDatasourceImpl, mockHttpAdapter} = createBookDatasource();
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    test("should return a BookEntity when fetching is successful", async () => {
-        const bookId = "123";
+    test('should return a BookEntity when fetching is successful', async () => {
+        const bookId = '123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = searchAPIResponseObj.items[0];
 
@@ -23,12 +23,17 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
 
         expect(result).toBeInstanceOf(BookEntity);
         expect(mockHttpAdapter.get).toHaveBeenCalledWith(
-            expect.stringContaining(`/volumes/${bookId}`)
+            expect.stringContaining(`/volumes/${bookId}`),
+            expect.objectContaining({
+                params: {
+                    key: expect.any(String),
+                },
+            })
         );
         expect(result.id).toBe(0);
     });
-    test("should correctly map API book data to BookEntity", async () => {
-        const bookId = "abc123";
+    test('should correctly map API book data to BookEntity', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = searchAPIResponseObj.items[0];
 
@@ -46,8 +51,8 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         expect(result.deletedAt).toBeNull();
     });
 
-    test("should use smallThumbnail as cover image when available", async () => {
-        const bookId = "abc123";
+    test('should use the highest resolution image as cover image when available', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = searchAPIResponseObj.items[0];
 
@@ -55,12 +60,12 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         const result = await bookDatasourceImpl.fetchByIdFromAPI(dto);
 
         expect(result.coverImageUrl).toBe(
-            searchAPIResponseObj.items[0].volumeInfo.imageLinks?.smallThumbnail
+            searchAPIResponseObj.items[0].volumeInfo.imageLinks?.thumbnail
         );
     });
 
-    test("should fallback to thumbnail when smallThumbnail is not available", async () => {
-        const bookId = "abc123";
+    test('should fallback to thumbnail when smallThumbnail is not available', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = searchAPIResponseObj.items[2];
 
@@ -72,8 +77,8 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         );
     });
 
-    test("should set coverImageUrl to null when no image links available", async () => {
-        const bookId = "abc123";
+    test('should set coverImageUrl to null when no image links available', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = searchAPIResponseObj.items[1];
 
@@ -83,8 +88,8 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         expect(result.coverImageUrl).toBeNull();
     });
 
-    test("should parse valid published date from API", async () => {
-        const bookId = "abc123";
+    test('should parse valid published date from API', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = searchAPIResponseObj.items[0];
 
@@ -96,8 +101,8 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         );
     });
 
-    test("should set publishedDate to null when empty string", async () => {
-        const bookId = "abc123";
+    test('should set publishedDate to null when empty string', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = searchAPIResponseObj.items[1];
 
@@ -107,8 +112,8 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         expect(result.publishedDate).toBeNull();
     });
 
-    test("should set publishedDate to null when undefined", async () => {
-        const bookId = "abc123";
+    test('should set publishedDate to null when undefined', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const apiBook = {
             ...searchAPIResponseObj.items[0],
@@ -124,15 +129,15 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         expect(result.publishedDate).toBeNull();
     });
 
-    test("should handle books with missing optional fields", async () => {
-        const bookId = "abc123";
+    test('should handle books with missing optional fields', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
-        const apiBook = {id: "abc123", volumeInfo: {title: "Minimal Book"}};
+        const apiBook = {id: 'abc123', volumeInfo: {title: 'Minimal Book'}};
 
         mockHttpAdapter.get.mockResolvedValue(apiBook);
         const result = await bookDatasourceImpl.fetchByIdFromAPI(dto);
 
-        expect(result.title).toBe("Minimal Book");
+        expect(result.title).toBe('Minimal Book');
         expect(Array.isArray(result.authors)).toBeTruthy();
         expect(result.subtitle).toBeNull();
         expect(result.description).toBeNull();
@@ -143,19 +148,19 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         expect(result.reviewCount).toBe(0);
     });
 
-    test("should throw CustomError when API returns 503 (book not found)", async () => {
-        const bookId = "invalid-id";
+    test('should throw CustomError when API returns 503 (book not found)', async () => {
+        const bookId = 'invalid-id';
         const dto = new GetBookByIdDto(bookId);
 
         const axiosError = new AxiosError(
-            "Service unavailable",
-            "503",
+            'Service unavailable',
+            '503',
             {} as InternalAxiosRequestConfig,
             null,
             {
-                data: { error: { code: 503 } },
+                data: {error: {code: 503}},
                 status: 503,
-                statusText: "Service Unavailable",
+                statusText: 'Service Unavailable',
                 headers: {},
                 config: {} as InternalAxiosRequestConfig,
             }
@@ -168,18 +173,18 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         );
     });
 
-    test("should throw internal server error for other API errors", async () => {
-        const bookId = "abc123";
+    test('should throw internal server error for other API errors', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
         const axiosError = new AxiosError(
-            "Service unavailable",
-            "500",
+            'Service unavailable',
+            '500',
             {} as InternalAxiosRequestConfig,
             null,
             {
-                data: { error: { code: 500 } },
+                data: {error: {code: 500}},
                 status: 500,
-                statusText: "Service Unavailable",
+                statusText: 'Service Unavailable',
                 headers: {},
                 config: {} as InternalAxiosRequestConfig,
             }
@@ -192,11 +197,11 @@ describe("BookDatasourceImpl.fetchByIdFromAPI", () => {
         );
     });
 
-    test("should throw internal server error for non-Axios errors", async () => {
-        const bookId = "abc123";
+    test('should throw internal server error for non-Axios errors', async () => {
+        const bookId = 'abc123';
         const dto = new GetBookByIdDto(bookId);
 
-        mockHttpAdapter.get.mockRejectedValue(new Error("Network error"));
+        mockHttpAdapter.get.mockRejectedValue(new Error('Network error'));
 
         await expect(bookDatasourceImpl.fetchByIdFromAPI(dto)).rejects.toThrow(
             CustomError.internalServer(ERROR_MESSAGES.EXTERNAL_BOOKS_API.INTERNAL)

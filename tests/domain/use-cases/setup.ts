@@ -24,6 +24,7 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
         createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
+        getBookshelvesWithStatus: jest.fn(),
     };
 
     return {

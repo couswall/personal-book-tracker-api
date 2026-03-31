@@ -120,7 +120,7 @@ export class BookDatasourceImpl implements BookDatasource {
                 categories: volumeInfo.categories ?? [],
                 pageCount: volumeInfo.pageCount ?? 0,
                 averageRating: volumeInfo.averageRating ?? 0,
-                reviewCount: 0,
+                reviewCount: volumeInfo.ratingsCount ?? 0,
                 deletedAt: null,
             };
             return BookEntity.fromObject(book);

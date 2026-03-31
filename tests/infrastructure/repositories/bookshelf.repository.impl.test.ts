@@ -2,13 +2,14 @@ import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.re
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {CreateCustomBookShelfDto} from '@domain/dtos';
 import {BookshelfEntity} from '@domain/entities';
-import {bookshelfEntity, bookshelfObj, createCustomBookshelfDto} from '@tests/fixtures';
+import {bookshelfEntity, bookshelfObj, bookshelfWithStatus, createCustomBookshelfDto} from '@tests/fixtures';
 
 describe('bookshelf.repository.impl tests', () => {
     const mockDatasource: jest.Mocked<BookshelfDatasource> = {
         createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
+        getBookshelvesWithStatus: jest.fn(),
     };
 
     beforeEach(() => {
@@ -49,5 +50,15 @@ describe('bookshelf.repository.impl tests', () => {
 
         expect(mockDatasource.getBookshelfById).toHaveBeenCalledWith(bookshelfObj.id);
         expect(result).toBeInstanceOf(BookshelfEntity);
+    });
+
+    test('getBookshelvesWithStatus() should call datasource.getBookshelvesWithStatus() and return its result', async () => {
+        const apiBookId = 'abc123';
+        mockDatasource.getBookshelvesWithStatus.mockResolvedValue([bookshelfWithStatus]);
+
+        const result = await mockRepositoryImpl.getBookshelvesWithStatus(bookshelfObj.userId, apiBookId);
+
+        expect(mockDatasource.getBookshelvesWithStatus).toHaveBeenCalledWith(bookshelfObj.userId, apiBookId);
+        expect(result).toEqual([bookshelfWithStatus]);
     });
 });
