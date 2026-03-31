@@ -11,3 +11,4 @@ export * from './bookshelf/getBookshelvesWithStatus-bookshelf';
 
 export * from './bookshelfBook/addToBookshelf-bookshelfBook';
 export * from './bookshelfBook/updateBookshelf-bookshelfBook';
+export * from './bookshelfBook/removeFromBookshelf-bookshelfBook';

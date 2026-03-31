@@ -11,3 +11,4 @@ export * from './bookshelf/getBookshelvesWithStatus-bookshelf.dto';
 
 export * from './bookshelfBook/addToBookshelf-bookshelfBook.dto';
 export * from './bookshelfBook/updateBookshelf-bookshelfBook.dto';
+export * from './bookshelfBook/removeFromBookshelf-bookshelfBook.dto';

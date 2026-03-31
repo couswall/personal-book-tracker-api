@@ -23,3 +23,7 @@ export interface IUpdateBookshelfDto{
     bookshelfId? : number | string;
     bookshelfType?: string;
 }
+
+export interface IRemoveFromBookshelfDto{
+    bookshelfBookId?: number | string;
+}

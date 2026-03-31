@@ -6,6 +6,7 @@ import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-books
 import {BookshelfBookDatasource} from '@domain/datasources/bookshelfbook.datasource';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
+import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
 
 export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
     async addToBookshelf(
@@ -66,5 +67,27 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
         });
 
         return BookshelfBookEntity.fromObject(updatedBook);
+    }
+
+    async removeFromBookshelf(
+        removeFromBookshelfDto: RemoveFromBookshelfDto
+    ): Promise<BookshelfBookEntity> {
+        const {bookshelfBookId} = removeFromBookshelfDto;
+
+        const existingBook = await prisma.bookshelfBook.findUnique({
+            where: {id: bookshelfBookId, deletedAt: null},
+        });
+
+        if (!existingBook)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.REMOVE_FROM_BOOKSHELF.NOT_FOUND
+            );
+
+        const deletedBook = await prisma.bookshelfBook.update({
+            where: {id: bookshelfBookId},
+            data: {deletedAt: new Date()},
+        });
+
+        return BookshelfBookEntity.fromObject(deletedBook);
     }
 }

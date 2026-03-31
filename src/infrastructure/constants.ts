@@ -44,6 +44,9 @@ export const ERROR_MESSAGES = {
         },
         UPDATE_BOOKSHELF:{
             NOT_FOUND: 'Bookshelf book with provided ID does not exist',
+        },
+        REMOVE_FROM_BOOKSHELF:{
+            NOT_FOUND: 'Bookshelf book with provided ID does not exist',
         }
     }
 }

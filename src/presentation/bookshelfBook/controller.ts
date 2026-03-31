@@ -3,9 +3,10 @@ import {CustomError} from '@domain/errors/custom.error';
 import {AddToBookshelfDto} from '@domain/dtos';
 import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.repository';
 import {BookRepository} from '@domain/repositories/book.repository';
-import {AddToBookshelf, UpdateBookshelf} from '@domain/use-cases';
+import {AddToBookshelf, UpdateBookshelf, RemoveFromBookshelf} from '@domain/use-cases';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
+import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
 
 export class BookshelfBookController {
     constructor(
@@ -61,6 +62,29 @@ export class BookshelfBookController {
                     data: {bookshelfBook: {...rest}},
                 });
             })
+            .catch((error) => CustomError.handleError(error, res));
+    };
+
+    public removeFromBookshelf = (req: Request, res: Response) => {
+        const [errorMsg, dto] = RemoveFromBookshelfDto.create({
+            bookshelfBookId: req.params.bookshelfBookId,
+        });
+        if (errorMsg || !dto) {
+            res.status(400).json({
+                success: false,
+                error: {message: errorMsg},
+            });
+            return;
+        }
+
+        new RemoveFromBookshelf(this.repository)
+            .execute(dto)
+            .then(() =>
+                res.status(200).json({
+                    success: true,
+                    message: 'Book removed from bookshelf successfully',
+                })
+            )
             .catch((error) => CustomError.handleError(error, res));
     };
 }

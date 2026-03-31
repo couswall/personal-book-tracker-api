@@ -22,6 +22,7 @@ export class BookshelfBookRoutes{
 
         router.post('/addToBookshelf', [validateJWT], bookshelfController.addToBookshelf);
         router.put('/updateBookshelf', [validateJWT], bookshelfController.updateBookshelf);
+        router.delete('/:bookshelfBookId', [validateJWT], bookshelfController.removeFromBookshelf);
 
         return router;
     }
