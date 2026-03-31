@@ -12,6 +12,7 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
     const mockBookshelfBookRepository: jest.Mocked<BookshelfBookRepository> = {
         addToBookshelf: jest.fn(),
         updateBookshelf: jest.fn(),
+        removeFromBookshelf: jest.fn(),
     };
     const mockBookRepository: jest.Mocked<BookRepository> = {
         search: jest.fn(),

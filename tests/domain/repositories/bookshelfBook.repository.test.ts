@@ -1,5 +1,5 @@
 import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.repository';
-import {AddToBookshelfDto, UpdateBookshelfDto} from '@domain/dtos';
+import {AddToBookshelfDto, UpdateBookshelfDto, RemoveFromBookshelfDto} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {bookshelfBookEntity} from '@tests/fixtures';
 
@@ -15,6 +15,11 @@ describe('bookshelfBook.repository tests', () => {
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
+        async removeFromBookshelf(
+            removeFromBookshelfDto: RemoveFromBookshelfDto
+        ): Promise<BookshelfBookEntity> {
+            return bookshelfBookEntity;
+        }
     }
 
     const mockRepository = new MockBookshelfBookRepository();
@@ -23,6 +28,7 @@ describe('bookshelfBook.repository tests', () => {
         expect(mockRepository).toBeInstanceOf(MockBookshelfBookRepository);
         expect(typeof mockRepository.addToBookshelf).toBe('function');
         expect(typeof mockRepository.updateBookshelf).toBe('function');
+        expect(typeof mockRepository.removeFromBookshelf).toBe('function');
     });
 
     test('addToBookshelf() should return a BookshelfBookEntity', async () => {
@@ -36,6 +42,14 @@ describe('bookshelfBook.repository tests', () => {
     test('updateBookshelf() should return a BookshelfBookEntity', async () => {
         const dto = new UpdateBookshelfDto(101, 50);
         const result = await mockRepository.updateBookshelf(dto);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(result).toEqual(bookshelfBookEntity);
+    });
+
+    test('removeFromBookshelf() should return a BookshelfBookEntity', async () => {
+        const dto = new RemoveFromBookshelfDto(101);
+        const result = await mockRepository.removeFromBookshelf(dto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(result).toEqual(bookshelfBookEntity);

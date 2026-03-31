@@ -1,13 +1,14 @@
 import {BookshelfBookDatasource} from '@domain/datasources/bookshelfbook.datasource';
-import {AddToBookshelfDto, UpdateBookshelfDto} from '@domain/dtos';
+import {AddToBookshelfDto, UpdateBookshelfDto, RemoveFromBookshelfDto} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {BookshelfBookRepositoryImpl} from '@infrastructure/repositories/bookshelfBook.repository.impl';
-import {bookshelfBookEntity} from '@tests/fixtures';
+import {bookshelfBookEntity, removeFromBookshelfDtoObject} from '@tests/fixtures';
 
 describe('bookshelfBook.repository.impl tests', () => {
     const mockDatasource: jest.Mocked<BookshelfBookDatasource> = {
         addToBookshelf: jest.fn(),
         updateBookshelf: jest.fn(),
+        removeFromBookshelf: jest.fn(),
     };
 
     beforeEach(() => {
@@ -38,5 +39,14 @@ describe('bookshelfBook.repository.impl tests', () => {
             bookshelfBookId: 1,
             bookshelfId: 1,
         });
+    });
+
+    test('removeFromBookshelf() should return a BookshelfBookEntity and call datasource.removeFromBookshelf()', async () => {
+        const [, dto] = RemoveFromBookshelfDto.create(removeFromBookshelfDtoObject);
+        mockDatasource.removeFromBookshelf.mockResolvedValue(bookshelfBookEntity);
+        const result = await repository.removeFromBookshelf(dto!);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(mockDatasource.removeFromBookshelf).toHaveBeenCalledWith(dto);
     });
 });

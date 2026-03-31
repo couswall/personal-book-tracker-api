@@ -1,6 +1,6 @@
 import { BookshelfBookDatasource } from "@domain/datasources/bookshelfbook.datasource";
 import { BookshelfBookEntity } from "@domain/entities";
-import { AddToBookshelfDto, UpdateBookshelfDto } from "@domain/dtos";
+import { AddToBookshelfDto, UpdateBookshelfDto, RemoveFromBookshelfDto } from "@domain/dtos";
 import { bookshelfBookEntity } from "@tests/fixtures";
 
 describe('bookshelfbook.datasource tests', () => {
@@ -11,6 +11,9 @@ describe('bookshelfbook.datasource tests', () => {
         async updateBookshelf(updateBookshelfDto: UpdateBookshelfDto): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
+        async removeFromBookshelf(removeFromBookshelfDto: RemoveFromBookshelfDto): Promise<BookshelfBookEntity> {
+            return bookshelfBookEntity;
+        }
     };
 
     const mockDatasource = new MockBookshelfBookDatasource();
@@ -19,6 +22,7 @@ describe('bookshelfbook.datasource tests', () => {
         expect(mockDatasource).toBeInstanceOf(MockBookshelfBookDatasource);
         expect(typeof mockDatasource.addToBookshelf).toBe('function');
         expect(typeof mockDatasource.updateBookshelf).toBe('function');
+        expect(typeof mockDatasource.removeFromBookshelf).toBe('function');
     });
 
     test('addToBookshelf() should return a BookshelfBookEntity', async () => {
@@ -32,6 +36,14 @@ describe('bookshelfbook.datasource tests', () => {
     test('updateBookshelf() should return a BookshelfBookEntity', async () => {
         const dto = new UpdateBookshelfDto(101, 50);
         const result = await mockDatasource.updateBookshelf(dto);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(result).toEqual(bookshelfBookEntity);
+    });
+
+    test('removeFromBookshelf() should return a BookshelfBookEntity', async () => {
+        const dto = new RemoveFromBookshelfDto(101);
+        const result = await mockDatasource.removeFromBookshelf(dto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(result).toEqual(bookshelfBookEntity);
