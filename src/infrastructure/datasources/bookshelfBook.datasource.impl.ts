@@ -4,9 +4,9 @@ import {CustomError} from '@domain/errors/custom.error';
 import {BookshelfBookEntity} from '@domain/entities';
 import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-bookshelfBook.dto';
 import {BookshelfBookDatasource} from '@domain/datasources/bookshelfbook.datasource';
-import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
 import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
+import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
     async addToBookshelf(
@@ -21,22 +21,22 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
         let readingProgress = bookshelfType === BookshelfType.READ ? 100 : 0;
 
         const existingBookshelfBook = await prisma.bookshelfBook.findFirst({
-            where: {bookshelfId, bookId: bookId, deletedAt: null},
+            where: {bookshelfId, bookId: bookId},
         });
 
-        if (existingBookshelfBook)
+        if (existingBookshelfBook && !existingBookshelfBook.deletedAt)
             throw CustomError.badRequest(
                 ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
             );
 
-        const book = await prisma.bookshelfBook.create({
-            data: {
-                bookshelfId,
-                bookId,
-                readingProgress,
-                totalPages,
-            },
-        });
+        const book = existingBookshelfBook
+            ? await prisma.bookshelfBook.update({
+                  where: {id: existingBookshelfBook.id},
+                  data: {deletedAt: null, readingProgress, totalPages},
+              })
+            : await prisma.bookshelfBook.create({
+                  data: {bookshelfId, bookId, readingProgress, totalPages},
+              });
 
         return BookshelfBookEntity.fromObject(book);
     }
@@ -46,8 +46,8 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
     ): Promise<BookshelfBookEntity> {
         const {bookshelfBookId, bookshelfId, bookshelfType = ''} = updateBookshelfDto;
 
-        const existingBook = await prisma.bookshelfBook.findUnique({
-            where: {id: bookshelfBookId},
+        const existingBook = await prisma.bookshelfBook.findFirst({
+            where: {id: bookshelfBookId, deletedAt: null},
         });
 
         if (!existingBook)
