@@ -61,6 +61,24 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
         const updatedReadingProgress =
             bookshelfType === BookshelfType.READ ? 100 : existingBook.readingProgress;
 
+        const softDeletedInTarget = await prisma.bookshelfBook.findFirst({
+            where: {bookshelfId, bookId: existingBook.bookId, deletedAt: {not: null}},
+        });
+
+        if (softDeletedInTarget) {
+            const [restored] = await prisma.$transaction([
+                prisma.bookshelfBook.update({
+                    where: {id: softDeletedInTarget.id},
+                    data: {deletedAt: null, readingProgress: updatedReadingProgress},
+                }),
+                prisma.bookshelfBook.update({
+                    where: {id: existingBook.id},
+                    data: {deletedAt: new Date()},
+                }),
+            ]);
+            return BookshelfBookEntity.fromObject(restored);
+        }
+
         const updatedBook = await prisma.bookshelfBook.update({
             data: {bookshelfId, readingProgress: updatedReadingProgress},
             where: {id: existingBook.id},
