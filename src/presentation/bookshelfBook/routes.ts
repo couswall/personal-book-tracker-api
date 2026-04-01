@@ -33,7 +33,7 @@ export class BookshelfBookRoutes {
             [validateJWT],
             bookshelfController.updateBookshelf
         );
-        router.put(
+        router.delete(
             '/:bookshelfBookId',
             [validateJWT],
             bookshelfController.removeFromBookshelf

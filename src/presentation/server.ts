@@ -1,33 +1,32 @@
-import express, { Router } from "express";
-import cors, { CorsOptions } from 'cors';
-import { Server as HttpServer } from 'http';
+import express, {Router} from 'express';
+import cors, {CorsOptions} from 'cors';
+import {Server as HttpServer} from 'http';
 
-interface ServerOptions{
+interface ServerOptions {
     port: number;
     publicPath: string;
     routes: Router;
 }
 
-export class Server{
+export class Server {
     public readonly app = express();
     private readonly port: number;
     private serverListener?: HttpServer;
     private readonly publicPath: string;
     private readonly routes: Router;
 
-    constructor(options: ServerOptions){
+    constructor(options: ServerOptions) {
         const {port, publicPath, routes} = options;
-        
+
         this.port = port;
         this.publicPath = publicPath;
         this.routes = routes;
-    };
+    }
 
-    async start(){
-        
+    async start() {
         const corsOptions: CorsOptions = {
             origin: ['http://localhost:5173'],
-            methods: ['GET', 'POST', 'PUT'],
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
             allowedHeaders: ['Authorization', 'Content-Type'],
         };
 
@@ -36,7 +35,7 @@ export class Server{
         this.app.use(express.urlencoded({extended: true}));
 
         this.app.use(express.static(this.publicPath));
-        
+
         this.app.use(this.routes);
 
         this.serverListener = this.app.listen(this.port, () => {
@@ -44,9 +43,7 @@ export class Server{
         });
     }
 
-    public close(){
+    public close() {
         this.serverListener?.close();
     }
-
-
 }
