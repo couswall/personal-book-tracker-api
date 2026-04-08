@@ -7,7 +7,7 @@ import {GetBookshelvesWithStatusUseCase} from '@domain/use-cases/interfaces/book
 export class GetBookshelvesWithStatus implements GetBookshelvesWithStatusUseCase {
     constructor(
         private readonly repository: BookshelfRepository,
-        private readonly userRepository: UserRepository,
+        private readonly userRepository: UserRepository
     ) {}
 
     async execute(dto: GetBookshelvesWithStatusDto): Promise<IBookshelfWithStatus[]> {

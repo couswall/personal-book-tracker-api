@@ -6,6 +6,8 @@ import {BookEntity} from '@domain/entities/book.entity';
 import {CustomError} from '@domain/errors/custom.error';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 
+const emptyAxiosConfig = Object.create(null) as InternalAxiosRequestConfig;
+
 describe('BookDatasourceImpl.fetchByIdFromAPI', () => {
     const {bookDatasourceImpl, mockHttpAdapter} = createBookDatasource();
 
@@ -155,14 +157,14 @@ describe('BookDatasourceImpl.fetchByIdFromAPI', () => {
         const axiosError = new AxiosError(
             'Service unavailable',
             '503',
-            {} as InternalAxiosRequestConfig,
+            emptyAxiosConfig,
             null,
             {
                 data: {error: {code: 503}},
                 status: 503,
                 statusText: 'Service Unavailable',
                 headers: {},
-                config: {} as InternalAxiosRequestConfig,
+                config: emptyAxiosConfig,
             }
         );
 
@@ -179,14 +181,14 @@ describe('BookDatasourceImpl.fetchByIdFromAPI', () => {
         const axiosError = new AxiosError(
             'Service unavailable',
             '500',
-            {} as InternalAxiosRequestConfig,
+            emptyAxiosConfig,
             null,
             {
                 data: {error: {code: 500}},
                 status: 500,
                 statusText: 'Service Unavailable',
                 headers: {},
-                config: {} as InternalAxiosRequestConfig,
+                config: emptyAxiosConfig,
             }
         );
 

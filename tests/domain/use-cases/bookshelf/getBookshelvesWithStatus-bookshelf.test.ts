@@ -19,25 +19,31 @@ describe('getBookshelvesWithStatus use case tests', () => {
         getById: jest.fn(),
     };
 
-    const [, dto] = GetBookshelvesWithStatusDto.create({userId: userObj.id, apiBookId: 'abc123'});
+    const [, dtoResult] = GetBookshelvesWithStatusDto.create({
+        userId: userObj.id,
+        apiBookId: 'abc123',
+    });
+    const dto = dtoResult as GetBookshelvesWithStatusDto;
 
     beforeEach(() => jest.clearAllMocks());
 
     test('execute() should return an array of IBookshelfWithStatus', async () => {
         mockUserRepository.getById.mockResolvedValue(userEntity);
-        mockBookshelfRepository.getBookshelvesWithStatus.mockResolvedValue([bookshelfWithStatus]);
+        mockBookshelfRepository.getBookshelvesWithStatus.mockResolvedValue([
+            bookshelfWithStatus,
+        ]);
 
         const result = await new GetBookshelvesWithStatus(
             mockBookshelfRepository,
             mockUserRepository
-        ).execute(dto!);
+        ).execute(dto);
 
         expect(Array.isArray(result)).toBeTruthy();
         expect(result[0]).toEqual(bookshelfWithStatus);
-        expect(mockUserRepository.getById).toHaveBeenCalledWith({id: dto!.userId});
+        expect(mockUserRepository.getById).toHaveBeenCalledWith({id: dto.userId});
         expect(mockBookshelfRepository.getBookshelvesWithStatus).toHaveBeenCalledWith(
-            dto!.userId,
-            dto!.apiBookId
+            dto.userId,
+            dto.apiBookId
         );
     });
 
@@ -47,8 +53,13 @@ describe('getBookshelvesWithStatus use case tests', () => {
         );
 
         await expect(
-            new GetBookshelvesWithStatus(mockBookshelfRepository, mockUserRepository).execute(dto!)
-        ).rejects.toThrow(CustomError.badRequest(ERROR_MESSAGES.USER.GET_BY_ID.NO_EXISTING));
+            new GetBookshelvesWithStatus(
+                mockBookshelfRepository,
+                mockUserRepository
+            ).execute(dto)
+        ).rejects.toThrow(
+            CustomError.badRequest(ERROR_MESSAGES.USER.GET_BY_ID.NO_EXISTING)
+        );
 
         expect(mockBookshelfRepository.getBookshelvesWithStatus).not.toHaveBeenCalled();
     });

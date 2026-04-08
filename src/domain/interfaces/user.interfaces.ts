@@ -1,4 +1,4 @@
-export interface ICreateUserEntity{
+export interface ICreateUserEntity {
     id: number;
     fullName: string;
     username: string;
@@ -9,14 +9,14 @@ export interface ICreateUserEntity{
     deletedAt: Date | null;
 }
 
-export interface ICreateUserDto{
+export interface ICreateUserDto {
     fullName: string;
     username: string;
     email: string;
     password: string;
 }
 
-export interface ILoginUserDto{
+export interface ILoginUserDto {
     emailOrUsername: string;
     password: string;
 }

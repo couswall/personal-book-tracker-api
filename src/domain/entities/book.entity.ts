@@ -1,8 +1,8 @@
-import { BookshelfBookEntity } from "@domain/entities/bookshelfBook.entity";
+import {BookshelfBookEntity} from '@domain/entities/bookshelfBook.entity';
 import {NoteEntity, ReviewEntity} from '@domain/entities/index';
-import { ICreateBookEntityFromObject } from "@domain/interfaces/book.interfaces";
+import {ICreateBookEntityFromObject} from '@domain/interfaces/book.interfaces';
 
-export class BookEntity{
+export class BookEntity {
     constructor(
         public id: number,
         public apiBookId: string,
@@ -19,10 +19,10 @@ export class BookEntity{
         public bookshelves: BookshelfBookEntity[] = [],
         public reviews: ReviewEntity[] = [],
         public notes: NoteEntity[] = [],
-        public deletedAt: Date | null = null,
-    ){};
+        public deletedAt: Date | null = null
+    ) {}
 
-    public static fromObject(object: ICreateBookEntityFromObject): BookEntity{
+    public static fromObject(object: ICreateBookEntityFromObject): BookEntity {
         return new BookEntity(
             object.id,
             object.apiBookId,
@@ -39,7 +39,7 @@ export class BookEntity{
             object.bookshelves,
             object.reviews,
             object.notes,
-            object.deletedAt,
+            object.deletedAt
         );
     }
 }

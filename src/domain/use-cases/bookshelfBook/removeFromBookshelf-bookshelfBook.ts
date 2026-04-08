@@ -6,7 +6,9 @@ import {RemoveFromBookshelfUseCase} from '@domain/use-cases/interfaces/bookshelf
 export class RemoveFromBookshelf implements RemoveFromBookshelfUseCase {
     constructor(public readonly repository: BookshelfBookRepository) {}
 
-    execute(removeFromBookshelfDto: RemoveFromBookshelfDto): Promise<BookshelfBookEntity> {
+    execute(
+        removeFromBookshelfDto: RemoveFromBookshelfDto
+    ): Promise<BookshelfBookEntity> {
         return this.repository.removeFromBookshelf(removeFromBookshelfDto);
     }
 }

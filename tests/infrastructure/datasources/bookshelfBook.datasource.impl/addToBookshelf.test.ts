@@ -20,11 +20,11 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
         (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValue(null);
         (prisma.bookshelfBook.create as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
 
-        const result = await datasourceImpl.addToBookshelf(dto!);
+        const result = await datasourceImpl.addToBookshelf(dto as AddToBookshelfDto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(prisma.bookshelfBook.findFirst).toHaveBeenCalledWith({
-            where: {bookshelfId: dto!.bookshelfId, bookId: 0},
+            where: {bookshelfId: (dto as AddToBookshelfDto).bookshelfId, bookId: 0},
         });
     });
 
@@ -38,7 +38,7 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
         (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValue(null);
         (prisma.bookshelfBook.create as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
 
-        await datasourceImpl.addToBookshelf(dto!);
+        await datasourceImpl.addToBookshelf(dto as AddToBookshelfDto);
 
         expect(prisma.bookshelfBook.create).toHaveBeenCalledWith({
             data: expect.objectContaining({
@@ -52,7 +52,7 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
         (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValue(null);
         (prisma.bookshelfBook.create as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
 
-        await datasourceImpl.addToBookshelf(dto!);
+        await datasourceImpl.addToBookshelf(dto as AddToBookshelfDto);
 
         expect(prisma.bookshelfBook.create).toHaveBeenCalledWith({
             data: expect.objectContaining({
@@ -70,7 +70,7 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
         (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValue(softDeletedBook);
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(restoredBook);
 
-        const result = await datasourceImpl.addToBookshelf(dto!);
+        const result = await datasourceImpl.addToBookshelf(dto as AddToBookshelfDto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
@@ -87,7 +87,9 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
             bookshelfBookPrisma
         );
 
-        await expect(datasourceImpl.addToBookshelf(dto!)).rejects.toThrow(
+        await expect(
+            datasourceImpl.addToBookshelf(dto as AddToBookshelfDto)
+        ).rejects.toThrow(
             CustomError.badRequest(
                 ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
             )
@@ -102,9 +104,9 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
                 new Error('DB connection failed')
             );
 
-            await expect(datasourceImpl.addToBookshelf(dto!)).rejects.toThrow(
-                'DB connection failed'
-            );
+            await expect(
+                datasourceImpl.addToBookshelf(dto as AddToBookshelfDto)
+            ).rejects.toThrow('DB connection failed');
 
             expect(prisma.bookshelfBook.create).not.toHaveBeenCalled();
         });
@@ -116,9 +118,9 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
                 new Error('DB connection failed')
             );
 
-            await expect(datasourceImpl.addToBookshelf(dto!)).rejects.toThrow(
-                'DB connection failed'
-            );
+            await expect(
+                datasourceImpl.addToBookshelf(dto as AddToBookshelfDto)
+            ).rejects.toThrow('DB connection failed');
 
             expect(prisma.bookshelfBook.findFirst).toHaveBeenCalled();
             expect(prisma.bookshelfBook.create).toHaveBeenCalled();
@@ -127,14 +129,16 @@ describe('BookshelfBookDatasourceImpl.addToBookshelf tests', () => {
             const softDeletedBook = {...bookshelfBookPrisma, deletedAt: new Date()};
             const [, dto] = AddToBookshelfDto.create(addToBookshelfDtoObject);
 
-            (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValue(softDeletedBook);
+            (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValue(
+                softDeletedBook
+            );
             (prisma.bookshelfBook.update as jest.Mock).mockRejectedValue(
                 new Error('DB connection failed')
             );
 
-            await expect(datasourceImpl.addToBookshelf(dto!)).rejects.toThrow(
-                'DB connection failed'
-            );
+            await expect(
+                datasourceImpl.addToBookshelf(dto as AddToBookshelfDto)
+            ).rejects.toThrow('DB connection failed');
 
             expect(prisma.bookshelfBook.update).toHaveBeenCalled();
             expect(prisma.bookshelfBook.create).not.toHaveBeenCalled();

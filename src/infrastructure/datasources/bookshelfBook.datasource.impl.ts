@@ -18,7 +18,7 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
             bookshelfType = BookshelfType.TO_BE_READ,
             totalPages = 0,
         } = addToBookshelfDto;
-        let readingProgress = bookshelfType === BookshelfType.READ ? 100 : 0;
+        const readingProgress = bookshelfType === BookshelfType.READ ? 100 : 0;
 
         const existingBookshelfBook = await prisma.bookshelfBook.findFirst({
             where: {bookshelfId, bookId: bookId},

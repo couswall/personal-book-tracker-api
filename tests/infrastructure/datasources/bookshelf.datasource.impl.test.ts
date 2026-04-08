@@ -1,17 +1,22 @@
-import { prisma } from "@data/postgres";
-import { BookshelfEntity } from "@domain/entities";
-import { CreateCustomBookShelfDto } from "@domain/dtos";
-import { BookshelfDatasourceImpl } from "@infrastructure/datasources/bookshelf.datasource.impl";
-import { CustomError } from "@domain/errors/custom.error";
-import { ERROR_MESSAGES } from "@infrastructure/constants";
-import { bookshelfObj, bookshelfPrisma, bookshelfWithStatus, createCustomBookshelfDto } from "@tests/fixtures";
+import {prisma} from '@data/postgres';
+import {BookshelfEntity} from '@domain/entities';
+import {CreateCustomBookShelfDto} from '@domain/dtos';
+import {BookshelfDatasourceImpl} from '@infrastructure/datasources/bookshelf.datasource.impl';
+import {CustomError} from '@domain/errors/custom.error';
+import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {
+    bookshelfObj,
+    bookshelfPrisma,
+    bookshelfWithStatus,
+    createCustomBookshelfDto,
+} from '@tests/fixtures';
 
 jest.mock('@data/postgres', () => ({
     prisma: {
         book: {
             findUnique: jest.fn(),
         },
-        bookshelf:{
+        bookshelf: {
             create: jest.fn(),
             findFirst: jest.fn(),
             findMany: jest.fn(),
@@ -21,13 +26,12 @@ jest.mock('@data/postgres', () => ({
 }));
 
 describe('bookshelf.datasource.impl tests', () => {
-
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     const bookshelfDatasourceImpl = new BookshelfDatasourceImpl();
-    
+
     describe('createCustom()', () => {
         test('should return a BookEntity when created successfully', async () => {
             const {userId, shelfName} = createCustomBookshelfDto;
@@ -36,7 +40,9 @@ describe('bookshelf.datasource.impl tests', () => {
             (prisma.bookshelf.findFirst as jest.Mock).mockResolvedValue(null);
             (prisma.bookshelf.create as jest.Mock).mockResolvedValue(bookshelfPrisma);
 
-            const result = await bookshelfDatasourceImpl.createCustom(dto!);
+            const result = await bookshelfDatasourceImpl.createCustom(
+                dto as CreateCustomBookShelfDto
+            );
 
             expect(result).toBeInstanceOf(BookshelfEntity);
             expect(prisma.bookshelf.findFirst).toHaveBeenCalledWith({
@@ -44,12 +50,14 @@ describe('bookshelf.datasource.impl tests', () => {
             });
             expect(prisma.bookshelf.create).toHaveBeenCalled();
         });
-        test('should throw a 400 error when book with provided name already exists', async() => {
+        test('should throw a 400 error when book with provided name already exists', async () => {
             const [, dto] = CreateCustomBookShelfDto.create(createCustomBookshelfDto);
 
             (prisma.bookshelf.findFirst as jest.Mock).mockResolvedValue(bookshelfPrisma);
 
-            await expect(bookshelfDatasourceImpl.createCustom(dto!)).rejects.toThrow(
+            await expect(
+                bookshelfDatasourceImpl.createCustom(dto as CreateCustomBookShelfDto)
+            ).rejects.toThrow(
                 CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.CREATE_CUSTOM.EXISTING)
             );
         });
@@ -60,13 +68,13 @@ describe('bookshelf.datasource.impl tests', () => {
             const {userId} = createCustomBookshelfDto;
 
             (prisma.bookshelf.findMany as jest.Mock).mockResolvedValue([bookshelfPrisma]);
-            
+
             const result = await bookshelfDatasourceImpl.getMyBookshelves(userId);
 
             expect(Array.isArray(result)).toBeTruthy();
             expect(result[0]).toBeInstanceOf(BookshelfEntity);
             expect(prisma.bookshelf.findMany).toHaveBeenCalledWith({
-                where: {userId, deletedAt: null}
+                where: {userId, deletedAt: null},
             });
         });
     });
@@ -74,18 +82,20 @@ describe('bookshelf.datasource.impl tests', () => {
     describe('getBookshelfById() tests', () => {
         test('should return a BookshelfEntity when getting successfully', async () => {
             (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-            
-            const result = await bookshelfDatasourceImpl.getBookshelfById(bookshelfObj.id);
-            
+
+            const result = await bookshelfDatasourceImpl.getBookshelfById(
+                bookshelfObj.id
+            );
+
             expect(result).toBeInstanceOf(BookshelfEntity);
             expect(prisma.bookshelf.findUnique).toHaveBeenCalled();
         });
         test('should throw a 400 error if bookshelf book does not exist', async () => {
             (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(null);
 
-            await expect(bookshelfDatasourceImpl.getBookshelfById(bookshelfObj.id)).rejects.toThrow(
-                ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND
-            );
+            await expect(
+                bookshelfDatasourceImpl.getBookshelfById(bookshelfObj.id)
+            ).rejects.toThrow(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND);
         });
     });
 
@@ -101,9 +111,14 @@ describe('bookshelf.datasource.impl tests', () => {
 
         test('should return bookshelves with isSelected=true when book exists and is in a shelf', async () => {
             (prisma.book.findUnique as jest.Mock).mockResolvedValue(bookPrisma);
-            (prisma.bookshelf.findMany as jest.Mock).mockResolvedValue([bookshelfPrismaWithIncludes]);
+            (prisma.bookshelf.findMany as jest.Mock).mockResolvedValue([
+                bookshelfPrismaWithIncludes,
+            ]);
 
-            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(userId, apiBookId);
+            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(
+                userId,
+                apiBookId
+            );
 
             expect(Array.isArray(result)).toBeTruthy();
             expect(result[0].isSelected).toBe(true);
@@ -122,7 +137,10 @@ describe('bookshelf.datasource.impl tests', () => {
                 {...bookshelfPrismaWithIncludes, books: []},
             ]);
 
-            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(userId, apiBookId);
+            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(
+                userId,
+                apiBookId
+            );
 
             expect(result[0].isSelected).toBe(false);
             expect(result[0].bookshelfBookId).toBeNull();
@@ -134,7 +152,10 @@ describe('bookshelf.datasource.impl tests', () => {
                 {...bookshelfPrisma, _count: {books: 2}},
             ]);
 
-            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(userId, apiBookId);
+            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(
+                userId,
+                apiBookId
+            );
 
             expect(result[0].isSelected).toBe(false);
             expect(result[0].bookshelfBookId).toBeNull();
@@ -144,7 +165,10 @@ describe('bookshelf.datasource.impl tests', () => {
             (prisma.book.findUnique as jest.Mock).mockResolvedValue(bookPrisma);
             (prisma.bookshelf.findMany as jest.Mock).mockResolvedValue([]);
 
-            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(userId, apiBookId);
+            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(
+                userId,
+                apiBookId
+            );
 
             expect(result).toEqual([]);
         });

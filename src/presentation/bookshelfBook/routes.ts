@@ -4,7 +4,7 @@ import {BookshelfBookController} from '@presentation/bookshelfBook/controller';
 import {BookshelfBookRepositoryImpl} from '@infrastructure/repositories/bookshelfBook.repository.impl';
 import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
 import {BookRepositoryImpl} from '@infrastructure/repositories/book.repository.impl';
-import {BookDatasourceImpl} from '@infrastructure/datasources/book.datasource.impl';
+import {BookDatasourceImpl} from '@/src/infrastructure/datasources/book/book.datasource.impl';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
 import {BookshelfDatasourceImpl} from '@infrastructure/datasources/bookshelf.datasource.impl';
 import {validateJWT} from '@presentation/middlewares/validate-jwt';
@@ -33,7 +33,7 @@ export class BookshelfBookRoutes {
             [validateJWT],
             bookshelfController.updateBookshelf
         );
-        router.put(
+        router.delete(
             '/:bookshelfBookId',
             [validateJWT],
             bookshelfController.removeFromBookshelf

@@ -1,12 +1,12 @@
-export interface IAddToBookshelfDto{
-    bookshelfId? : number | string;
+export interface IAddToBookshelfDto {
+    bookshelfId?: number | string;
     apiBookId?: string;
     bookId?: number;
     totalPages?: number | null;
     bookshelfType?: string;
 }
 
-export interface IBookshelfBookFromObject{
+export interface IBookshelfBookFromObject {
     id: number;
     bookshelfId: number;
     bookId: number;
@@ -18,12 +18,12 @@ export interface IBookshelfBookFromObject{
     deletedAt: Date | null;
 }
 
-export interface IUpdateBookshelfDto{
+export interface IUpdateBookshelfDto {
     bookshelfBookId?: number | string;
-    bookshelfId? : number | string;
+    bookshelfId?: number | string;
     bookshelfType?: string;
 }
 
-export interface IRemoveFromBookshelfDto{
+export interface IRemoveFromBookshelfDto {
     bookshelfBookId?: number | string;
 }

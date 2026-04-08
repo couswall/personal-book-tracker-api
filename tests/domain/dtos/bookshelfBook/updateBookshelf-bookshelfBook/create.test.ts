@@ -1,7 +1,7 @@
-import { UpdateBookshelfDto } from "@domain/dtos";
-import { updateBookshelfDtoObject } from "@tests/fixtures";
-import { INVALID_OBJECT_ERROR } from "@domain/constants/bookshelfBook.constants";
-import { IUpdateBookshelfDto } from '@domain/interfaces/bookshelfBook.interfaces';
+import {UpdateBookshelfDto} from '@domain/dtos';
+import {updateBookshelfDtoObject} from '@tests/fixtures';
+import {INVALID_OBJECT_ERROR} from '@domain/constants/bookshelfBook.constants';
+import {IUpdateBookshelfDto} from '@domain/interfaces/bookshelfBook.interfaces';
 
 describe('UpdateBookshelfDto.create() tests', () => {
     test('should return an UpdateBookshelfDto from a valid object', () => {
@@ -15,7 +15,8 @@ describe('UpdateBookshelfDto.create() tests', () => {
     });
     test('should return an UpdateBookshelfDto with all optional fields', () => {
         const [error, dto] = UpdateBookshelfDto.create({
-            ...updateBookshelfDtoObject, bookshelfType: undefined
+            ...updateBookshelfDtoObject,
+            bookshelfType: undefined,
         });
 
         expect(error).toBeUndefined();
@@ -34,7 +35,8 @@ describe('UpdateBookshelfDto.create() tests', () => {
     describe('bookshelfBookId validation', () => {
         test('should return an error when bookshelfBookId is missing', () => {
             const [error, dto] = UpdateBookshelfDto.create({
-                ...updateBookshelfDtoObject, bookshelfBookId: undefined
+                ...updateBookshelfDtoObject,
+                bookshelfBookId: undefined,
             });
 
             expect(error).toBe('bookshelfBookId is required');
@@ -42,7 +44,8 @@ describe('UpdateBookshelfDto.create() tests', () => {
         });
         test('should return an error if it is not string or number type', () => {
             const dtoObject = {
-                ...updateBookshelfDtoObject, bookshelfBookId: {}
+                ...updateBookshelfDtoObject,
+                bookshelfBookId: {},
             } as unknown as IUpdateBookshelfDto;
 
             const [error, dto] = UpdateBookshelfDto.create(dtoObject);
@@ -52,7 +55,8 @@ describe('UpdateBookshelfDto.create() tests', () => {
         });
         test('should return an error when bookshelfBookId is not a numerical string', () => {
             const [error, dto] = UpdateBookshelfDto.create({
-                ...updateBookshelfDtoObject, bookshelfBookId: 'abc'
+                ...updateBookshelfDtoObject,
+                bookshelfBookId: 'abc',
             });
 
             expect(error).toBe('bookshelfBookId must be a number');
@@ -63,7 +67,8 @@ describe('UpdateBookshelfDto.create() tests', () => {
     describe('bookshelfId validation', () => {
         test('should return an error when bookshelfId is missing', () => {
             const [error, dto] = UpdateBookshelfDto.create({
-                ...updateBookshelfDtoObject, bookshelfId: undefined
+                ...updateBookshelfDtoObject,
+                bookshelfId: undefined,
             });
 
             expect(error).toBe('bookshelfId is required');
@@ -71,7 +76,8 @@ describe('UpdateBookshelfDto.create() tests', () => {
         });
         test('should return an error if it is not string or number type', () => {
             const dtoObject = {
-                ...updateBookshelfDtoObject, bookshelfId: {}
+                ...updateBookshelfDtoObject,
+                bookshelfId: {},
             } as unknown as IUpdateBookshelfDto;
 
             const [error, dto] = UpdateBookshelfDto.create(dtoObject);
@@ -81,7 +87,8 @@ describe('UpdateBookshelfDto.create() tests', () => {
         });
         test('should return an error when bookshelfId is not a numerical string', () => {
             const [error, dto] = UpdateBookshelfDto.create({
-                ...updateBookshelfDtoObject, bookshelfId: 'abc'
+                ...updateBookshelfDtoObject,
+                bookshelfId: 'abc',
             });
 
             expect(error).toBe('bookshelfId must be a number');

@@ -1,5 +1,4 @@
-
-export class NoteEntity{
+export class NoteEntity {
     constructor(
         public id: number,
         public bookId: number,
@@ -7,6 +6,6 @@ export class NoteEntity{
         public content: string,
         public createdAt: Date | null,
         public updatedAt: Date | null,
-        public deletedAt: Date | null,
-    ){};
+        public deletedAt: Date | null
+    ) {}
 }

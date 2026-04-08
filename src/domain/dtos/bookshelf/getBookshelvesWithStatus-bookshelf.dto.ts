@@ -3,14 +3,17 @@ import {isValidRequiredNumber, isValidString} from '@domain/dtos/book/helpers';
 export class GetBookshelvesWithStatusDto {
     constructor(
         public readonly userId: number,
-        public readonly apiBookId: string,
+        public readonly apiBookId: string
     ) {}
 
     static create(object: {
         userId?: number | string;
         apiBookId?: string;
     }): [string?, GetBookshelvesWithStatusDto?] {
-        const [userIdError, parsedUserId = 0] = isValidRequiredNumber('userId', object.userId);
+        const [userIdError, parsedUserId = 0] = isValidRequiredNumber(
+            'userId',
+            object.userId
+        );
         if (userIdError) return [userIdError];
 
         const [apiBookIdError, trimmedApiBookId = ''] = isValidString(
@@ -22,6 +25,9 @@ export class GetBookshelvesWithStatusDto {
         );
         if (apiBookIdError) return [apiBookIdError];
 
-        return [undefined, new GetBookshelvesWithStatusDto(parsedUserId, trimmedApiBookId)];
+        return [
+            undefined,
+            new GetBookshelvesWithStatusDto(parsedUserId, trimmedApiBookId),
+        ];
     }
 }

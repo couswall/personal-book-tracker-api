@@ -13,9 +13,13 @@ describe('removeFromBookshelf-bookshelfBook use case', () => {
 
     test('execute() should return a BookshelfBookEntity instance', async () => {
         const [, dto] = RemoveFromBookshelfDto.create(removeFromBookshelfDtoObject);
-        mockBookshelfBookRepository.removeFromBookshelf.mockResolvedValue(bookshelfBookEntity);
+        mockBookshelfBookRepository.removeFromBookshelf.mockResolvedValue(
+            bookshelfBookEntity
+        );
 
-        const result = await new RemoveFromBookshelf(mockBookshelfBookRepository).execute(dto!);
+        const result = await new RemoveFromBookshelf(mockBookshelfBookRepository).execute(
+            dto as RemoveFromBookshelfDto
+        );
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockBookshelfBookRepository.removeFromBookshelf).toHaveBeenCalledWith(dto);
@@ -28,7 +32,9 @@ describe('removeFromBookshelf-bookshelfBook use case', () => {
         );
 
         await expect(
-            new RemoveFromBookshelf(mockBookshelfBookRepository).execute(dto!)
+            new RemoveFromBookshelf(mockBookshelfBookRepository).execute(
+                dto as RemoveFromBookshelfDto
+            )
         ).rejects.toThrow('DB error');
     });
 });
