@@ -1,7 +1,7 @@
-import bcrypt from "bcryptjs";
-import { BCryptAdapter } from "@config/bcrypt.adapter";
+import bcrypt from 'bcryptjs';
+import {BCryptAdapter} from '@config/bcrypt.adapter';
 
-jest.mock('bcryptjs',() => ({
+jest.mock('bcryptjs', () => ({
     genSaltSync: jest.fn(),
     hashSync: jest.fn(),
     compareSync: jest.fn(),
@@ -17,7 +17,6 @@ describe('bcrypt adapter tests', () => {
     });
 
     test('hash() should return a hashed string', () => {
-
         (bcrypt.genSaltSync as jest.Mock).mockReturnValue(mockSalt);
         (bcrypt.hashSync as jest.Mock).mockReturnValue(mockHashPassword);
 

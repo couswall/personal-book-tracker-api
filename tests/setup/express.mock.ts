@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {Request, Response} from 'express';
 
 export const createMockRequest = (): Partial<Request> => ({
     body: {},

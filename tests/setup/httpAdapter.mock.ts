@@ -1,4 +1,4 @@
-import { HttpClient } from "@config/interfaces";
+import {HttpClient} from '@config/interfaces';
 
 export const getMockHttpAdapter = () => {
     const mockHttpAdapter: jest.Mocked<HttpClient> = {
@@ -6,4 +6,4 @@ export const getMockHttpAdapter = () => {
     };
 
     return mockHttpAdapter;
-}
+};

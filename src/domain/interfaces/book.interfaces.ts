@@ -1,32 +1,32 @@
-import { BookshelfBookEntity, NoteEntity, ReviewEntity } from "@domain/entities";
+import {BookshelfBookEntity, NoteEntity, ReviewEntity} from '@domain/entities';
 
-export interface ISearchGoogleBook{
+export interface ISearchGoogleBook {
     id: string;
     title: string;
     authors: string[];
     imageCover?: string;
-};
+}
 
 export enum PrintTypeEnum {
     All = 'all',
     Books = 'books',
     Magazines = 'magazines',
-};
+}
 
-export interface ISearchBookDto{
+export interface ISearchBookDto {
     searchText?: string;
     page?: number;
     printType?: PrintTypeEnum;
     maxResults?: number;
-};
+}
 
-export interface ISearchBookResponse{
+export interface ISearchBookResponse {
     page: number;
     maxResults: number;
     books: ISearchGoogleBook[];
 }
 
-export interface ICreateBookEntityFromObject{
+export interface ICreateBookEntityFromObject {
     id: number;
     apiBookId: string;
     title: string;
@@ -45,7 +45,7 @@ export interface ICreateBookEntityFromObject{
     notes?: NoteEntity[];
 }
 
-export interface ICreateBookDtoObj{
+export interface ICreateBookDtoObj {
     apiBookId: string;
     title: string;
     subtitle: string | null;

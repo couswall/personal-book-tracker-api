@@ -1,22 +1,25 @@
-import { JwtAdapter } from "@src/config";
-import { GetUserByIdDto } from "@domain/dtos";
-import { UserRepository } from "@domain/repositories/user.repository";
-import { CustomError } from "@domain/errors/custom.error";
-import { RefreshTokenResponse, RefreshTokenUseCase } from "@domain/use-cases/interfaces/user.interfaces";
-import { ERROR_MESSAGES } from "@infrastructure/constants";
+import {JwtAdapter} from '@src/config';
+import {GetUserByIdDto} from '@domain/dtos';
+import {UserRepository} from '@domain/repositories/user.repository';
+import {CustomError} from '@domain/errors/custom.error';
+import {
+    RefreshTokenResponse,
+    RefreshTokenUseCase,
+} from '@domain/use-cases/interfaces/user.interfaces';
+import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 export class RefreshToken implements RefreshTokenUseCase {
-    constructor(
-        private readonly repository: UserRepository,
-    ){};
+    constructor(private readonly repository: UserRepository) {}
 
     async execute(token: string): Promise<RefreshTokenResponse> {
         const payload = await JwtAdapter.validateToken(token);
 
         const [error, getUserByIdDto] = GetUserByIdDto.create(payload.id);
-        if(error) throw CustomError.badRequest(error);
+        if (error) throw CustomError.badRequest(error);
+        if (!getUserByIdDto)
+            throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 
-        const user = await this.repository.getById(getUserByIdDto!);
+        const user = await this.repository.getById(getUserByIdDto);
 
         const newToken = await JwtAdapter.generateToken({
             id: user.id,
@@ -24,8 +27,8 @@ export class RefreshToken implements RefreshTokenUseCase {
             email: user.email,
         });
 
-        if(!newToken) throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
+        if (!newToken) throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 
-        return { user, token: newToken };
+        return {user, token: newToken};
     }
 }

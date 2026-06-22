@@ -1,11 +1,10 @@
-import { Router } from "express";
-import { AuthRoutes } from "@presentation/auth/routes";
-import { BookRoutes } from "@presentation/book/routes";
-import { BookshelfRoutes } from "@presentation/bookshelf/routes";
-import { BookshelfBookRoutes } from "@presentation/bookshelfBook/routes";
+import {Router} from 'express';
+import {AuthRoutes} from '@presentation/auth/routes';
+import {BookRoutes} from '@presentation/book/routes';
+import {BookshelfRoutes} from '@presentation/bookshelf/routes';
+import {BookshelfBookRoutes} from '@presentation/bookshelfBook/routes';
 
-export class AppRoutes{
-
+export class AppRoutes {
     static get routes(): Router {
         const router = Router();
 

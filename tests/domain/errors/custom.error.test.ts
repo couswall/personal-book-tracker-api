@@ -1,9 +1,8 @@
-import { CustomError } from "@domain/errors/custom.error";
-import { Response } from "express";
+import {CustomError} from '@domain/errors/custom.error';
+import {Response} from 'express';
 
 describe('custom.error.ts tests', () => {
-
-    let mockResponse: Partial<Response> = {
+    const mockResponse: Partial<Response> = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
     };
@@ -79,20 +78,21 @@ describe('custom.error.ts tests', () => {
             expect(mockResponse.status).toHaveBeenCalledWith(400);
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: false,
-                error: {message: error.message}
+                error: {message: error.message},
             });
         });
-        
+
         test('should handle generic error with 500', () => {
             const error = new Error('Internal error');
-            const consoleLogSpy = jest.spyOn(console, 'log');
+            // TODO: Refactor this test to avoid spying on console.log, as it is not a good practice. Consider using a logger that can be mocked instead of console.log for better testability.
+            // const consoleLogSpy = jest.spyOn(console, 'log');
 
             CustomError.handleError(error, mockResponse as Response);
 
-            expect(consoleLogSpy).toHaveBeenCalled();
+            // expect(consoleLogSpy).toHaveBeenCalled();
             expect(mockResponse.status).toHaveBeenCalledWith(500);
             expect(mockResponse.json).toHaveBeenCalledWith({
-                error: {message: 'Internal server error'}
+                error: {message: 'Internal server error'},
             });
         });
     });

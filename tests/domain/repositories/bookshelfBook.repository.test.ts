@@ -1,22 +1,26 @@
 import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.repository';
-import {AddToBookshelfDto, UpdateBookshelfDto, RemoveFromBookshelfDto} from '@domain/dtos';
+import {
+    AddToBookshelfDto,
+    UpdateBookshelfDto,
+    RemoveFromBookshelfDto,
+} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {bookshelfBookEntity} from '@tests/fixtures';
 
 describe('bookshelfBook.repository tests', () => {
     class MockBookshelfBookRepository implements BookshelfBookRepository {
         async addToBookshelf(
-            addToBookshelfDto: AddToBookshelfDto
+            _addToBookshelfDto: AddToBookshelfDto
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
         async updateBookshelf(
-            updateBookshelfDto: UpdateBookshelfDto
+            _updateBookshelfDto: UpdateBookshelfDto
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
         async removeFromBookshelf(
-            removeFromBookshelfDto: RemoveFromBookshelfDto
+            _removeFromBookshelfDto: RemoveFromBookshelfDto
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }

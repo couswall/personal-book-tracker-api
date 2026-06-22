@@ -1,6 +1,9 @@
 import {BookshelfType} from '@prisma/client';
 import {BookshelfBookEntity} from '@domain/entities';
-import {IUpdateBookshelfDto, IRemoveFromBookshelfDto} from '@domain/interfaces/bookshelfBook.interfaces';
+import {
+    IUpdateBookshelfDto,
+    IRemoveFromBookshelfDto,
+} from '@domain/interfaces/bookshelfBook.interfaces';
 
 export const bookshelfBookObject = {
     id: 101,

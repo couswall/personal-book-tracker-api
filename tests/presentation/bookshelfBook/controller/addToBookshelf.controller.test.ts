@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {AxiosError, InternalAxiosRequestConfig} from 'axios';
+import {AxiosError, AxiosHeaders, InternalAxiosRequestConfig} from 'axios';
 import {prisma} from '@tests/setup';
 import {createBookshelfBookControllerSetup} from '@tests/presentation/bookshelfBook/controller/setup';
 import {
@@ -14,6 +14,8 @@ import {ERROR_MESSAGES} from '@infrastructure/constants';
 describe('BookshelfBookController.addToBookshelf tests', () => {
     const {controller, mockRequest, mockResponse, mockHttpAdapter} =
         createBookshelfBookControllerSetup();
+
+    const axiosConfig: InternalAxiosRequestConfig = {headers: new AxiosHeaders()};
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -98,7 +100,10 @@ describe('BookshelfBookController.addToBookshelf tests', () => {
     test('should throw an error when request body is empty', async () => {
         mockRequest.body = {};
 
-        await controller.addToBookshelf(mockRequest as Request, mockResponse as Response);
+        await new Promise<void>((resolve) => {
+            controller.addToBookshelf(mockRequest as Request, mockResponse as Response);
+            setImmediate(resolve);
+        });
 
         expect(mockResponse.status).toHaveBeenCalledWith(400);
         expect(mockResponse.json).toHaveBeenCalledWith({
@@ -130,14 +135,14 @@ describe('BookshelfBookController.addToBookshelf tests', () => {
         const axiosError = new AxiosError(
             'Service unavailable',
             '503',
-            {} as InternalAxiosRequestConfig,
+            axiosConfig,
             null,
             {
                 data: {error: {code: 503}},
                 status: 503,
                 statusText: 'Service Unavailable',
                 headers: {},
-                config: {} as InternalAxiosRequestConfig,
+                config: axiosConfig,
             }
         );
 
@@ -161,14 +166,14 @@ describe('BookshelfBookController.addToBookshelf tests', () => {
         const axiosError = new AxiosError(
             'Service unavailable',
             '500',
-            {} as InternalAxiosRequestConfig,
+            axiosConfig,
             null,
             {
                 data: {error: {code: 500}},
                 status: 500,
                 statusText: 'Service Unavailable',
                 headers: {},
-                config: {} as InternalAxiosRequestConfig,
+                config: axiosConfig,
             }
         );
 

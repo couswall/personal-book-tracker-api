@@ -5,7 +5,7 @@ export const BOOKSHELF_BOOK_DTO_ERRORS = {
             STRING: 'apiBookId must be a string',
             MIN_LENGTH: 'apiBookId must contain at least 3 characters long',
             MAX_LENGTH: 'apiBookId must contain at last 15 characters long',
-            BLANK_SPACES: 'apiBookId must not contain only blankspaces'
+            BLANK_SPACES: 'apiBookId must not contain only blankspaces',
         },
     },
 };

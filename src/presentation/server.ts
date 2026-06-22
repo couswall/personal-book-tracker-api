@@ -39,7 +39,8 @@ export class Server {
         this.app.use(this.routes);
 
         this.serverListener = this.app.listen(this.port, () => {
-            console.log(`Server running in port ${this.port}`);
+            // TODO: Replace with a proper logger
+            // console.log(`Server running in port ${this.port}`);
         });
     }
 

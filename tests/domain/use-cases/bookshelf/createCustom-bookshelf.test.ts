@@ -33,7 +33,7 @@ describe('createCustom-bookshelf use case test', () => {
         const result = await new CreateCustom(
             mockBookshelfRepository,
             mockUserRepository
-        ).execute(dto!);
+        ).execute(dto as CreateCustomBookShelfDto);
 
         expect(result).toBeInstanceOf(BookshelfEntity);
         expect(mockUserRepository.getById).toHaveBeenCalledWith({
@@ -50,7 +50,9 @@ describe('createCustom-bookshelf use case test', () => {
         mockBookshelfRepository.createCustom.mockResolvedValue(bookshelfEntity);
 
         await expect(
-            new CreateCustom(mockBookshelfRepository, mockUserRepository).execute(dto!)
+            new CreateCustom(mockBookshelfRepository, mockUserRepository).execute(
+                dto as CreateCustomBookShelfDto
+            )
         ).rejects.toThrow(
             CustomError.badRequest(ERROR_MESSAGES.USER.GET_BY_ID.NO_EXISTING)
         );

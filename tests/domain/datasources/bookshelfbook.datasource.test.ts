@@ -1,20 +1,30 @@
-import { BookshelfBookDatasource } from "@domain/datasources/bookshelfbook.datasource";
-import { BookshelfBookEntity } from "@domain/entities";
-import { AddToBookshelfDto, UpdateBookshelfDto, RemoveFromBookshelfDto } from "@domain/dtos";
-import { bookshelfBookEntity } from "@tests/fixtures";
+import {BookshelfBookDatasource} from '@domain/datasources/bookshelfbook.datasource';
+import {BookshelfBookEntity} from '@domain/entities';
+import {
+    AddToBookshelfDto,
+    UpdateBookshelfDto,
+    RemoveFromBookshelfDto,
+} from '@domain/dtos';
+import {bookshelfBookEntity} from '@tests/fixtures';
 
 describe('bookshelfbook.datasource tests', () => {
-    class MockBookshelfBookDatasource implements BookshelfBookDatasource{
-        async addToBookshelf(addToBookshelfDto: AddToBookshelfDto): Promise<BookshelfBookEntity> {
+    class MockBookshelfBookDatasource implements BookshelfBookDatasource {
+        async addToBookshelf(
+            _addToBookshelfDto: AddToBookshelfDto
+        ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
-        async updateBookshelf(updateBookshelfDto: UpdateBookshelfDto): Promise<BookshelfBookEntity> {
+        async updateBookshelf(
+            _updateBookshelfDto: UpdateBookshelfDto
+        ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
-        async removeFromBookshelf(removeFromBookshelfDto: RemoveFromBookshelfDto): Promise<BookshelfBookEntity> {
+        async removeFromBookshelf(
+            _removeFromBookshelfDto: RemoveFromBookshelfDto
+        ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
-    };
+    }
 
     const mockDatasource = new MockBookshelfBookDatasource();
 

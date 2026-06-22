@@ -13,16 +13,23 @@ describe('BookshelfBookController.removeFromBookshelf tests', () => {
     });
 
     test('should return a 200 status and success message when removal is successful', async () => {
-        mockRequest.params = {bookshelfBookId: String(removeFromBookshelfDtoObject.bookshelfBookId)};
+        mockRequest.params = {
+            bookshelfBookId: String(removeFromBookshelfDtoObject.bookshelfBookId),
+        };
 
-        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
+            bookshelfBookPrisma
+        );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue({
             ...bookshelfBookPrisma,
             deletedAt: new Date(),
         });
 
         await new Promise<void>((resolve) => {
-            controller.removeFromBookshelf(mockRequest as Request, mockResponse as Response);
+            controller.removeFromBookshelf(
+                mockRequest as Request,
+                mockResponse as Response
+            );
             setImmediate(resolve);
         });
 
@@ -36,7 +43,13 @@ describe('BookshelfBookController.removeFromBookshelf tests', () => {
     test('should return a 400 error when bookshelfBookId param is missing', async () => {
         mockRequest.params = {};
 
-        await controller.removeFromBookshelf(mockRequest as Request, mockResponse as Response);
+        await new Promise<void>((resolve) => {
+            controller.removeFromBookshelf(
+                mockRequest as Request,
+                mockResponse as Response
+            );
+            setImmediate(resolve);
+        });
 
         expect(mockResponse.status).toHaveBeenCalledWith(400);
         expect(mockResponse.json).toHaveBeenCalledWith({
@@ -48,7 +61,13 @@ describe('BookshelfBookController.removeFromBookshelf tests', () => {
     test('should return a 400 error when bookshelfBookId is a non-numerical string', async () => {
         mockRequest.params = {bookshelfBookId: 'abc'};
 
-        await controller.removeFromBookshelf(mockRequest as Request, mockResponse as Response);
+        await new Promise<void>((resolve) => {
+            controller.removeFromBookshelf(
+                mockRequest as Request,
+                mockResponse as Response
+            );
+            setImmediate(resolve);
+        });
 
         expect(mockResponse.status).toHaveBeenCalledWith(400);
         expect(mockResponse.json).toHaveBeenCalledWith({
@@ -58,19 +77,26 @@ describe('BookshelfBookController.removeFromBookshelf tests', () => {
     });
 
     test('should return a 400 error when bookshelf book does not exist', async () => {
-        mockRequest.params = {bookshelfBookId: String(removeFromBookshelfDtoObject.bookshelfBookId)};
+        mockRequest.params = {
+            bookshelfBookId: String(removeFromBookshelfDtoObject.bookshelfBookId),
+        };
 
         (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(null);
 
         await new Promise<void>((resolve) => {
-            controller.removeFromBookshelf(mockRequest as Request, mockResponse as Response);
+            controller.removeFromBookshelf(
+                mockRequest as Request,
+                mockResponse as Response
+            );
             setImmediate(resolve);
         });
 
         expect(mockResponse.status).toHaveBeenCalledWith(400);
         expect(mockResponse.json).toHaveBeenCalledWith({
             success: false,
-            error: {message: ERROR_MESSAGES.BOOKSHELF_BOOK.REMOVE_FROM_BOOKSHELF.NOT_FOUND},
+            error: {
+                message: ERROR_MESSAGES.BOOKSHELF_BOOK.REMOVE_FROM_BOOKSHELF.NOT_FOUND,
+            },
         });
         expect(prisma.bookshelfBook.update).not.toHaveBeenCalled();
     });

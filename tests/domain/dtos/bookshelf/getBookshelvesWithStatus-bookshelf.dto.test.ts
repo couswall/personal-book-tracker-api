@@ -8,13 +8,15 @@ describe('GetBookshelvesWithStatusDto tests', () => {
 
         expect(error).toBeUndefined();
         expect(dto).toBeInstanceOf(GetBookshelvesWithStatusDto);
-        expect(dto!.userId).toBe(1);
-        expect(dto!.apiBookId).toBe('abc123');
+        expect((dto as GetBookshelvesWithStatusDto).userId).toBe(1);
+        expect((dto as GetBookshelvesWithStatusDto).apiBookId).toBe('abc123');
     });
 
     describe('userId validation', () => {
         test('should return an error when userId is missing', () => {
-            const [error, dto] = GetBookshelvesWithStatusDto.create({apiBookId: 'abc123'});
+            const [error, dto] = GetBookshelvesWithStatusDto.create({
+                apiBookId: 'abc123',
+            });
 
             expect(error).toBe('userId is required');
             expect(dto).toBeUndefined();
@@ -37,7 +39,7 @@ describe('GetBookshelvesWithStatusDto tests', () => {
             });
 
             expect(error).toBeUndefined();
-            expect(dto!.userId).toBe(5);
+            expect((dto as GetBookshelvesWithStatusDto).userId).toBe(5);
         });
     });
 
@@ -76,7 +78,7 @@ describe('GetBookshelvesWithStatusDto tests', () => {
             });
 
             expect(error).toBeUndefined();
-            expect(dto!.apiBookId).toBe('abc123');
+            expect((dto as GetBookshelvesWithStatusDto).apiBookId).toBe('abc123');
         });
     });
 });

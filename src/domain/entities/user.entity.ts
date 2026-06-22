@@ -1,7 +1,7 @@
-import { ICreateUserEntity } from "@domain/interfaces/user.interfaces";
+import {ICreateUserEntity} from '@domain/interfaces/user.interfaces';
 import {NoteEntity, ReviewEntity} from '@domain/entities/index';
 
-export class UserEntity{
+export class UserEntity {
     constructor(
         public id: number,
         public fullName: string,
@@ -12,11 +12,10 @@ export class UserEntity{
         public updatedAt: Date | null,
         public deletedAt: Date | null,
         public reviews: ReviewEntity[] = [],
-        public notes: NoteEntity[] = [],
+        public notes: NoteEntity[] = []
+    ) {}
 
-    ){};
-
-    public static fromObject(userObject: ICreateUserEntity): UserEntity{
+    public static fromObject(userObject: ICreateUserEntity): UserEntity {
         return new UserEntity(
             userObject.id,
             userObject.fullName,
@@ -25,7 +24,7 @@ export class UserEntity{
             userObject.password,
             userObject.createdAt,
             userObject.updatedAt,
-            userObject.deletedAt,
+            userObject.deletedAt
         );
-    };
+    }
 }

@@ -1,24 +1,33 @@
-import { BookshelfRepository } from "@domain/repositories/bookshelf.repository";
-import { CreateCustomBookShelfDto } from "@domain/dtos";
-import { BookshelfEntity } from "@domain/entities/index";
-import { IBookshelfWithStatus } from "@domain/interfaces/bookshelf.interfaces";
-import { bookshelfEntity, bookshelfWithStatus, createCustomBookshelfDto } from "tests/fixtures/index";
+import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
+import {CreateCustomBookShelfDto} from '@domain/dtos';
+import {BookshelfEntity} from '@domain/entities/index';
+import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
+import {
+    bookshelfEntity,
+    bookshelfWithStatus,
+    createCustomBookshelfDto,
+} from 'tests/fixtures/index';
 
 describe('bookshelf.repository tests', () => {
-    class MockBookshelfRepository implements BookshelfRepository{
-        async createCustom(createBookShelfDto: CreateCustomBookShelfDto): Promise<BookshelfEntity> {
+    class MockBookshelfRepository implements BookshelfRepository {
+        async createCustom(
+            _createBookShelfDto: CreateCustomBookShelfDto
+        ): Promise<BookshelfEntity> {
             return bookshelfEntity;
         }
 
-        async getMyBookshelves(userId: number): Promise<BookshelfEntity[]> {
+        async getMyBookshelves(_userId: number): Promise<BookshelfEntity[]> {
             return [bookshelfEntity];
         }
 
-        async getBookshelfById(bookshelfId: number): Promise<BookshelfEntity> {
+        async getBookshelfById(_bookshelfId: number): Promise<BookshelfEntity> {
             return bookshelfEntity;
         }
 
-        async getBookshelvesWithStatus(userId: number, apiBookId: string): Promise<IBookshelfWithStatus[]> {
+        async getBookshelvesWithStatus(
+            _userId: number,
+            _apiBookId: string
+        ): Promise<IBookshelfWithStatus[]> {
             return [bookshelfWithStatus];
         }
     }
@@ -33,9 +42,11 @@ describe('bookshelf.repository tests', () => {
     });
 
     test('createCustom() should return a BookshelfEntity instance', async () => {
-        const [,dto] = CreateCustomBookShelfDto.create(createCustomBookshelfDto);
+        const [, dto] = CreateCustomBookShelfDto.create(createCustomBookshelfDto);
 
-        const result = await mockBookshelfRepository.createCustom(dto!);
+        const result = await mockBookshelfRepository.createCustom(
+            dto as CreateCustomBookShelfDto
+        );
 
         expect(result).toBeInstanceOf(BookshelfEntity);
     });

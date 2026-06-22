@@ -5,11 +5,12 @@ import {CustomError} from '@domain/errors/custom.error';
 import {BookDatasource} from '@domain/datasources/book.datasource';
 import {CreateBookDto, GetBookByIdDto, SearchBookDto} from '@domain/dtos/index';
 import {BookEntity} from '@domain/entities/book.entity';
-import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {
-    ISearchBookResponse,
-    ICreateBookEntityFromObject,
-} from '@domain/interfaces/book.interfaces';
+    mapApiBookToObject,
+    resolveImageUrl,
+} from '@infrastructure/datasources/book/book.mapper';
+import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {ISearchBookResponse} from '@domain/interfaces/book.interfaces';
 import {
     IBookFromAPI,
     ISearchFromAPIResponse,
@@ -27,7 +28,6 @@ export class BookDatasourceImpl implements BookDatasource {
             maxResults: searchBookDto.maxResults,
             key: envs.GOOGLE_BOOKS_API_KEY,
         };
-        
 
         try {
             const data = await this.http.get<ISearchFromAPIResponse>(
@@ -46,12 +46,7 @@ export class BookDatasourceImpl implements BookDatasource {
                 id: googleBook.id,
                 title: googleBook.volumeInfo.title,
                 authors: googleBook.volumeInfo.authors,
-                imageCover:
-                    googleBook.volumeInfo.imageLinks?.extralarge ??
-                    googleBook.volumeInfo.imageLinks?.large ??
-                    googleBook.volumeInfo.imageLinks?.medium ??
-                    googleBook.volumeInfo.imageLinks?.thumbnail ??
-                    googleBook.volumeInfo.imageLinks?.smallThumbnail,
+                imageCover: resolveImageUrl(googleBook.volumeInfo.imageLinks),
                 averageRating: googleBook.volumeInfo.averageRating ?? 0,
                 reviewCount: googleBook.volumeInfo.ratingsCount ?? 0,
             }));
@@ -61,30 +56,21 @@ export class BookDatasourceImpl implements BookDatasource {
                 maxResults: searchBookDto.maxResults,
                 books: formatBooks,
             };
-        } catch (error) {
-            if (error instanceof AxiosError) {
-                console.log(error.response?.data.error);
-            }
+        } catch {
             throw CustomError.internalServer(ERROR_MESSAGES.EXTERNAL_BOOKS_API.INTERNAL);
         }
     }
 
     async getBookById(getBookByIdDto: GetBookByIdDto): Promise<BookEntity> {
         const {bookId} = getBookByIdDto;
-
         const isNumericId = !isNaN(Number(bookId));
-
         const existingBook = await prisma.book.findFirst({
             where: isNumericId
                 ? {id: Number(bookId), deletedAt: null}
                 : {apiBookId: bookId, deletedAt: null},
         });
 
-        if (!existingBook) {
-            const bookFromApi = await this.fetchByIdFromAPI(getBookByIdDto);
-            return bookFromApi;
-        }
-
+        if (!existingBook) return this.fetchByIdFromAPI(getBookByIdDto);
         return BookEntity.fromObject(existingBook);
     }
 
@@ -97,41 +83,14 @@ export class BookDatasourceImpl implements BookDatasource {
                 `${envs.BOOKS_API}/volumes/${bookId}`,
                 {params}
             );
-            const {id: apiBookId, volumeInfo} = googleBook;
-            const bookImgCover =
-                volumeInfo.imageLinks?.extralarge ??
-                volumeInfo.imageLinks?.large ??
-                volumeInfo.imageLinks?.medium ??
-                volumeInfo.imageLinks?.thumbnail ??
-                volumeInfo.imageLinks?.smallThumbnail;
-
-            const book: ICreateBookEntityFromObject = {
-                id: 0,
-                apiBookId,
-                title: volumeInfo.title,
-                subtitle: volumeInfo.subtitle ?? null,
-                authors: volumeInfo.authors ?? [],
-                publishedDate:
-                    volumeInfo.publishedDate && volumeInfo.publishedDate.length > 0
-                        ? new Date(volumeInfo.publishedDate)
-                        : null,
-                description: volumeInfo.description ?? null,
-                coverImageUrl: bookImgCover ?? null,
-                categories: volumeInfo.categories ?? [],
-                pageCount: volumeInfo.pageCount ?? 0,
-                averageRating: volumeInfo.averageRating ?? 0,
-                reviewCount: volumeInfo.ratingsCount ?? 0,
-                deletedAt: null,
-            };
-            return BookEntity.fromObject(book);
+            return BookEntity.fromObject(mapApiBookToObject(googleBook));
         } catch (error) {
             if (error instanceof AxiosError) {
                 const code: number = error.response?.data?.error?.code ?? 0;
-                if (code === 503) {
+                if (code === 503)
                     throw CustomError.badRequest(
                         ERROR_MESSAGES.BOOK.GET_BOOK_BY_ID.NOT_FOUND
                     );
-                }
             }
             throw CustomError.internalServer(ERROR_MESSAGES.EXTERNAL_BOOKS_API.INTERNAL);
         }
@@ -153,10 +112,21 @@ export class BookDatasourceImpl implements BookDatasource {
         let book = await this.getBookById({bookId: apiBookId});
 
         if (book.id === 0) {
-            const {id, bookshelves, reviews, notes, deletedAt, ...rest} = book;
+            const {
+                id: _id,
+                bookshelves: _bookshelves,
+                reviews: _reviews,
+                notes: _notes,
+                deletedAt: _deletedAt,
+                ...rest
+            } = book;
             const [error, dto] = CreateBookDto.create(rest);
             if (error) throw CustomError.badRequest(error);
-            const newBook = await this.create(dto!);
+            if (!dto)
+                throw CustomError.internalServer(
+                    ERROR_MESSAGES.EXTERNAL_BOOKS_API.INTERNAL
+                );
+            const newBook = await this.create(dto);
             book = newBook;
         }
 

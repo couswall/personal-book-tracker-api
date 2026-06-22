@@ -1,11 +1,13 @@
+import {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {prisma} from '@tests/setup/prisma.mock';
 import {createBookDatasource} from '@tests/infrastructure/datasources/book.datasource.impl/setup';
-import {CreateBookDto} from '@domain/dtos';
-import {createBookDtoObj, mockBookPrisma, searchAPIResponseObj} from '@tests/fixtures';
+import {mockBookPrisma, searchAPIResponseObj} from '@tests/fixtures';
 import {BookEntity} from '@domain/entities/book.entity';
 import {CustomError} from '@domain/errors/custom.error';
+import {CreateBookDto} from '@domain/dtos';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
-import {AxiosError, InternalAxiosRequestConfig} from 'axios';
+
+const emptyAxiosConfig = Object.create(null) as InternalAxiosRequestConfig;
 
 describe('BookDatasourceImpl.findOrCreateByApiId', () => {
     const {bookDatasourceImpl, mockHttpAdapter} = createBookDatasource();
@@ -92,14 +94,14 @@ describe('BookDatasourceImpl.findOrCreateByApiId', () => {
             const axiosError = new AxiosError(
                 'Service unavailable',
                 '503',
-                {} as InternalAxiosRequestConfig,
+                emptyAxiosConfig,
                 null,
                 {
                     data: {error: {code: 503}},
                     status: 503,
                     statusText: 'Service Unavailable',
                     headers: {},
-                    config: {} as InternalAxiosRequestConfig,
+                    config: emptyAxiosConfig,
                 }
             );
 
@@ -115,14 +117,14 @@ describe('BookDatasourceImpl.findOrCreateByApiId', () => {
             const axiosError = new AxiosError(
                 'Service unavailable',
                 '500',
-                {} as InternalAxiosRequestConfig,
+                emptyAxiosConfig,
                 null,
                 {
                     data: {error: {code: 500}},
                     status: 500,
                     statusText: 'Service Unavailable',
                     headers: {},
-                    config: {} as InternalAxiosRequestConfig,
+                    config: emptyAxiosConfig,
                 }
             );
 

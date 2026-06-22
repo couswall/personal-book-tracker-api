@@ -40,11 +40,12 @@ describe('create-user use case test', () => {
         mockUserRepository.create.mockResolvedValue(userEntity);
         (JwtAdapter.generateToken as jest.Mock).mockResolvedValue(mockToken);
 
-        const result = await new CreateUser(mockUserRepository).execute(dto!);
+        const createUserDto = dto as CreateUserDto;
+        const result = await new CreateUser(mockUserRepository).execute(createUserDto);
 
         expect(result.user).toBeInstanceOf(UserEntity);
         expect(result.token).toBe(mockToken);
-        expect(BCryptAdapter.hash).toHaveBeenCalledWith(dto!.password);
+        expect(BCryptAdapter.hash).toHaveBeenCalledWith(createUserDto.password);
         expect(JwtAdapter.generateToken).toHaveBeenCalledWith({
             id: userEntity.id,
             username: userEntity.username,
@@ -58,8 +59,8 @@ describe('create-user use case test', () => {
         mockUserRepository.create.mockResolvedValue(userEntity);
         (JwtAdapter.generateToken as jest.Mock).mockResolvedValue(undefined);
 
-        await expect(new CreateUser(mockUserRepository).execute(dto!)).rejects.toThrow(
-            new CustomError(500, ERROR_MESSAGES.TOKEN.CREATING)
-        );
+        await expect(
+            new CreateUser(mockUserRepository).execute(dto as CreateUserDto)
+        ).rejects.toThrow(new CustomError(500, ERROR_MESSAGES.TOKEN.CREATING));
     });
 });
