@@ -13,9 +13,6 @@ export interface IBookshelfBookFromObject {
     readingProgress: number;
     currentPage: number | null;
     totalPages: number | null;
-    startReadingDate: Date | null;
-    endReadingDate: Date | null;
-    deletedAt: Date | null;
 }
 
 export interface IUpdateBookshelfDto {

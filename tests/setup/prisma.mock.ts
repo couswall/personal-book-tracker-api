@@ -10,6 +10,7 @@ jest.mock('@data/postgres', () => ({
             findUnique: jest.fn(),
             create: jest.fn(),
             update: jest.fn(),
+            delete: jest.fn(),
         },
         $transaction: jest.fn(),
         bookshelf: {

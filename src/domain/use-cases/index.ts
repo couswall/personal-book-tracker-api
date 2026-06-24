@@ -5,7 +5,6 @@ export * from './user/refresh-token';
 export * from './book/search-book';
 export * from './book/getBookById-book';
 
-export * from './bookshelf/createCustom-bookshelf';
 export * from './bookshelf/getMyBookshelves-bookshelf';
 export * from './bookshelf/getBookshelvesWithStatus-bookshelf';
 

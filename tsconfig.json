@@ -1,5 +1,11 @@
 {
-    "include": ["src/**/*", "tests/**/*", "jest.config.ts", "setupTests.ts"],
+    "include": [
+        "src/**/*",
+        "tests/**/*",
+        "jest.config.ts",
+        "setupTests.ts",
+        "prisma.config.ts"
+    ],
     "exclude": ["node_modules", "dist"],
     "compilerOptions": {
         /* Visit https://aka.ms/tsconfig to read more about this file */

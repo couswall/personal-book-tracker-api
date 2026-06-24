@@ -1,5 +1,5 @@
 import {prisma} from '@data/postgres';
-import {BookshelfType} from '@prisma/client';
+import {BookshelfType} from '@/generated/prisma';
 import {CustomError} from '@domain/errors/custom.error';
 import {BookshelfBookEntity} from '@domain/entities';
 import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-bookshelfBook.dto';
@@ -24,19 +24,14 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
             where: {bookshelfId, bookId: bookId},
         });
 
-        if (existingBookshelfBook && !existingBookshelfBook.deletedAt)
+        if (existingBookshelfBook)
             throw CustomError.badRequest(
                 ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
             );
 
-        const book = existingBookshelfBook
-            ? await prisma.bookshelfBook.update({
-                  where: {id: existingBookshelfBook.id},
-                  data: {deletedAt: null, readingProgress, totalPages},
-              })
-            : await prisma.bookshelfBook.create({
-                  data: {bookshelfId, bookId, readingProgress, totalPages},
-              });
+        const book = await prisma.bookshelfBook.create({
+            data: {bookshelfId, bookId, readingProgress, totalPages},
+        });
 
         return BookshelfBookEntity.fromObject(book);
     }
@@ -47,7 +42,7 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
         const {bookshelfBookId, bookshelfId, bookshelfType = ''} = updateBookshelfDto;
 
         const existingBook = await prisma.bookshelfBook.findFirst({
-            where: {id: bookshelfBookId, deletedAt: null},
+            where: {id: bookshelfBookId},
         });
 
         if (!existingBook)
@@ -59,25 +54,11 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
             return BookshelfBookEntity.fromObject(existingBook);
 
         const updatedReadingProgress =
-            bookshelfType === BookshelfType.READ ? 100 : existingBook.readingProgress;
-
-        const softDeletedInTarget = await prisma.bookshelfBook.findFirst({
-            where: {bookshelfId, bookId: existingBook.bookId, deletedAt: {not: null}},
-        });
-
-        if (softDeletedInTarget) {
-            const [restored] = await prisma.$transaction([
-                prisma.bookshelfBook.update({
-                    where: {id: softDeletedInTarget.id},
-                    data: {deletedAt: null, readingProgress: updatedReadingProgress},
-                }),
-                prisma.bookshelfBook.update({
-                    where: {id: existingBook.id},
-                    data: {deletedAt: new Date()},
-                }),
-            ]);
-            return BookshelfBookEntity.fromObject(restored);
-        }
+            bookshelfType === BookshelfType.CURRENTLY_READING
+                ? 0
+                : bookshelfType === BookshelfType.READ
+                  ? 100
+                  : existingBook.readingProgress;
 
         const updatedBook = await prisma.bookshelfBook.update({
             data: {bookshelfId, readingProgress: updatedReadingProgress},
@@ -93,7 +74,7 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
         const {bookshelfBookId} = removeFromBookshelfDto;
 
         const existingBook = await prisma.bookshelfBook.findUnique({
-            where: {id: bookshelfBookId, deletedAt: null},
+            where: {id: bookshelfBookId},
         });
 
         if (!existingBook)
@@ -101,9 +82,8 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
                 ERROR_MESSAGES.BOOKSHELF_BOOK.REMOVE_FROM_BOOKSHELF.NOT_FOUND
             );
 
-        const deletedBook = await prisma.bookshelfBook.update({
+        const deletedBook = await prisma.bookshelfBook.delete({
             where: {id: bookshelfBookId},
-            data: {deletedAt: new Date()},
         });
 
         return BookshelfBookEntity.fromObject(deletedBook);

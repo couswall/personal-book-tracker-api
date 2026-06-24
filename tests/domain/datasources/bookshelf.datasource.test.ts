@@ -1,21 +1,10 @@
-import {CreateCustomBookShelfDto} from '@domain/dtos';
 import {BookshelfEntity} from '@domain/entities/index';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
-import {
-    bookshelfEntity,
-    bookshelfWithStatus,
-    createCustomBookshelfDto,
-} from 'tests/fixtures/index';
+import {bookshelfEntity, bookshelfWithStatus} from 'tests/fixtures/index';
 
 describe('bookshelf datasource tests', () => {
     class MockBookshelfDatasource implements BookshelfDatasource {
-        async createCustom(
-            _createBookShelfDto: CreateCustomBookShelfDto
-        ): Promise<BookshelfEntity> {
-            return bookshelfEntity;
-        }
-
         async getMyBookshelves(_userId: number): Promise<BookshelfEntity[]> {
             return [bookshelfEntity];
         }
@@ -36,19 +25,8 @@ describe('bookshelf datasource tests', () => {
 
     test('abstract class should include all its methods', () => {
         expect(mockBookshelfDatasource).toBeInstanceOf(MockBookshelfDatasource);
-        expect(typeof mockBookshelfDatasource.createCustom).toBe('function');
         expect(typeof mockBookshelfDatasource.getMyBookshelves).toBe('function');
         expect(typeof mockBookshelfDatasource.getBookshelvesWithStatus).toBe('function');
-    });
-
-    test('createCustom() should return a BookshelfEntity instance', async () => {
-        const [, dto] = CreateCustomBookShelfDto.create(createCustomBookshelfDto);
-
-        const result = await mockBookshelfDatasource.createCustom(
-            dto as CreateCustomBookShelfDto
-        );
-
-        expect(result).toBeInstanceOf(BookshelfEntity);
     });
 
     test('getMyBookshelves() should return an array of Bookshelf entities', async () => {

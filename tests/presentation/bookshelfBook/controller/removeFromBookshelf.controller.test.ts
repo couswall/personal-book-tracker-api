@@ -20,10 +20,7 @@ describe('BookshelfBookController.removeFromBookshelf tests', () => {
         (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
             bookshelfBookPrisma
         );
-        (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue({
-            ...bookshelfBookPrisma,
-            deletedAt: new Date(),
-        });
+        (prisma.bookshelfBook.delete as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
 
         await new Promise<void>((resolve) => {
             controller.removeFromBookshelf(

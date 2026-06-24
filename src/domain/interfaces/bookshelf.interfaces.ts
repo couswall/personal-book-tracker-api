@@ -1,10 +1,5 @@
-import {BookshelfType} from '@prisma/client';
+import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity, UserEntity} from '@domain/entities';
-
-export interface ICreateCustomBookShelfDto {
-    userId?: number;
-    shelfName?: string;
-}
 
 export interface ICreateBookshelfEntity {
     id: number;
@@ -22,5 +17,4 @@ export interface IBookshelfWithStatus {
     isSelected: boolean;
     bookshelfBookId: number | null;
     bookCount: number;
-    isCustom: boolean;
 }

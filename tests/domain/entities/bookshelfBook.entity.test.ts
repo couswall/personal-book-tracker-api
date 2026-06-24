@@ -11,10 +11,7 @@ describe('BookshelfBookEntity', () => {
                 bookshelfBookObject.bookId,
                 bookshelfBookObject.readingProgress,
                 bookshelfBookObject.currentPage,
-                bookshelfBookObject.totalPages,
-                bookshelfBookObject.startReadingDate,
-                bookshelfBookObject.endReadingDate,
-                bookshelfBookObject.deletedAt
+                bookshelfBookObject.totalPages
             );
 
             expect(bookshelfBookEntity).toBeInstanceOf(BookshelfBookEntity);
@@ -26,13 +23,6 @@ describe('BookshelfBookEntity', () => {
             );
             expect(bookshelfBookEntity.currentPage).toBe(bookshelfBookObject.currentPage);
             expect(bookshelfBookEntity.totalPages).toBe(bookshelfBookObject.totalPages);
-            expect(bookshelfBookEntity.startReadingDate).toBe(
-                bookshelfBookObject.startReadingDate
-            );
-            expect(bookshelfBookEntity.endReadingDate).toBe(
-                bookshelfBookObject.endReadingDate
-            );
-            expect(bookshelfBookEntity.deletedAt).toBe(bookshelfBookObject.deletedAt);
         });
 
         test('should use default readingProgress value when not provided', () => {
@@ -42,33 +32,17 @@ describe('BookshelfBookEntity', () => {
                 bookshelfBookObject.bookId,
                 undefined,
                 bookshelfBookObject.currentPage,
-                bookshelfBookObject.totalPages,
-                bookshelfBookObject.startReadingDate,
-                bookshelfBookObject.endReadingDate,
-                bookshelfBookObject.deletedAt
+                bookshelfBookObject.totalPages
             );
 
             expect(bookshelfBookEntity.readingProgress).toBe(0);
         });
 
         test('should handle null values correctly', () => {
-            const nullValuesEntity = new BookshelfBookEntity(
-                1,
-                2,
-                3,
-                0,
-                null,
-                null,
-                null,
-                null,
-                null
-            );
+            const nullValuesEntity = new BookshelfBookEntity(1, 2, 3, 0, null, null);
 
             expect(nullValuesEntity.currentPage).toBeNull();
             expect(nullValuesEntity.totalPages).toBeNull();
-            expect(nullValuesEntity.startReadingDate).toBeNull();
-            expect(nullValuesEntity.endReadingDate).toBeNull();
-            expect(nullValuesEntity.deletedAt).toBeNull();
         });
     });
 
@@ -83,9 +57,6 @@ describe('BookshelfBookEntity', () => {
             expect(entity.readingProgress).toBe(bookshelfBookObject.readingProgress);
             expect(entity.currentPage).toBe(bookshelfBookObject.currentPage);
             expect(entity.totalPages).toBe(bookshelfBookObject.totalPages);
-            expect(entity.startReadingDate).toBe(bookshelfBookObject.startReadingDate);
-            expect(entity.endReadingDate).toBe(bookshelfBookObject.endReadingDate);
-            expect(entity.deletedAt).toBe(bookshelfBookObject.deletedAt);
         });
 
         test('should create entity from object with partial null values', () => {
@@ -94,9 +65,6 @@ describe('BookshelfBookEntity', () => {
                 readingProgress: 0,
                 currentPage: null,
                 totalPages: null,
-                startReadingDate: null,
-                endReadingDate: null,
-                deletedAt: null,
             };
 
             const entity = BookshelfBookEntity.fromObject(partialObject);
@@ -104,9 +72,6 @@ describe('BookshelfBookEntity', () => {
             expect(entity).toBeInstanceOf(BookshelfBookEntity);
             expect(entity.currentPage).toBeNull();
             expect(entity.totalPages).toBeNull();
-            expect(entity.startReadingDate).toBeNull();
-            expect(entity.endReadingDate).toBeNull();
-            expect(entity.deletedAt).toBeNull();
         });
 
         test('should use default readingProgress when not provided in object', () => {
@@ -123,17 +88,7 @@ describe('BookshelfBookEntity', () => {
 
     describe('edge cases', () => {
         test('should handle zero values correctly', () => {
-            const zeroValuesEntity = new BookshelfBookEntity(
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                null,
-                null,
-                null
-            );
+            const zeroValuesEntity = new BookshelfBookEntity(0, 0, 0, 0, 0, 0);
 
             expect(zeroValuesEntity.id).toBe(0);
             expect(zeroValuesEntity.bookshelfId).toBe(0);
@@ -150,10 +105,7 @@ describe('BookshelfBookEntity', () => {
                 Number.MAX_SAFE_INTEGER,
                 100,
                 Number.MAX_SAFE_INTEGER,
-                Number.MAX_SAFE_INTEGER,
-                new Date('9999-12-31'),
-                new Date('9999-12-31'),
-                new Date('9999-12-31')
+                Number.MAX_SAFE_INTEGER
             );
 
             expect(maxValuesEntity.id).toBe(Number.MAX_SAFE_INTEGER);

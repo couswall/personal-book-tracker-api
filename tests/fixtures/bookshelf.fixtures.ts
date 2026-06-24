@@ -1,4 +1,4 @@
-import {BookshelfType} from '@prisma/client';
+import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity} from '@domain/entities';
 import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
 import {userEntity} from 'tests/fixtures/user.fixtures';
@@ -15,11 +15,6 @@ export const bookshelfObj = {
 
 export const bookshelfEntity = BookshelfEntity.fromObject(bookshelfObj);
 
-export const createCustomBookshelfDto = {
-    userId: bookshelfObj.id,
-    shelfName: 'Custom bookshelf',
-};
-
 export const bookshelfPrisma = {...bookshelfObj};
 
 export const bookshelfWithStatus: IBookshelfWithStatus = {
@@ -28,5 +23,4 @@ export const bookshelfWithStatus: IBookshelfWithStatus = {
     isSelected: true,
     bookshelfBookId: 101,
     bookCount: 3,
-    isCustom: false,
 };

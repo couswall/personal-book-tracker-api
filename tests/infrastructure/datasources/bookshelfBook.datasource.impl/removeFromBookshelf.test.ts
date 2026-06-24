@@ -20,7 +20,7 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
         (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
             bookshelfBookPrisma
         );
-        (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(
+        (prisma.bookshelfBook.delete as jest.Mock).mockResolvedValue(
             deletedBookshelfBook
         );
 
@@ -30,11 +30,10 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(prisma.bookshelfBook.findUnique).toHaveBeenCalledWith({
-            where: {id: (dto as RemoveFromBookshelfDto).bookshelfBookId, deletedAt: null},
-        });
-        expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
             where: {id: (dto as RemoveFromBookshelfDto).bookshelfBookId},
-            data: {deletedAt: expect.any(Date)},
+        });
+        expect(prisma.bookshelfBook.delete).toHaveBeenCalledWith({
+            where: {id: (dto as RemoveFromBookshelfDto).bookshelfBookId},
         });
     });
 
@@ -51,7 +50,7 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
             )
         );
 
-        expect(prisma.bookshelfBook.update).not.toHaveBeenCalled();
+        expect(prisma.bookshelfBook.delete).not.toHaveBeenCalled();
     });
 
     describe('Error handling for prisma calls', () => {
@@ -66,16 +65,16 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
                 datasourceImpl.removeFromBookshelf(dto as RemoveFromBookshelfDto)
             ).rejects.toThrow('DB connection failed');
 
-            expect(prisma.bookshelfBook.update).not.toHaveBeenCalled();
+            expect(prisma.bookshelfBook.delete).not.toHaveBeenCalled();
         });
 
-        test('should throw an error when prisma.bookshelfBook.update rejects', async () => {
+        test('should throw an error when prisma.bookshelfBook.delete rejects', async () => {
             const [, dto] = RemoveFromBookshelfDto.create(removeFromBookshelfDtoObject);
 
             (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
                 bookshelfBookPrisma
             );
-            (prisma.bookshelfBook.update as jest.Mock).mockRejectedValue(
+            (prisma.bookshelfBook.delete as jest.Mock).mockRejectedValue(
                 new Error('DB update failed')
             );
 
@@ -84,7 +83,7 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
             ).rejects.toThrow('DB update failed');
 
             expect(prisma.bookshelfBook.findUnique).toHaveBeenCalled();
-            expect(prisma.bookshelfBook.update).toHaveBeenCalled();
+            expect(prisma.bookshelfBook.delete).toHaveBeenCalled();
         });
     });
 });

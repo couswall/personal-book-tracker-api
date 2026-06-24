@@ -8,7 +8,6 @@ import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 describe('getMyBookshelves-bookshelf use case tests', () => {
     const mockBookshelfRepository: jest.Mocked<BookshelfRepository> = {
-        createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),

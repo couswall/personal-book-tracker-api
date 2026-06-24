@@ -1,4 +1,4 @@
-import {BookshelfType} from '@prisma/client';
+import {BookshelfType} from '@/generated/prisma';
 import {UserEntity} from '@domain/entities/user.entity';
 import {ICreateBookshelfEntity} from '@domain/interfaces/bookshelf.interfaces';
 
@@ -6,7 +6,7 @@ export class BookshelfEntity {
     constructor(
         public id: number,
         public name: string,
-        public type: BookshelfType = 'CUSTOM',
+        public type: BookshelfType,
         public userId: number,
         public books: BookshelfEntity[] = [],
         public deletedAt: Date | null,

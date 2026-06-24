@@ -1,13 +1,8 @@
 import {Request, Response} from 'express';
 import {CustomError} from '@domain/errors/custom.error';
-import {CreateCustomBookShelfDto} from '@domain/dtos/index';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {UserRepository} from '@domain/repositories/user.repository';
-import {
-    GetMyBookShelves,
-    CreateCustom,
-    GetBookshelvesWithStatus,
-} from '@domain/use-cases/index';
+import {GetMyBookShelves, GetBookshelvesWithStatus} from '@domain/use-cases/index';
 import {GetBookshelvesWithStatusDto} from '@domain/dtos/bookshelf/getBookshelvesWithStatus-bookshelf.dto';
 
 export class BookshelfController {
@@ -15,32 +10,6 @@ export class BookshelfController {
         private readonly repository: BookshelfRepository,
         private readonly userRepository: UserRepository
     ) {}
-
-    public createCustom = (req: Request, res: Response) => {
-        const [errorMsg, dto] = CreateCustomBookShelfDto.create(req.body);
-        if (errorMsg || !dto) {
-            res.status(400).json({
-                success: false,
-                error: {message: errorMsg},
-            });
-            return;
-        }
-
-        new CreateCustom(this.repository, this.userRepository)
-            .execute(dto)
-            .then((bookshelf) =>
-                res.status(201).json({
-                    success: true,
-                    message: 'Custom bookshelf created successfully',
-                    data: {
-                        id: bookshelf.id,
-                        name: bookshelf.name,
-                        type: bookshelf.type,
-                    },
-                })
-            )
-            .catch((error) => CustomError.handleError(error, res));
-    };
 
     public getMyBookshelves = (req: Request, res: Response) => {
         const userId = +req.params.userId;

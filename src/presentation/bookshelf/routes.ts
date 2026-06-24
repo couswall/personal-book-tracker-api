@@ -17,7 +17,6 @@ export class BookshelfRoutes {
             userRepository
         );
 
-        router.post('/createCustom', validateJWT, bookshelfController.createCustom);
         router.get(
             '/getMyBookshelves/:userId',
             [validateJWT],

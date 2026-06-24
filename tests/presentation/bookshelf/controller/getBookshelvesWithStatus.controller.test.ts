@@ -2,9 +2,9 @@ import {Request, Response} from 'express';
 import {prisma} from '@data/postgres';
 import {createBookshelfControllerSetup} from '@tests/presentation/bookshelf/controller/setup';
 import {
+    bookshelfObj,
     bookshelfPrisma,
     bookshelfWithStatus,
-    createCustomBookshelfDto,
     mockUserPrisma,
 } from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
@@ -20,7 +20,7 @@ jest.mock('@data/postgres', () => ({
 describe('controller - getBookshelvesWithStatus()', () => {
     const {controller, mockRequest, mockResponse} = createBookshelfControllerSetup();
 
-    const {userId} = createCustomBookshelfDto;
+    const {userId} = bookshelfObj;
     const apiBookId = 'abc123';
     const bookshelfPrismaWithIncludes = {
         ...bookshelfPrisma,

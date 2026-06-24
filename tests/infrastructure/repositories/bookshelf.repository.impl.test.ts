@@ -1,17 +1,10 @@
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
-import {CreateCustomBookShelfDto} from '@domain/dtos';
 import {BookshelfEntity} from '@domain/entities';
-import {
-    bookshelfEntity,
-    bookshelfObj,
-    bookshelfWithStatus,
-    createCustomBookshelfDto,
-} from '@tests/fixtures';
+import {bookshelfEntity, bookshelfObj, bookshelfWithStatus} from '@tests/fixtures';
 
 describe('bookshelf.repository.impl tests', () => {
     const mockDatasource: jest.Mocked<BookshelfDatasource> = {
-        createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
@@ -23,27 +16,12 @@ describe('bookshelf.repository.impl tests', () => {
 
     const mockRepositoryImpl = new BookshelfRepositoryImpl(mockDatasource);
 
-    test('createCustom() should call datasource.createCustom() and return a BookshelfEntity', async () => {
-        const [, dto] = CreateCustomBookShelfDto.create(createCustomBookshelfDto);
-
-        mockDatasource.createCustom.mockResolvedValue(bookshelfEntity);
-        if (!dto) throw new Error();
-        const result = await mockRepositoryImpl.createCustom(dto);
-
-        expect(mockDatasource.createCustom).toHaveBeenCalledWith(dto);
-        expect(result).toBeInstanceOf(BookshelfEntity);
-    });
-
     test('getMyBookshelves() should call datasource.getMyBookshelves() and return an array of BookshelfEntity', async () => {
         mockDatasource.getMyBookshelves.mockResolvedValue([bookshelfEntity]);
 
-        const result = await mockRepositoryImpl.getMyBookshelves(
-            createCustomBookshelfDto.userId
-        );
+        const result = await mockRepositoryImpl.getMyBookshelves(bookshelfObj.userId);
 
-        expect(mockDatasource.getMyBookshelves).toHaveBeenCalledWith(
-            createCustomBookshelfDto.userId
-        );
+        expect(mockDatasource.getMyBookshelves).toHaveBeenCalledWith(bookshelfObj.userId);
         expect(Array.isArray(result)).toBeTruthy();
         expect(result[0]).toBeInstanceOf(BookshelfEntity);
     });

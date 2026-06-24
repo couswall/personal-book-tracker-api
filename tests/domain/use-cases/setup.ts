@@ -22,7 +22,6 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
         findOrCreateByApiId: jest.fn(),
     };
     const mockBookshelfRepository: jest.Mocked<BookshelfRepository> = {
-        createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),

@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {prisma} from '@data/postgres';
 import {createBookshelfControllerSetup} from '@tests/presentation/bookshelf/controller/setup';
-import {bookshelfPrisma, createCustomBookshelfDto, mockUserPrisma} from '@tests/fixtures';
+import {bookshelfPrisma, bookshelfObj, mockUserPrisma} from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 jest.mock('@data/postgres', () => ({
@@ -20,7 +20,7 @@ describe('controller - getMyBookshelves()', () => {
     });
 
     test('should return a 200 status and bookshelves data', async () => {
-        const {userId} = createCustomBookshelfDto;
+        const {userId} = bookshelfObj;
         mockRequest.params = {userId: String(userId)};
 
         (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserPrisma);
@@ -52,7 +52,7 @@ describe('controller - getMyBookshelves()', () => {
     });
 
     test('should throw a 400 error when user with provided ID does not exist', async () => {
-        const {userId} = createCustomBookshelfDto;
+        const {userId} = bookshelfObj;
         mockRequest.params = {userId: String(userId)};
 
         (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);

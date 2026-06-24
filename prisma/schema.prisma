@@ -6,31 +6,32 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
 }
 
 model User{
-  id          Int         @id @default(autoincrement())
-  fullName    String      
-  username    String      @unique
-  email       String      @unique
-  password    String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime?   @updatedAt
-  deletedAt   DateTime?
-  bookshelves Bookshelf[]
-  notes       Note[]
-  reviews     Review[]
+  id                Int         @id @default(autoincrement())
+  fullName          String      
+  username          String      @unique
+  email             String      @unique
+  password          String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime?   @updatedAt
+  deletedAt         DateTime?
+  bookshelves       Bookshelf[]
+  notes             Note[]
+  reviews           Review[]
+  readingSessions   ReadingSession[]
 }
 
 model Bookshelf{
   id          Int             @id @default(autoincrement())
   name        String
-  type        BookshelfType   @default(CUSTOM)    
+  type        BookshelfType
   userId      Int
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   books       BookshelfBook[]
@@ -41,7 +42,6 @@ enum BookshelfType {
   READ
   CURRENTLY_READING
   TO_BE_READ
-  CUSTOM
 }
 
 model BookshelfBook{
@@ -53,11 +53,23 @@ model BookshelfBook{
   readingProgress   Int           @default(0)
   currentPage       Int?
   totalPages        Int?
-  startReadingDate  DateTime?
-  endReadingDate    DateTime?
-  deletedAt         DateTime?
   
   @@unique([bookshelfId, bookId])
+}
+
+model ReadingSession{
+  id              Int         @id @default(autoincrement())
+
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bookId          Int
+  book            Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  startedAt       DateTime
+  finishedAt      DateTime?
+  createdAt       DateTime    @default(now())
+  deletedAt       DateTime?
 }
 
 model Book{
@@ -77,6 +89,7 @@ model Book{
   bookshelves       BookshelfBook[]
   notes             Note[]
   deletedAt         DateTime?
+  readingSessions   ReadingSession[]
 }
 
 model Review{

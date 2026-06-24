@@ -28,11 +28,10 @@ export class BookshelfBookController {
         new AddToBookshelf(this.repository, this.bookRepository, this.bookshelfRepository)
             .execute(dto)
             .then((bookshelfBook) => {
-                const {deletedAt: _deletedAt, ...rest} = bookshelfBook;
                 res.status(201).json({
                     success: true,
                     message: 'Bookshelf Book added to bookshelf',
-                    data: {bookshelfBook: {...rest}},
+                    data: {bookshelfBook},
                 });
             })
             .catch((error) => CustomError.handleError(error, res));
@@ -55,11 +54,10 @@ export class BookshelfBookController {
         )
             .execute(dto)
             .then((bookshelfBook) => {
-                const {deletedAt: _deletedAt, ...rest} = bookshelfBook;
                 res.status(200).json({
                     success: true,
                     message: 'Bookshelf book updated successfully',
-                    data: {bookshelfBook: {...rest}},
+                    data: {bookshelfBook},
                 });
             })
             .catch((error) => CustomError.handleError(error, res));

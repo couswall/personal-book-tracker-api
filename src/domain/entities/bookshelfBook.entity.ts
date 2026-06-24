@@ -7,10 +7,7 @@ export class BookshelfBookEntity {
         public bookId: number,
         public readingProgress: number = 0,
         public currentPage: number | null,
-        public totalPages: number | null,
-        public startReadingDate: Date | null,
-        public endReadingDate: Date | null,
-        public deletedAt: Date | null
+        public totalPages: number | null
     ) {}
 
     static fromObject(object: IBookshelfBookFromObject): BookshelfBookEntity {
@@ -20,10 +17,7 @@ export class BookshelfBookEntity {
             object.bookId,
             object.readingProgress,
             object.currentPage,
-            object.totalPages,
-            object.startReadingDate,
-            object.endReadingDate,
-            object.deletedAt
+            object.totalPages
         );
     }
 }

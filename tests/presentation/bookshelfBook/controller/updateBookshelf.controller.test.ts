@@ -25,9 +25,9 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
         };
 
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-        (prisma.bookshelfBook.findFirst as jest.Mock)
-            .mockResolvedValueOnce(bookshelfBookPrisma) // active record
-            .mockResolvedValueOnce(null); // no soft-deleted in target
+        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+            bookshelfBookPrisma
+        );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(
             updatedBookshelfBook
         );
@@ -106,7 +106,7 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
         mockRequest.body = updateBookshelfDtoObject;
 
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(null);
+        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValue(null);
 
         await new Promise<void>((resolve) => {
             controller.updateBookshelf(mockRequest as Request, mockResponse as Response);

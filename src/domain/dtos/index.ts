@@ -6,7 +6,6 @@ export * from './book/search-book.dto';
 export * from './book/getBookById-book.dto';
 export * from './book/create-book.dto';
 
-export * from './bookshelf/createCustom-bookshelf.dto';
 export * from './bookshelf/getBookshelvesWithStatus-bookshelf.dto';
 
 export * from './bookshelfBook/addToBookshelf-bookshelfBook.dto';
