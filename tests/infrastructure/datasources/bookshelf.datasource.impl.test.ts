@@ -1,4 +1,5 @@
 import {prisma} from '@data/postgres';
+import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity} from '@domain/entities';
 import {BookshelfDatasourceImpl} from '@infrastructure/datasources/bookshelf.datasource.impl';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
@@ -68,7 +69,25 @@ describe('bookshelf.datasource.impl tests', () => {
         const bookshelfPrismaWithIncludes = {
             ...bookshelfPrisma,
             _count: {books: bookshelfWithStatus.bookCount},
-            books: [{id: bookshelfWithStatus.bookshelfBookId}],
+            books: [
+                {
+                    id: bookshelfWithStatus.bookshelfBookId,
+                    readingProgress: null,
+                    currentPage: null,
+                },
+            ],
+        };
+        const bookshelfPrismaCurrentlyReading = {
+            ...bookshelfPrisma,
+            type: BookshelfType.CURRENTLY_READING,
+            _count: {books: bookshelfWithStatus.bookCount},
+            books: [
+                {
+                    id: bookshelfWithStatus.bookshelfBookId,
+                    readingProgress: 50,
+                    currentPage: 120,
+                },
+            ],
         };
 
         test('should return bookshelves with isSelected=true when book exists and is in a shelf', async () => {
@@ -86,10 +105,44 @@ describe('bookshelf.datasource.impl tests', () => {
             expect(result[0].isSelected).toBe(true);
             expect(result[0].bookshelfBookId).toBe(bookshelfWithStatus.bookshelfBookId);
             expect(result[0].bookCount).toBe(bookshelfWithStatus.bookCount);
+            expect(result[0].readingProgress).toBeNull();
+            expect(result[0].currentPage).toBeNull();
             expect(prisma.book.findUnique).toHaveBeenCalledWith({
                 where: {apiBookId},
                 select: {id: true},
             });
+        });
+
+        test('should return readingProgress and currentPage when book is in a CURRENTLY_READING shelf', async () => {
+            (prisma.book.findUnique as jest.Mock).mockResolvedValue(bookPrisma);
+            (prisma.bookshelf.findMany as jest.Mock).mockResolvedValue([
+                bookshelfPrismaCurrentlyReading,
+            ]);
+
+            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(
+                userId,
+                apiBookId
+            );
+
+            expect(result[0].isSelected).toBe(true);
+            expect(result[0].readingProgress).toBe(50);
+            expect(result[0].currentPage).toBe(120);
+        });
+
+        test('should return null readingProgress and currentPage when book is not in a CURRENTLY_READING shelf', async () => {
+            (prisma.book.findUnique as jest.Mock).mockResolvedValue(bookPrisma);
+            (prisma.bookshelf.findMany as jest.Mock).mockResolvedValue([
+                {...bookshelfPrismaCurrentlyReading, books: []},
+            ]);
+
+            const result = await bookshelfDatasourceImpl.getBookshelvesWithStatus(
+                userId,
+                apiBookId
+            );
+
+            expect(result[0].isSelected).toBe(false);
+            expect(result[0].readingProgress).toBeNull();
+            expect(result[0].currentPage).toBeNull();
         });
 
         test('should return bookshelves with isSelected=false and bookshelfBookId=null when book is not in any shelf', async () => {
@@ -105,6 +158,8 @@ describe('bookshelf.datasource.impl tests', () => {
 
             expect(result[0].isSelected).toBe(false);
             expect(result[0].bookshelfBookId).toBeNull();
+            expect(result[0].readingProgress).toBeNull();
+            expect(result[0].currentPage).toBeNull();
         });
 
         test('should return all isSelected=false when book does not exist in the DB', async () => {
@@ -120,6 +175,8 @@ describe('bookshelf.datasource.impl tests', () => {
 
             expect(result[0].isSelected).toBe(false);
             expect(result[0].bookshelfBookId).toBeNull();
+            expect(result[0].readingProgress).toBeNull();
+            expect(result[0].currentPage).toBeNull();
         });
 
         test('should return an empty array when user has no bookshelves', async () => {

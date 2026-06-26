@@ -1,4 +1,5 @@
 import {prisma} from '@data/postgres';
+import {BookshelfType} from '@/generated/prisma';
 import {CustomError} from '@domain/errors/custom.error';
 import {BookshelfEntity} from '@domain/entities';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
@@ -42,16 +43,31 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                 _count: {
                     select: {books: true},
                 },
-                books: book ? {where: {bookId: book.id}, select: {id: true}} : false,
+                books: book
+                    ? {
+                          where: {bookId: book.id},
+                          select: {id: true, readingProgress: true, currentPage: true},
+                      }
+                    : false,
             },
         });
 
-        return bookshelves.map((shelf) => ({
-            id: shelf.id,
-            name: shelf.name,
-            isSelected: book ? shelf.books.length > 0 : false,
-            bookshelfBookId: book && shelf.books.length > 0 ? shelf.books[0].id : null,
-            bookCount: shelf._count.books,
-        }));
+        return bookshelves.map((shelf) => {
+            const bookExists = book && shelf.books.length > 0;
+            const isCurrentlyReading = shelf.type === BookshelfType.CURRENTLY_READING;
+            return {
+                id: shelf.id,
+                name: shelf.name,
+                isSelected: book ? shelf.books.length > 0 : false,
+                bookshelfBookId: bookExists ? shelf.books[0].id : null,
+                bookCount: shelf._count.books,
+                readingProgress:
+                    bookExists && isCurrentlyReading
+                        ? shelf.books[0].readingProgress
+                        : null,
+                currentPage:
+                    bookExists && isCurrentlyReading ? shelf.books[0].currentPage : null,
+            };
+        });
     }
 }

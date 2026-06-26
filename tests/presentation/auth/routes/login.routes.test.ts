@@ -1,7 +1,7 @@
 import request from 'supertest';
 import {prisma} from '@data/postgres';
 import {testServer} from '@tests/test-server';
-import {setupAuthRoutes} from './setup';
+import {setupAuthRoutes} from '@tests/presentation/auth/routes/setup';
 import {createUserDtoObj, loginUserDtoObj} from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {DTOS_ERRORS} from '@domain/constants/user.constants';

@@ -23,4 +23,6 @@ export const bookshelfWithStatus: IBookshelfWithStatus = {
     isSelected: true,
     bookshelfBookId: 101,
     bookCount: 3,
+    readingProgress: null,
+    currentPage: null,
 };

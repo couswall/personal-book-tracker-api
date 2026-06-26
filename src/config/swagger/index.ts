@@ -104,9 +104,11 @@ export const swaggerSpec = {
                 properties: {
                     id: {type: 'integer', example: 1},
                     name: {type: 'string', example: 'Currently Reading'},
-                    type: {type: 'string', example: 'READING'},
-                    hasBook: {type: 'boolean', example: true},
+                    isSelected: {type: 'boolean', example: true},
                     bookshelfBookId: {type: 'integer', nullable: true, example: 5},
+                    bookCount: {type: 'integer', example: 1},
+                    readingProgress: {type: 'number', nullable: true, example: 50},
+                    currentPage: {type: 'integer', nullable: true, example: 120},
                 },
             },
             BookshelfBookResponse: {
@@ -118,12 +120,6 @@ export const swaggerSpec = {
                     readingProgress: {type: 'number', example: 0},
                     currentPage: {type: 'integer', nullable: true, example: null},
                     totalPages: {type: 'integer', nullable: true, example: 320},
-                    startReadingDate: {
-                        type: 'string',
-                        format: 'date-time',
-                        nullable: true,
-                    },
-                    endReadingDate: {type: 'string', format: 'date-time', nullable: true},
                 },
             },
             BookSummary: {
