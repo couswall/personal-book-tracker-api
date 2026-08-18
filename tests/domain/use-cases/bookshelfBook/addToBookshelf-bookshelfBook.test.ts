@@ -12,8 +12,12 @@ import {
 } from '@tests/fixtures';
 
 describe('addToBookshelf-bookshelfBook use case', () => {
-    const {mockBookRepository, mockBookshelfBookRepository, mockBookshelfRepository} =
-        getMockRepositories();
+    const {
+        mockBookRepository,
+        mockBookshelfBookRepository,
+        mockBookshelfRepository,
+        mockReadingSessionRepository,
+    } = getMockRepositories();
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -31,7 +35,8 @@ describe('addToBookshelf-bookshelfBook use case', () => {
         const result = await new AddToBookshelf(
             mockBookshelfBookRepository,
             mockBookRepository,
-            mockBookshelfRepository
+            mockBookshelfRepository,
+            mockReadingSessionRepository
         ).execute(dto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
@@ -57,7 +62,8 @@ describe('addToBookshelf-bookshelfBook use case', () => {
             new AddToBookshelf(
                 mockBookshelfBookRepository,
                 mockBookRepository,
-                mockBookshelfRepository
+                mockBookshelfRepository,
+                mockReadingSessionRepository
             ).execute(dto)
         ).rejects.toThrow(
             CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)

@@ -7,6 +7,8 @@ import {BookRepositoryImpl} from '@infrastructure/repositories/book.repository.i
 import {BookDatasourceImpl} from '@/src/infrastructure/datasources/book/book.datasource.impl';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
 import {BookshelfDatasourceImpl} from '@infrastructure/datasources/bookshelf.datasource.impl';
+import {ReadingSessionRepositoryImpl} from '@infrastructure/repositories/readingSession.repository.impl';
+import {ReadingSessionDatasourceImpl} from '@infrastructure/datasources/readingSession.datasource.impl';
 import {HttpClient} from '@config/interfaces';
 
 export interface IBookshelfBookControllerSetup {
@@ -26,10 +28,14 @@ export const createBookshelfBookControllerSetup = (): IBookshelfBookControllerSe
     );
     const datasource = new BookshelfBookDatasourceImpl();
     const repository = new BookshelfBookRepositoryImpl(datasource);
+    const readingSessionRepository = new ReadingSessionRepositoryImpl(
+        new ReadingSessionDatasourceImpl()
+    );
     const controller = new BookshelfBookController(
         repository,
         bookRepository,
-        bookshelfRepository
+        bookshelfRepository,
+        readingSessionRepository
     );
     const mockRequest = createMockRequest();
     const mockResponse = createMockResponse();

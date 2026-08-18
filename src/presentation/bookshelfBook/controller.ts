@@ -5,6 +5,7 @@ import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.reposi
 import {BookRepository} from '@domain/repositories/book.repository';
 import {AddToBookshelf, UpdateBookshelf, RemoveFromBookshelf} from '@domain/use-cases';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
+import {ReadingSessionRepository} from '@domain/repositories/readingSession.repository';
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
 import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
 
@@ -12,7 +13,8 @@ export class BookshelfBookController {
     constructor(
         private readonly repository: BookshelfBookRepository,
         private readonly bookRepository: BookRepository,
-        private readonly bookshelfRepository: BookshelfRepository
+        private readonly bookshelfRepository: BookshelfRepository,
+        private readonly readingSessionRepository: ReadingSessionRepository
     ) {}
 
     public addToBookshelf = (req: Request, res: Response) => {
@@ -25,7 +27,12 @@ export class BookshelfBookController {
             return;
         }
 
-        new AddToBookshelf(this.repository, this.bookRepository, this.bookshelfRepository)
+        new AddToBookshelf(
+            this.repository,
+            this.bookRepository,
+            this.bookshelfRepository,
+            this.readingSessionRepository
+        )
             .execute(dto)
             .then((bookshelfBook) => {
                 res.status(201).json({

@@ -1,5 +1,5 @@
 import {prisma} from '@data/postgres';
-import {BookshelfType} from '@/generated/prisma';
+import {Prisma, BookshelfType} from '@/generated/prisma';
 import {CustomError} from '@domain/errors/custom.error';
 import {BookshelfBookEntity} from '@domain/entities';
 import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-bookshelfBook.dto';
@@ -14,26 +14,31 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
     ): Promise<BookshelfBookEntity> {
         const {
             bookshelfId,
-            bookId = 0,
+            bookId,
             bookshelfType = BookshelfType.TO_BE_READ,
             totalPages = 0,
         } = addToBookshelfDto;
+
+        if (!bookId) throw CustomError.internalServer('bookId is required');
+
         const readingProgress = bookshelfType === BookshelfType.READ ? 100 : 0;
 
-        const existingBookshelfBook = await prisma.bookshelfBook.findFirst({
-            where: {bookshelfId, bookId: bookId},
-        });
-
-        if (existingBookshelfBook)
-            throw CustomError.badRequest(
-                ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
-            );
-
-        const book = await prisma.bookshelfBook.create({
-            data: {bookshelfId, bookId, readingProgress, totalPages},
-        });
-
-        return BookshelfBookEntity.fromObject(book);
+        try {
+            const book = await prisma.bookshelfBook.create({
+                data: {bookshelfId, bookId, readingProgress, totalPages},
+            });
+            return BookshelfBookEntity.fromObject(book);
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2002'
+            ) {
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
+                );
+            }
+            throw error;
+        }
     }
 
     async updateBookshelf(

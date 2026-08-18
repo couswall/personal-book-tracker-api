@@ -1,5 +1,5 @@
 import {BookshelfBookEntity} from '@domain/entities/bookshelfBook.entity';
-import {NoteEntity, ReviewEntity} from '@domain/entities/index';
+import {NoteEntity, ReadingSessionEntity, ReviewEntity} from '@domain/entities/index';
 import {ICreateBookEntityFromObject} from '@domain/interfaces/book.interfaces';
 
 export class BookEntity {
@@ -19,7 +19,8 @@ export class BookEntity {
         public bookshelves: BookshelfBookEntity[] = [],
         public reviews: ReviewEntity[] = [],
         public notes: NoteEntity[] = [],
-        public deletedAt: Date | null = null
+        public deletedAt: Date | null = null,
+        public readingSessions: ReadingSessionEntity[] = []
     ) {}
 
     public static fromObject(object: ICreateBookEntityFromObject): BookEntity {

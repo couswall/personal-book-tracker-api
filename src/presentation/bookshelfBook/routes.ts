@@ -7,6 +7,8 @@ import {BookRepositoryImpl} from '@infrastructure/repositories/book.repository.i
 import {BookDatasourceImpl} from '@/src/infrastructure/datasources/book/book.datasource.impl';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
 import {BookshelfDatasourceImpl} from '@infrastructure/datasources/bookshelf.datasource.impl';
+import {ReadingSessionDatasourceImpl} from '@infrastructure/datasources/readingSession.datasource.impl';
+import {ReadingSessionRepositoryImpl} from '@infrastructure/repositories/readingSession.repository.impl';
 import {validateJWT} from '@presentation/middlewares/validate-jwt';
 
 export class BookshelfBookRoutes {
@@ -21,10 +23,14 @@ export class BookshelfBookRoutes {
         const bookshelfRepository = new BookshelfRepositoryImpl(
             new BookshelfDatasourceImpl()
         );
+        const readingSessionRepository = new ReadingSessionRepositoryImpl(
+            new ReadingSessionDatasourceImpl()
+        );
         const bookshelfController = new BookshelfBookController(
             repository,
             bookRepository,
-            bookshelfRepository
+            bookshelfRepository,
+            readingSessionRepository
         );
 
         router.post('/addToBookshelf', [validateJWT], bookshelfController.addToBookshelf);
