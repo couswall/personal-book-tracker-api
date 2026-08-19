@@ -57,7 +57,8 @@ export class BookshelfBookController {
         new UpdateBookshelf(
             this.repository,
             this.bookRepository,
-            this.bookshelfRepository
+            this.bookshelfRepository,
+            this.readingSessionRepository
         )
             .execute(dto)
             .then((bookshelfBook) => {

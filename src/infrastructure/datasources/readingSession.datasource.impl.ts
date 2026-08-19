@@ -18,4 +18,12 @@ export class ReadingSessionDatasourceImpl implements ReadingSessionDatasource {
         const session = await prisma.readingSession.create({data});
         return ReadingSessionEntity.fromObject(session);
     }
+
+    async finishSession(sessionId: number): Promise<ReadingSessionEntity> {
+        const session = await prisma.readingSession.update({
+            where: {id: sessionId},
+            data: {finishedAt: new Date()},
+        });
+        return ReadingSessionEntity.fromObject(session);
+    }
 }

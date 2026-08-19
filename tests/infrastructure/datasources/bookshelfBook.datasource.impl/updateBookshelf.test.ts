@@ -1,5 +1,5 @@
 import {prisma} from '@tests/setup';
-import {BookshelfType} from '@/generated/prisma';
+import {BookshelfType, Prisma} from '@/generated/prisma';
 import {UpdateBookshelfDto} from '@domain/dtos';
 import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
 import {BookshelfBookEntity} from '@domain/entities';
@@ -23,7 +23,7 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
             bookshelfId: dto.bookshelfId,
         };
 
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
             bookshelfBookPrisma
         );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(
@@ -33,27 +33,29 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
         const result = await datasourceImpl.updateBookshelf(dto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
-        expect(prisma.bookshelfBook.findFirst).toHaveBeenCalledWith({
+        expect(prisma.bookshelfBook.findUnique).toHaveBeenCalledWith({
             where: {id: dto.bookshelfBookId},
         });
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
             data: {
                 bookshelfId: dto.bookshelfId,
                 readingProgress: bookshelfBookPrisma.readingProgress,
+                currentPage: bookshelfBookPrisma.currentPage,
             },
             where: {id: bookshelfBookPrisma.id},
         });
     });
 
-    test('should set readingProgress to 100 when bookshelfType is READ', async () => {
+    test('should set readingProgress to 100 and currentPage to totalPages when bookshelfType is READ', async () => {
         const dto = new UpdateBookshelfDto(1, 1, BookshelfType.READ);
         const updatedBookshelfBook = {
             ...bookshelfBookPrisma,
             bookshelfId: dto.bookshelfId,
             readingProgress: 100,
+            currentPage: bookshelfBookPrisma.totalPages,
         };
 
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
             bookshelfBookPrisma
         );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(
@@ -67,15 +69,41 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
             data: {
                 bookshelfId: dto.bookshelfId,
                 readingProgress: 100,
+                currentPage: bookshelfBookPrisma.totalPages,
             },
             where: {id: bookshelfBookPrisma.id},
         });
     });
 
-    test('should maintain existing readingProgress when bookshelfType is not READ', async () => {
+    test('should reset readingProgress and currentPage to 0 when bookshelfType is CURRENTLY_READING', async () => {
+        const dto = new UpdateBookshelfDto(1, 1, BookshelfType.CURRENTLY_READING);
+
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
+            bookshelfBookPrisma
+        );
+        (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue({
+            ...bookshelfBookPrisma,
+            bookshelfId: dto.bookshelfId,
+            readingProgress: 0,
+            currentPage: 0,
+        });
+
+        await datasourceImpl.updateBookshelf(dto);
+
+        expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
+            data: {
+                bookshelfId: dto.bookshelfId,
+                readingProgress: 0,
+                currentPage: 0,
+            },
+            where: {id: bookshelfBookPrisma.id},
+        });
+    });
+
+    test('should maintain existing readingProgress and currentPage when bookshelfType is not READ or CURRENTLY_READING', async () => {
         const dto = new UpdateBookshelfDto(1, 1, BookshelfType.TO_BE_READ);
 
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
             bookshelfBookPrisma
         );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue({
@@ -89,6 +117,7 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
             data: {
                 bookshelfId: dto.bookshelfId,
                 readingProgress: bookshelfBookPrisma.readingProgress,
+                currentPage: bookshelfBookPrisma.currentPage,
             },
             where: {id: bookshelfBookPrisma.id},
         });
@@ -97,7 +126,7 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
     test('should return existing book without update when bookshelfId is the same', async () => {
         const dto = new UpdateBookshelfDto(1, bookshelfBookPrisma.bookshelfId);
 
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
             bookshelfBookPrisma
         );
 
@@ -115,7 +144,7 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
         });
         if (!dto) throw new Error();
 
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
             bookshelfBookPrisma
         );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue({
@@ -129,6 +158,7 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
             data: {
                 bookshelfId: dto.bookshelfId,
                 readingProgress: bookshelfBookPrisma.readingProgress,
+                currentPage: bookshelfBookPrisma.currentPage,
             },
             where: {id: bookshelfBookPrisma.id},
         });
@@ -138,7 +168,7 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
         const [, dto] = UpdateBookshelfDto.create(updateBookshelfDtoObject);
         if (!dto) throw new Error();
 
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(null);
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(null);
 
         await expect(datasourceImpl.updateBookshelf(dto)).rejects.toThrow(
             CustomError.badRequest(
@@ -150,11 +180,11 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
     });
 
     describe('Error handling for prisma calls', () => {
-        test('should throw an error when prisma.bookshelfBook.findFirst rejects', async () => {
+        test('should throw an error when prisma.bookshelfBook.findUnique rejects', async () => {
             const [, dto] = UpdateBookshelfDto.create(updateBookshelfDtoObject);
             if (!dto) throw new Error();
 
-            (prisma.bookshelfBook.findFirst as jest.Mock).mockRejectedValue(
+            (prisma.bookshelfBook.findUnique as jest.Mock).mockRejectedValue(
                 new Error('DB connection failed')
             );
 
@@ -169,7 +199,7 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
             const [, dto] = UpdateBookshelfDto.create(updateBookshelfDtoObject);
             if (!dto) throw new Error();
 
-            (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+            (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
                 bookshelfBookPrisma
             );
             (prisma.bookshelfBook.update as jest.Mock).mockRejectedValue(
@@ -180,8 +210,29 @@ describe('BookshelfBookDatasourceImpl.updateBookshelf tests', () => {
                 'DB update failed'
             );
 
-            expect(prisma.bookshelfBook.findFirst).toHaveBeenCalled();
+            expect(prisma.bookshelfBook.findUnique).toHaveBeenCalled();
             expect(prisma.bookshelfBook.update).toHaveBeenCalled();
+        });
+
+        test('should throw a NOT_FOUND CustomError when prisma.bookshelfBook.update rejects with P2025', async () => {
+            const [, dto] = UpdateBookshelfDto.create(updateBookshelfDtoObject);
+            if (!dto) throw new Error();
+
+            (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
+                bookshelfBookPrisma
+            );
+            (prisma.bookshelfBook.update as jest.Mock).mockRejectedValue(
+                new Prisma.PrismaClientKnownRequestError('Record not found', {
+                    code: 'P2025',
+                    clientVersion: '0.0.0',
+                })
+            );
+
+            await expect(datasourceImpl.updateBookshelf(dto)).rejects.toThrow(
+                CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_BOOKSHELF.NOT_FOUND
+                )
+            );
         });
     });
 });

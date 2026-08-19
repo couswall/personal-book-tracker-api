@@ -14,6 +14,9 @@ describe('readingSession.repository tests', () => {
         async createSession(_data: ICreateReadingSession): Promise<ReadingSessionEntity> {
             return readingSessionEntity;
         }
+        async finishSession(_sessionId: number): Promise<ReadingSessionEntity> {
+            return readingSessionEntity;
+        }
     }
 
     const mockReadingSessionRepository = new MockReadingSessionRepository();
@@ -22,6 +25,7 @@ describe('readingSession.repository tests', () => {
         expect(mockReadingSessionRepository).toBeInstanceOf(MockReadingSessionRepository);
         expect(typeof mockReadingSessionRepository.findOpenSession).toBe('function');
         expect(typeof mockReadingSessionRepository.createSession).toBe('function');
+        expect(typeof mockReadingSessionRepository.finishSession).toBe('function');
     });
 
     test('findOpenSession() should return a ReadingSessionEntity', async () => {
@@ -37,6 +41,15 @@ describe('readingSession.repository tests', () => {
     test('createSession() should return a ReadingSessionEntity', async () => {
         const result = await mockReadingSessionRepository.createSession(
             createReadingSessionObject
+        );
+
+        expect(result).toBeInstanceOf(ReadingSessionEntity);
+        expect(result).toEqual(readingSessionEntity);
+    });
+
+    test('finishSession() should return a ReadingSessionEntity', async () => {
+        const result = await mockReadingSessionRepository.finishSession(
+            readingSessionEntity.id
         );
 
         expect(result).toBeInstanceOf(ReadingSessionEntity);

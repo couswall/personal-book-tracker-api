@@ -31,6 +31,7 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
     const mockReadingSessionRepository: jest.Mocked<ReadingSessionRepository> = {
         findOpenSession: jest.fn(),
         createSession: jest.fn(),
+        finishSession: jest.fn(),
     };
 
     return {

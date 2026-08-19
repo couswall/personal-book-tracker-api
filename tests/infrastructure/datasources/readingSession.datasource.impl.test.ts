@@ -59,4 +59,23 @@ describe('readingSession.datasource.impl tests', () => {
             });
         });
     });
+
+    describe('finishSession()', () => {
+        test('should return a ReadingSessionEntity with finishedAt set', async () => {
+            const {id} = readingSessionObject;
+
+            (prisma.readingSession.update as jest.Mock).mockResolvedValue({
+                ...readingSessionObject,
+                finishedAt: new Date(),
+            });
+
+            const result = await readingSessionDatasourceImpl.finishSession(id);
+
+            expect(result).toBeInstanceOf(ReadingSessionEntity);
+            expect(prisma.readingSession.update).toHaveBeenCalledWith({
+                where: {id},
+                data: {finishedAt: expect.any(Date)},
+            });
+        });
+    });
 });

@@ -11,6 +11,7 @@ describe('readingSession.repository.impl tests', () => {
     const mockDatasource: jest.Mocked<ReadingSessionDatasource> = {
         findOpenSession: jest.fn(),
         createSession: jest.fn(),
+        finishSession: jest.fn(),
     };
 
     beforeEach(() => {
@@ -41,6 +42,17 @@ describe('readingSession.repository.impl tests', () => {
         expect(result).toBeInstanceOf(ReadingSessionEntity);
         expect(mockDatasource.createSession).toHaveBeenCalledWith(
             createReadingSessionObject
+        );
+    });
+
+    test('finishSession should return a ReadingSessionEntity and call datasource.finishSession()', async () => {
+        mockDatasource.finishSession.mockResolvedValue(readingSessionEntity);
+
+        const result = await repository.finishSession(readingSessionObject.id);
+
+        expect(result).toBeInstanceOf(ReadingSessionEntity);
+        expect(mockDatasource.finishSession).toHaveBeenCalledWith(
+            readingSessionObject.id
         );
     });
 });

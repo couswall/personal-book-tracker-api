@@ -7,4 +7,5 @@ export abstract class ReadingSessionDatasource {
         bookId: number
     ): Promise<ReadingSessionEntity | null>;
     abstract createSession(data: ICreateReadingSession): Promise<ReadingSessionEntity>;
+    abstract finishSession(sessionId: number): Promise<ReadingSessionEntity>;
 }

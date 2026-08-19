@@ -44,9 +44,9 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
     async updateBookshelf(
         updateBookshelfDto: UpdateBookshelfDto
     ): Promise<BookshelfBookEntity> {
-        const {bookshelfBookId, bookshelfId, bookshelfType = ''} = updateBookshelfDto;
+        const {bookshelfBookId, bookshelfId, bookshelfType} = updateBookshelfDto;
 
-        const existingBook = await prisma.bookshelfBook.findFirst({
+        const existingBook = await prisma.bookshelfBook.findUnique({
             where: {id: bookshelfBookId},
         });
 
@@ -65,12 +65,35 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
                   ? 100
                   : existingBook.readingProgress;
 
-        const updatedBook = await prisma.bookshelfBook.update({
-            data: {bookshelfId, readingProgress: updatedReadingProgress},
-            where: {id: existingBook.id},
-        });
+        const updatedCurrentPage =
+            bookshelfType === BookshelfType.CURRENTLY_READING
+                ? 0
+                : bookshelfType === BookshelfType.READ
+                  ? existingBook.totalPages
+                  : existingBook.currentPage;
 
-        return BookshelfBookEntity.fromObject(updatedBook);
+        try {
+            const updatedBook = await prisma.bookshelfBook.update({
+                data: {
+                    bookshelfId,
+                    readingProgress: updatedReadingProgress,
+                    currentPage: updatedCurrentPage,
+                },
+                where: {id: existingBook.id},
+            });
+
+            return BookshelfBookEntity.fromObject(updatedBook);
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_BOOKSHELF.NOT_FOUND
+                );
+            }
+            throw error;
+        }
     }
 
     async removeFromBookshelf(

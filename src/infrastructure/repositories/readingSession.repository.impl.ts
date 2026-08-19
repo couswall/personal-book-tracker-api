@@ -16,4 +16,8 @@ export class ReadingSessionRepositoryImpl implements ReadingSessionRepository {
     createSession(data: ICreateReadingSession): Promise<ReadingSessionEntity> {
         return this.datasource.createSession(data);
     }
+
+    finishSession(sessionId: number): Promise<ReadingSessionEntity> {
+        return this.datasource.finishSession(sessionId);
+    }
 }

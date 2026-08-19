@@ -1,3 +1,4 @@
+import {BookshelfType} from '@/generated/prisma';
 import {isValidRequiredNumber} from '@domain/dtos/book/helpers';
 import {IUpdateBookshelfDto} from '@domain/interfaces/bookshelfBook.interfaces';
 import {INVALID_OBJECT_ERROR} from '@domain/constants/bookshelfBook.constants';
@@ -6,7 +7,7 @@ export class UpdateBookshelfDto {
     constructor(
         public readonly bookshelfBookId: number,
         public readonly bookshelfId: number,
-        public bookshelfType?: string
+        public bookshelfType?: BookshelfType
     ) {}
 
     static create(object?: IUpdateBookshelfDto): [string?, UpdateBookshelfDto?] {
