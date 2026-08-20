@@ -1,6 +1,6 @@
 import {prisma} from '@tests/setup';
 import {RemoveFromBookshelfDto} from '@domain/dtos';
-import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
+import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.datasource.impl';
 import {BookshelfBookEntity} from '@domain/entities';
 import {bookshelfBookPrisma, removeFromBookshelfDtoObject} from '@tests/fixtures';
 import {CustomError} from '@domain/errors/custom.error';

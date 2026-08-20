@@ -3,6 +3,7 @@ import {BookshelfBookEntity} from '@domain/entities';
 import {
     IUpdateBookshelfDto,
     IRemoveFromBookshelfDto,
+    IUpdateReadingProgressDto,
 } from '@domain/interfaces/bookshelfBook.interfaces';
 
 export const bookshelfBookObject = {
@@ -32,6 +33,13 @@ export const updateBookshelfDtoObject: IUpdateBookshelfDto = {
 
 export const removeFromBookshelfDtoObject: IRemoveFromBookshelfDto = {
     bookshelfBookId: bookshelfBookObject.id,
+};
+
+export const updateReadingProgressDtoObject: IUpdateReadingProgressDto = {
+    bookshelfBookId: bookshelfBookObject.id,
+    progressType: 'PAGE',
+    value: 150,
+    isFinished: false,
 };
 
 export const bookshelfBookPrisma = {...bookshelfBookObject};

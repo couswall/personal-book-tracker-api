@@ -1,7 +1,8 @@
 import {authPaths} from '@config/swagger/auth.swagger';
 import {bookPaths} from '@config/swagger/book.swagger';
 import {bookshelfPaths} from '@config/swagger/bookshelf.swagger';
-import {bookshelfBookPaths} from '@config/swagger/bookshelfBook.swagger';
+import {bookshelfBookPaths} from '@config/swagger/bookshelfBook/bookshelfBook.swagger';
+import {bookshelfBookReadingProgressPaths} from '@config/swagger/bookshelfBook/bookshelfBook.readingProgress.swagger';
 
 export const swaggerSpec = {
     openapi: '3.0.0',
@@ -156,5 +157,6 @@ export const swaggerSpec = {
         ...bookPaths,
         ...bookshelfPaths,
         ...bookshelfBookPaths,
+        ...bookshelfBookReadingProgressPaths,
     },
 };

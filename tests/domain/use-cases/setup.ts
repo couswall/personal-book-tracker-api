@@ -15,6 +15,9 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
         addToBookshelf: jest.fn(),
         updateBookshelf: jest.fn(),
         removeFromBookshelf: jest.fn(),
+        updateReadingProgress: jest.fn(),
+        getBookshelfBookById: jest.fn(),
+        finishReadingProgress: jest.fn(),
     };
     const mockBookRepository: jest.Mocked<BookRepository> = {
         search: jest.fn(),
@@ -26,6 +29,7 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
     const mockBookshelfRepository: jest.Mocked<BookshelfRepository> = {
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
+        getBookshelfByUserAndType: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
     };
     const mockReadingSessionRepository: jest.Mocked<ReadingSessionRepository> = {

@@ -4,6 +4,7 @@ import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.reposi
 import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-bookshelfBook.dto';
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
 import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
+import {UpdateReadingProgressDto} from '@domain/dtos/bookshelfBook/updateReadingProgress-bookshelfBook.dto';
 
 export class BookshelfBookRepositoryImpl implements BookshelfBookRepository {
     constructor(private readonly datasource: BookshelfBookDatasource) {}
@@ -22,5 +23,22 @@ export class BookshelfBookRepositoryImpl implements BookshelfBookRepository {
         removeFromBookshelfDto: RemoveFromBookshelfDto
     ): Promise<BookshelfBookEntity> {
         return this.datasource.removeFromBookshelf(removeFromBookshelfDto);
+    }
+
+    updateReadingProgress(
+        updateReadingProgressDto: UpdateReadingProgressDto
+    ): Promise<BookshelfBookEntity> {
+        return this.datasource.updateReadingProgress(updateReadingProgressDto);
+    }
+
+    getBookshelfBookById(bookshelfBookId: number): Promise<BookshelfBookEntity> {
+        return this.datasource.getBookshelfBookById(bookshelfBookId);
+    }
+
+    finishReadingProgress(
+        bookshelfBookId: number,
+        readBookshelfId: number
+    ): Promise<BookshelfBookEntity> {
+        return this.datasource.finishReadingProgress(bookshelfBookId, readBookshelfId);
     }
 }

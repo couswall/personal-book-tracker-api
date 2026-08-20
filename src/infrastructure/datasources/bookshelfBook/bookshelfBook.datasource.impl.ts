@@ -6,7 +6,9 @@ import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-books
 import {BookshelfBookDatasource} from '@domain/datasources/bookshelfbook.datasource';
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
 import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
+import {UpdateReadingProgressDto} from '@domain/dtos/bookshelfBook/updateReadingProgress-bookshelfBook.dto';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {computeProgress} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.progress.helpers';
 
 export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
     async addToBookshelf(
@@ -115,5 +117,87 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
         });
 
         return BookshelfBookEntity.fromObject(deletedBook);
+    }
+
+    async updateReadingProgress(
+        updateReadingProgressDto: UpdateReadingProgressDto
+    ): Promise<BookshelfBookEntity> {
+        const {bookshelfBookId, progressType, value} = updateReadingProgressDto;
+
+        const existingBook = await prisma.bookshelfBook.findUnique({
+            where: {id: bookshelfBookId},
+        });
+
+        if (!existingBook)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+            );
+
+        const {currentPage, readingProgress} = computeProgress(
+            progressType,
+            value,
+            existingBook.totalPages,
+            existingBook.currentPage,
+            existingBook.readingProgress
+        );
+
+        try {
+            const updatedBook = await prisma.bookshelfBook.update({
+                data: {currentPage, readingProgress},
+                where: {id: existingBook.id},
+            });
+
+            return BookshelfBookEntity.fromObject(updatedBook);
+        } catch (error) {
+            if (
+                error instanceof Prisma.PrismaClientKnownRequestError &&
+                error.code === 'P2025'
+            ) {
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+                );
+            }
+            throw error;
+        }
+    }
+
+    async getBookshelfBookById(bookshelfBookId: number): Promise<BookshelfBookEntity> {
+        const bookshelfBook = await prisma.bookshelfBook.findUnique({
+            where: {id: bookshelfBookId},
+        });
+
+        if (!bookshelfBook)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+            );
+
+        return BookshelfBookEntity.fromObject(bookshelfBook);
+    }
+
+    async finishReadingProgress(
+        bookshelfBookId: number,
+        readBookshelfId: number
+    ): Promise<BookshelfBookEntity> {
+        return prisma.$transaction(async (tx) => {
+            const existingBook = await tx.bookshelfBook.findUnique({
+                where: {id: bookshelfBookId},
+            });
+
+            if (!existingBook)
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+                );
+
+            const updatedBook = await tx.bookshelfBook.update({
+                where: {id: bookshelfBookId},
+                data: {
+                    bookshelfId: readBookshelfId,
+                    readingProgress: 100,
+                    currentPage: existingBook.totalPages,
+                },
+            });
+
+            return BookshelfBookEntity.fromObject(updatedBook);
+        });
     }
 }

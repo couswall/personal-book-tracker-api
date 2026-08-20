@@ -2,7 +2,7 @@ import {Request, Response} from 'express';
 import {createMockRequest, createMockResponse, getMockHttpAdapter} from '@tests/setup';
 import {BookshelfBookController} from '@presentation/bookshelfBook/controller';
 import {BookshelfBookRepositoryImpl} from '@infrastructure/repositories/bookshelfBook.repository.impl';
-import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
+import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.datasource.impl';
 import {BookRepositoryImpl} from '@infrastructure/repositories/book.repository.impl';
 import {BookDatasourceImpl} from '@/src/infrastructure/datasources/book/book.datasource.impl';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
