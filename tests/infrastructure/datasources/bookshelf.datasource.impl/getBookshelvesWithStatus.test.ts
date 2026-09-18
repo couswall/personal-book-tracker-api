@@ -44,6 +44,7 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
                 id: bookshelfWithStatus.bookshelfBookId,
                 readingProgress: 50,
                 currentPage: 120,
+                progressType: 'PAGE',
             },
         ],
     };
@@ -85,6 +86,7 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
         expect(result[0].isSelected).toBe(true);
         expect(result[0].readingProgress).toBe(50);
         expect(result[0].currentPage).toBe(120);
+        expect(result[0].progressType).toBe('PAGE');
     });
 
     test('should return null readingProgress and currentPage when book is not in a CURRENTLY_READING shelf', async () => {

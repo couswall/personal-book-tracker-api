@@ -35,7 +35,7 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
             where: {id: dto.bookshelfBookId},
         });
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: 150, readingProgress: 50},
+            data: {currentPage: 150, readingProgress: 50, progressType: 'PAGE'},
             where: {id: bookshelfBookPrisma.id},
         });
     });
@@ -56,7 +56,11 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
         await datasourceImpl.updateReadingProgress(dto);
 
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: bookshelfBookPrisma.totalPages, readingProgress: 100},
+            data: {
+                currentPage: bookshelfBookPrisma.totalPages,
+                readingProgress: 100,
+                progressType: 'PAGE',
+            },
             where: {id: bookshelfBookPrisma.id},
         });
     });
@@ -77,7 +81,7 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
         await datasourceImpl.updateReadingProgress(dto);
 
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: 0, readingProgress: 0},
+            data: {currentPage: 0, readingProgress: 0, progressType: 'PAGE'},
             where: {id: bookshelfBookPrisma.id},
         });
     });
@@ -99,7 +103,11 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
         await datasourceImpl.updateReadingProgress(dto);
 
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: 150, readingProgress: existingBook.readingProgress},
+            data: {
+                currentPage: 150,
+                readingProgress: existingBook.readingProgress,
+                progressType: 'PAGE',
+            },
             where: {id: existingBook.id},
         });
     });
@@ -120,7 +128,7 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
         await datasourceImpl.updateReadingProgress(dto);
 
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: 180, readingProgress: 60},
+            data: {currentPage: 180, readingProgress: 60, progressType: 'PERCENTAGE'},
             where: {id: bookshelfBookPrisma.id},
         });
     });
@@ -141,7 +149,11 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
         await datasourceImpl.updateReadingProgress(dto);
 
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: bookshelfBookPrisma.totalPages, readingProgress: 100},
+            data: {
+                currentPage: bookshelfBookPrisma.totalPages,
+                readingProgress: 100,
+                progressType: 'PERCENTAGE',
+            },
             where: {id: bookshelfBookPrisma.id},
         });
     });
@@ -162,7 +174,7 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
         await datasourceImpl.updateReadingProgress(dto);
 
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: 0, readingProgress: 0},
+            data: {currentPage: 0, readingProgress: 0, progressType: 'PERCENTAGE'},
             where: {id: bookshelfBookPrisma.id},
         });
     });
@@ -184,7 +196,11 @@ describe('BookshelfBookDatasourceImpl.updateReadingProgress tests', () => {
         await datasourceImpl.updateReadingProgress(dto);
 
         expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            data: {currentPage: existingBook.currentPage, readingProgress: 60},
+            data: {
+                currentPage: existingBook.currentPage,
+                readingProgress: 60,
+                progressType: 'PERCENTAGE',
+            },
             where: {id: existingBook.id},
         });
     });

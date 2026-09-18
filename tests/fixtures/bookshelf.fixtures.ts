@@ -36,4 +36,5 @@ export const bookshelfWithStatus: IBookshelfWithStatus = {
     bookCount: 3,
     readingProgress: null,
     currentPage: null,
+    progressType: null,
 };

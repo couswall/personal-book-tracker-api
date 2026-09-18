@@ -13,6 +13,7 @@ export interface IBookshelfBookFromObject {
     readingProgress: number;
     currentPage: number | null;
     totalPages: number | null;
+    progressType: ReadingProgressType | null;
 }
 
 export interface IUpdateBookshelfDto {

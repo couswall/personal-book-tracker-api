@@ -143,7 +143,7 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
 
         try {
             const updatedBook = await prisma.bookshelfBook.update({
-                data: {currentPage, readingProgress},
+                data: {currentPage, readingProgress, progressType},
                 where: {id: existingBook.id},
             });
 

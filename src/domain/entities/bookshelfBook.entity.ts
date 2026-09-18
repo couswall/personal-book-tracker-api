@@ -1,4 +1,7 @@
-import {IBookshelfBookFromObject} from '@domain/interfaces/bookshelfBook.interfaces';
+import {
+    IBookshelfBookFromObject,
+    ReadingProgressType,
+} from '@domain/interfaces/bookshelfBook.interfaces';
 
 export class BookshelfBookEntity {
     constructor(
@@ -7,7 +10,8 @@ export class BookshelfBookEntity {
         public bookId: number,
         public readingProgress: number = 0,
         public currentPage: number | null,
-        public totalPages: number | null
+        public totalPages: number | null,
+        public progressType: ReadingProgressType | null = null
     ) {}
 
     static fromObject(object: IBookshelfBookFromObject): BookshelfBookEntity {
@@ -17,7 +21,8 @@ export class BookshelfBookEntity {
             object.bookId,
             object.readingProgress,
             object.currentPage,
-            object.totalPages
+            object.totalPages,
+            object.progressType
         );
     }
 }

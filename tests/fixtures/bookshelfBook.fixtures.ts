@@ -13,6 +13,7 @@ export const bookshelfBookObject = {
     readingProgress: 45,
     currentPage: 135,
     totalPages: 300,
+    progressType: null,
     startReadingDate: new Date('2025-08-01'),
     endReadingDate: null,
     deletedAt: null,

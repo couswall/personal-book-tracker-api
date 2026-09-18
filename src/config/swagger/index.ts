@@ -110,6 +110,12 @@ export const swaggerSpec = {
                     bookCount: {type: 'integer', example: 1},
                     readingProgress: {type: 'number', nullable: true, example: 50},
                     currentPage: {type: 'integer', nullable: true, example: 120},
+                    progressType: {
+                        type: 'string',
+                        nullable: true,
+                        enum: ['PAGE', 'PERCENTAGE'],
+                        example: 'PAGE',
+                    },
                 },
             },
             BookshelfBookResponse: {
@@ -121,6 +127,12 @@ export const swaggerSpec = {
                     readingProgress: {type: 'number', example: 0},
                     currentPage: {type: 'integer', nullable: true, example: null},
                     totalPages: {type: 'integer', nullable: true, example: 320},
+                    progressType: {
+                        type: 'string',
+                        nullable: true,
+                        enum: ['PAGE', 'PERCENTAGE'],
+                        example: null,
+                    },
                 },
             },
             BookSummary: {

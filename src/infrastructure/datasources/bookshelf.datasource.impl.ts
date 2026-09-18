@@ -62,7 +62,12 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                 books: book
                     ? {
                           where: {bookId: book.id},
-                          select: {id: true, readingProgress: true, currentPage: true},
+                          select: {
+                              id: true,
+                              readingProgress: true,
+                              currentPage: true,
+                              progressType: true,
+                          },
                       }
                     : false,
             },
@@ -83,6 +88,8 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                         : null,
                 currentPage:
                     bookExists && isCurrentlyReading ? shelf.books[0].currentPage : null,
+                progressType:
+                    bookExists && isCurrentlyReading ? shelf.books[0].progressType : null,
             };
         });
     }
