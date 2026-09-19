@@ -3,6 +3,7 @@ import {
     AddToBookshelfDto,
     UpdateBookshelfDto,
     RemoveFromBookshelfDto,
+    UpdateReadingProgressDto,
 } from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {BookshelfBookRepositoryImpl} from '@infrastructure/repositories/bookshelfBook.repository.impl';
@@ -13,6 +14,9 @@ describe('bookshelfBook.repository.impl tests', () => {
         addToBookshelf: jest.fn(),
         updateBookshelf: jest.fn(),
         removeFromBookshelf: jest.fn(),
+        updateReadingProgress: jest.fn(),
+        getBookshelfBookById: jest.fn(),
+        finishReadingProgress: jest.fn(),
     };
 
     beforeEach(() => {
@@ -53,5 +57,30 @@ describe('bookshelfBook.repository.impl tests', () => {
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockDatasource.removeFromBookshelf).toHaveBeenCalledWith(dto);
+    });
+
+    test('updateReadingProgress() should return a BookshelfBookEntity and call datasource.updateReadingProgress()', async () => {
+        const dto = new UpdateReadingProgressDto(1, 'PAGE', 150);
+        mockDatasource.updateReadingProgress.mockResolvedValue(bookshelfBookEntity);
+        const result = await repository.updateReadingProgress(dto);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(mockDatasource.updateReadingProgress).toHaveBeenCalledWith(dto);
+    });
+
+    test('getBookshelfBookById() should return a BookshelfBookEntity and call datasource.getBookshelfBookById()', async () => {
+        mockDatasource.getBookshelfBookById.mockResolvedValue(bookshelfBookEntity);
+        const result = await repository.getBookshelfBookById(101);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(mockDatasource.getBookshelfBookById).toHaveBeenCalledWith(101);
+    });
+
+    test('finishReadingProgress() should return a BookshelfBookEntity and call datasource.finishReadingProgress()', async () => {
+        mockDatasource.finishReadingProgress.mockResolvedValue(bookshelfBookEntity);
+        const result = await repository.finishReadingProgress(101, 2);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(mockDatasource.finishReadingProgress).toHaveBeenCalledWith(101, 2);
     });
 });

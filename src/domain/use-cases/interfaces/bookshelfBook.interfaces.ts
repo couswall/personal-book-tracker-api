@@ -3,6 +3,7 @@ import {
     AddToBookshelfDto,
     UpdateBookshelfDto,
     RemoveFromBookshelfDto,
+    UpdateReadingProgressDto,
 } from '@domain/dtos';
 
 export interface AddToBookshelfUseCase {
@@ -15,4 +16,10 @@ export interface UpdateBookshelfUseCase {
 
 export interface RemoveFromBookshelfUseCase {
     execute(removeFromBookshelfDto: RemoveFromBookshelfDto): Promise<BookshelfBookEntity>;
+}
+
+export interface UpdateReadingProgressUseCase {
+    execute(
+        updateReadingProgressDto: UpdateReadingProgressDto
+    ): Promise<BookshelfBookEntity>;
 }

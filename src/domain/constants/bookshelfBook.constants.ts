@@ -8,6 +8,15 @@ export const BOOKSHELF_BOOK_DTO_ERRORS = {
             BLANK_SPACES: 'apiBookId must not contain only blankspaces',
         },
     },
+    UPDATE_READING_PROGRESS: {
+        PROGRESS_TYPE: {
+            REQUIRED: 'progressType is required',
+            INVALID: 'progressType must be either PAGE or PERCENTAGE',
+        },
+        IS_FINISHED: {
+            BOOLEAN: 'isFinished must be a boolean',
+        },
+    },
 };
 
 export const INVALID_OBJECT_ERROR = 'Invalid object';

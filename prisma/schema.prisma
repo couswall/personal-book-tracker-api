@@ -45,16 +45,22 @@ enum BookshelfType {
 }
 
 model BookshelfBook{
-  id                Int           @id @default(autoincrement())
+  id                Int                 @id @default(autoincrement())
   bookshelfId       Int
-  bookshelf         Bookshelf     @relation(fields: [bookshelfId], references: [id])
+  bookshelf         Bookshelf           @relation(fields: [bookshelfId], references: [id])
   bookId            Int
-  book              Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  readingProgress   Int           @default(0)
+  book              Book                @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  readingProgress   Int                 @default(0)
   currentPage       Int?
   totalPages        Int?
-  
+  progressType      ReadingProgressType?
+
   @@unique([bookshelfId, bookId])
+}
+
+enum ReadingProgressType {
+  PAGE
+  PERCENTAGE
 }
 
 model ReadingSession{

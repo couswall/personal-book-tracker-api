@@ -17,6 +17,17 @@ export const bookshelfEntity = BookshelfEntity.fromObject(bookshelfObj);
 
 export const bookshelfPrisma = {...bookshelfObj};
 
+export const readBookshelfObj = {
+    ...bookshelfObj,
+    id: 2,
+    name: 'Read',
+    type: BookshelfType.READ,
+};
+
+export const readBookshelfEntity = BookshelfEntity.fromObject(readBookshelfObj);
+
+export const readBookshelfPrisma = {...readBookshelfObj};
+
 export const bookshelfWithStatus: IBookshelfWithStatus = {
     id: bookshelfObj.id,
     name: bookshelfObj.name,
@@ -25,4 +36,5 @@ export const bookshelfWithStatus: IBookshelfWithStatus = {
     bookCount: 3,
     readingProgress: null,
     currentPage: null,
+    progressType: null,
 };

@@ -1,5 +1,6 @@
 import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity, UserEntity} from '@domain/entities';
+import {ReadingProgressType} from '@domain/interfaces/bookshelfBook.interfaces';
 
 export interface ICreateBookshelfEntity {
     id: number;
@@ -19,4 +20,5 @@ export interface IBookshelfWithStatus {
     bookCount: number;
     readingProgress: number | null;
     currentPage: number | null;
+    progressType: ReadingProgressType | null;
 }

@@ -1,3 +1,4 @@
+import {BookshelfType} from '@/generated/prisma';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {BookshelfEntity} from '@domain/entities/index';
 import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
@@ -10,6 +11,13 @@ describe('bookshelf.repository tests', () => {
         }
 
         async getBookshelfById(_bookshelfId: number): Promise<BookshelfEntity> {
+            return bookshelfEntity;
+        }
+
+        async getBookshelfByUserAndType(
+            _userId: number,
+            _type: BookshelfType
+        ): Promise<BookshelfEntity> {
             return bookshelfEntity;
         }
 
@@ -26,6 +34,7 @@ describe('bookshelf.repository tests', () => {
     test('abstract class should include all its methods', () => {
         expect(mockBookshelfRepository).toBeInstanceOf(MockBookshelfRepository);
         expect(typeof mockBookshelfRepository.getMyBookshelves).toBe('function');
+        expect(typeof mockBookshelfRepository.getBookshelfByUserAndType).toBe('function');
         expect(typeof mockBookshelfRepository.getBookshelvesWithStatus).toBe('function');
     });
 
@@ -38,6 +47,15 @@ describe('bookshelf.repository tests', () => {
 
     test('getBookshelfById() should return a BookshelfEntity instance', async () => {
         const result = await mockBookshelfRepository.getBookshelfById(bookshelfEntity.id);
+
+        expect(result).toBeInstanceOf(BookshelfEntity);
+    });
+
+    test('getBookshelfByUserAndType() should return a BookshelfEntity instance', async () => {
+        const result = await mockBookshelfRepository.getBookshelfByUserAndType(
+            1,
+            BookshelfType.READ
+        );
 
         expect(result).toBeInstanceOf(BookshelfEntity);
     });

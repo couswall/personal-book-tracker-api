@@ -1,3 +1,5 @@
+const BOOKSHELF_BOOK_NOT_FOUND = 'Bookshelf book with provided ID does not exist';
+
 export const ERROR_MESSAGES = {
     USER: {
         LOGIN: {
@@ -27,6 +29,9 @@ export const ERROR_MESSAGES = {
         GET_BOOKSHELF_BY_ID: {
             NOT_FOUND: 'Bookshelf with provided ID does not exist',
         },
+        GET_BOOKSHELF_BY_USER_AND_TYPE: {
+            NOT_FOUND: 'Bookshelf with provided type does not exist for this user',
+        },
     },
     BOOK: {
         GET_BOOK_BY_ID: {
@@ -42,10 +47,13 @@ export const ERROR_MESSAGES = {
             INVALID_READING_STATUS: 'Invalid reading status ID',
         },
         UPDATE_BOOKSHELF: {
-            NOT_FOUND: 'Bookshelf book with provided ID does not exist',
+            NOT_FOUND: BOOKSHELF_BOOK_NOT_FOUND,
         },
         REMOVE_FROM_BOOKSHELF: {
-            NOT_FOUND: 'Bookshelf book with provided ID does not exist',
+            NOT_FOUND: BOOKSHELF_BOOK_NOT_FOUND,
+        },
+        UPDATE_READING_PROGRESS: {
+            NOT_FOUND: BOOKSHELF_BOOK_NOT_FOUND,
         },
     },
 };

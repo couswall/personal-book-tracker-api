@@ -3,6 +3,7 @@ import {BookshelfBookEntity} from '@domain/entities';
 import {
     IUpdateBookshelfDto,
     IRemoveFromBookshelfDto,
+    IUpdateReadingProgressDto,
 } from '@domain/interfaces/bookshelfBook.interfaces';
 
 export const bookshelfBookObject = {
@@ -12,6 +13,7 @@ export const bookshelfBookObject = {
     readingProgress: 45,
     currentPage: 135,
     totalPages: 300,
+    progressType: null,
     startReadingDate: new Date('2025-08-01'),
     endReadingDate: null,
     deletedAt: null,
@@ -32,6 +34,13 @@ export const updateBookshelfDtoObject: IUpdateBookshelfDto = {
 
 export const removeFromBookshelfDtoObject: IRemoveFromBookshelfDto = {
     bookshelfBookId: bookshelfBookObject.id,
+};
+
+export const updateReadingProgressDtoObject: IUpdateReadingProgressDto = {
+    bookshelfBookId: bookshelfBookObject.id,
+    progressType: 'PAGE',
+    value: 150,
+    isFinished: false,
 };
 
 export const bookshelfBookPrisma = {...bookshelfBookObject};

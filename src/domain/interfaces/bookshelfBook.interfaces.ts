@@ -13,6 +13,7 @@ export interface IBookshelfBookFromObject {
     readingProgress: number;
     currentPage: number | null;
     totalPages: number | null;
+    progressType: ReadingProgressType | null;
 }
 
 export interface IUpdateBookshelfDto {
@@ -23,4 +24,13 @@ export interface IUpdateBookshelfDto {
 
 export interface IRemoveFromBookshelfDto {
     bookshelfBookId?: number | string;
+}
+
+export type ReadingProgressType = 'PAGE' | 'PERCENTAGE';
+
+export interface IUpdateReadingProgressDto {
+    bookshelfBookId?: number | string;
+    progressType?: string;
+    value?: number | string;
+    isFinished?: boolean;
 }

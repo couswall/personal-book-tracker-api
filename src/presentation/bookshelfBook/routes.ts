@@ -2,7 +2,7 @@ import {Router} from 'express';
 import {AxiosAdapter} from '@config/axios.adapter';
 import {BookshelfBookController} from '@presentation/bookshelfBook/controller';
 import {BookshelfBookRepositoryImpl} from '@infrastructure/repositories/bookshelfBook.repository.impl';
-import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
+import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.datasource.impl';
 import {BookRepositoryImpl} from '@infrastructure/repositories/book.repository.impl';
 import {BookDatasourceImpl} from '@/src/infrastructure/datasources/book/book.datasource.impl';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
@@ -43,6 +43,11 @@ export class BookshelfBookRoutes {
             '/:bookshelfBookId',
             [validateJWT],
             bookshelfController.removeFromBookshelf
+        );
+        router.put(
+            '/updateReadingProgress',
+            [validateJWT],
+            bookshelfController.updateReadingProgress
         );
 
         return router;

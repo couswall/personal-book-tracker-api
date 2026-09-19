@@ -1,12 +1,19 @@
+import {BookshelfType} from '@/generated/prisma';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {BookshelfEntity} from '@domain/entities';
-import {bookshelfEntity, bookshelfObj, bookshelfWithStatus} from '@tests/fixtures';
+import {
+    bookshelfEntity,
+    bookshelfObj,
+    bookshelfWithStatus,
+    readBookshelfEntity,
+} from '@tests/fixtures';
 
 describe('bookshelf.repository.impl tests', () => {
     const mockDatasource: jest.Mocked<BookshelfDatasource> = {
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
+        getBookshelfByUserAndType: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
     };
 
@@ -32,6 +39,21 @@ describe('bookshelf.repository.impl tests', () => {
         const result = await mockRepositoryImpl.getBookshelfById(bookshelfObj.id);
 
         expect(mockDatasource.getBookshelfById).toHaveBeenCalledWith(bookshelfObj.id);
+        expect(result).toBeInstanceOf(BookshelfEntity);
+    });
+
+    test('getBookshelfByUserAndType() should call datasource.getBookshelfByUserAndType() and return a BookshelfEntity', async () => {
+        mockDatasource.getBookshelfByUserAndType.mockResolvedValue(readBookshelfEntity);
+
+        const result = await mockRepositoryImpl.getBookshelfByUserAndType(
+            bookshelfObj.userId,
+            BookshelfType.READ
+        );
+
+        expect(mockDatasource.getBookshelfByUserAndType).toHaveBeenCalledWith(
+            bookshelfObj.userId,
+            BookshelfType.READ
+        );
         expect(result).toBeInstanceOf(BookshelfEntity);
     });
 

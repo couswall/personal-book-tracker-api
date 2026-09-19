@@ -28,6 +28,22 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
         return BookshelfEntity.fromObject(bookshelf);
     }
 
+    async getBookshelfByUserAndType(
+        userId: number,
+        type: BookshelfType
+    ): Promise<BookshelfEntity> {
+        const bookshelf = await prisma.bookshelf.findFirst({
+            where: {userId, type, deletedAt: null},
+        });
+
+        if (!bookshelf)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_USER_AND_TYPE.NOT_FOUND
+            );
+
+        return BookshelfEntity.fromObject(bookshelf);
+    }
+
     async getBookshelvesWithStatus(
         userId: number,
         apiBookId: string
@@ -46,7 +62,12 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                 books: book
                     ? {
                           where: {bookId: book.id},
-                          select: {id: true, readingProgress: true, currentPage: true},
+                          select: {
+                              id: true,
+                              readingProgress: true,
+                              currentPage: true,
+                              progressType: true,
+                          },
                       }
                     : false,
             },
@@ -67,6 +88,8 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                         : null,
                 currentPage:
                     bookExists && isCurrentlyReading ? shelf.books[0].currentPage : null,
+                progressType:
+                    bookExists && isCurrentlyReading ? shelf.books[0].progressType : null,
             };
         });
     }

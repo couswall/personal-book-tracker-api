@@ -3,11 +3,17 @@ import {CustomError} from '@domain/errors/custom.error';
 import {AddToBookshelfDto} from '@domain/dtos';
 import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.repository';
 import {BookRepository} from '@domain/repositories/book.repository';
-import {AddToBookshelf, UpdateBookshelf, RemoveFromBookshelf} from '@domain/use-cases';
+import {
+    AddToBookshelf,
+    UpdateBookshelf,
+    RemoveFromBookshelf,
+    UpdateReadingProgress,
+} from '@domain/use-cases';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {ReadingSessionRepository} from '@domain/repositories/readingSession.repository';
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
 import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
+import {UpdateReadingProgressDto} from '@domain/dtos/bookshelfBook/updateReadingProgress-bookshelfBook.dto';
 
 export class BookshelfBookController {
     constructor(
@@ -91,6 +97,33 @@ export class BookshelfBookController {
                     message: 'Book removed from bookshelf successfully',
                 })
             )
+            .catch((error) => CustomError.handleError(error, res));
+    };
+
+    public updateReadingProgress = (req: Request, res: Response) => {
+        const [errorMsg, dto] = UpdateReadingProgressDto.create(req.body);
+        if (errorMsg || !dto) {
+            res.status(400).json({
+                success: false,
+                error: {message: errorMsg},
+            });
+            return;
+        }
+
+        new UpdateReadingProgress(
+            this.repository,
+            this.bookRepository,
+            this.bookshelfRepository,
+            this.readingSessionRepository
+        )
+            .execute(dto)
+            .then((bookshelfBook) => {
+                res.status(200).json({
+                    success: true,
+                    message: 'Reading progress updated successfully',
+                    data: {bookshelfBook},
+                });
+            })
             .catch((error) => CustomError.handleError(error, res));
     };
 }

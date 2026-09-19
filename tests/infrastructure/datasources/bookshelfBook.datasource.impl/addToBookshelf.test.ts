@@ -2,7 +2,7 @@ import {prisma} from '@tests/setup';
 import {BookshelfType, Prisma} from '@/generated/prisma';
 import {CustomError} from '@domain/errors/custom.error';
 import {AddToBookshelfDto} from '@domain/dtos';
-import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
+import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.datasource.impl';
 import {BookshelfBookEntity} from '@domain/entities';
 import {addToBookshelfDtoObject, bookshelfBookPrisma} from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
