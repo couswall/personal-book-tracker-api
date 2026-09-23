@@ -25,7 +25,7 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
         };
 
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
             bookshelfBookPrisma
         );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(
@@ -52,7 +52,7 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
         };
 
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
             bookshelfBookPrisma
         );
 
@@ -88,6 +88,9 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
     test('should throw a 400 error status when bookshelf with provided ID does not exist', async () => {
         mockRequest.body = updateBookshelfDtoObject;
 
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
+            bookshelfBookPrisma
+        );
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(null);
 
         await new Promise<void>((resolve) => {

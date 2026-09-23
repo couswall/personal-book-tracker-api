@@ -30,6 +30,10 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockBookshelfBookRepository.getBookshelfBookById.mockResolvedValue(
+            bookshelfBookEntity
+        );
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(bookshelfEntity);
     });
 
     test('execute() should return the repository result when isFinished is false', async () => {
@@ -38,18 +42,38 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
             bookshelfBookEntity
         );
 
-        const result = await buildUseCase().execute(dto);
+        const result = await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(result).toEqual(bookshelfBookEntity);
         expect(mockBookshelfBookRepository.updateReadingProgress).toHaveBeenCalledWith(
             dto
         );
-        expect(mockBookshelfBookRepository.getBookshelfBookById).not.toHaveBeenCalled();
         expect(mockBookshelfBookRepository.finishReadingProgress).not.toHaveBeenCalled();
-        expect(mockBookshelfRepository.getBookshelfById).not.toHaveBeenCalled();
         expect(mockBookshelfRepository.getBookshelfByUserAndType).not.toHaveBeenCalled();
     });
+
+    test.each([false, true])(
+        'execute() should not touch a bookshelf book owned by another user (isFinished: %s)',
+        async (isFinished) => {
+            const dto = new UpdateReadingProgressDto(1, 'PAGE', 150, isFinished);
+
+            await expect(
+                buildUseCase().execute(dto, bookshelfEntity.userId + 1)
+            ).rejects.toThrow(
+                CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF_BOOK.NOT_FOUND)
+            );
+
+            expect(
+                mockBookshelfBookRepository.updateReadingProgress
+            ).not.toHaveBeenCalled();
+            expect(
+                mockBookshelfBookRepository.finishReadingProgress
+            ).not.toHaveBeenCalled();
+            expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
+            expect(mockReadingSessionRepository.finishSession).not.toHaveBeenCalled();
+        }
+    );
 
     test('execute() should propagate the NOT_FOUND error from repository.updateReadingProgress', async () => {
         const dto = new UpdateReadingProgressDto(1, 'PAGE', 150);
@@ -59,7 +83,7 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
             )
         );
 
-        await expect(buildUseCase().execute(dto)).rejects.toThrow(
+        await expect(buildUseCase().execute(dto, bookshelfEntity.userId)).rejects.toThrow(
             CustomError.badRequest(
                 ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
             )
@@ -80,7 +104,7 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
         );
         mockReadingSessionRepository.findOpenSession.mockResolvedValue(null);
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockBookshelfBookRepository.updateReadingProgress).not.toHaveBeenCalled();
     });
@@ -99,7 +123,7 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
         );
         mockReadingSessionRepository.findOpenSession.mockResolvedValue(null);
 
-        const result = await buildUseCase().execute(dto);
+        const result = await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockBookshelfBookRepository.getBookshelfBookById).toHaveBeenCalledWith(
@@ -134,7 +158,7 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
             readingSessionEntity
         );
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockReadingSessionRepository.finishSession).toHaveBeenCalledWith(
             readingSessionEntity.id
@@ -156,7 +180,7 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
         );
         mockReadingSessionRepository.findOpenSession.mockResolvedValue(null);
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockReadingSessionRepository.createSession).toHaveBeenCalledWith({
             userId: bookshelfEntity.userId,
@@ -179,7 +203,7 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
             )
         );
 
-        await expect(buildUseCase().execute(dto)).rejects.toThrow(
+        await expect(buildUseCase().execute(dto, bookshelfEntity.userId)).rejects.toThrow(
             CustomError.badRequest(
                 ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_USER_AND_TYPE.NOT_FOUND
             )

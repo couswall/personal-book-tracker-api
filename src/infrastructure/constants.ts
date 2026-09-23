@@ -42,6 +42,7 @@ export const ERROR_MESSAGES = {
         },
     },
     BOOKSHELF_BOOK: {
+        NOT_FOUND: BOOKSHELF_BOOK_NOT_FOUND,
         ADD_TO_BOOKSHELF: {
             ALREADY_ADDED: 'This book has already been added to a bookshelf.',
             INVALID_READING_STATUS: 'Invalid reading status ID',

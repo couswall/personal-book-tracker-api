@@ -1,3 +1,4 @@
+import {bookshelfObj} from '@tests/fixtures';
 import {Request, Response} from 'express';
 import {createMockRequest, createMockResponse, getMockHttpAdapter} from '@tests/setup';
 import {BookshelfBookController} from '@presentation/bookshelfBook/controller';
@@ -10,6 +11,8 @@ import {BookshelfDatasourceImpl} from '@infrastructure/datasources/bookshelf.dat
 import {ReadingSessionRepositoryImpl} from '@infrastructure/repositories/readingSession.repository.impl';
 import {ReadingSessionDatasourceImpl} from '@infrastructure/datasources/readingSession.datasource.impl';
 import {HttpClient} from '@config/interfaces';
+
+export const AUTH_USER_ID = bookshelfObj.userId;
 
 export interface IBookshelfBookControllerSetup {
     controller: BookshelfBookController;
@@ -39,6 +42,7 @@ export const createBookshelfBookControllerSetup = (): IBookshelfBookControllerSe
     );
     const mockRequest = createMockRequest();
     const mockResponse = createMockResponse();
+    mockResponse.locals = {userId: AUTH_USER_ID};
 
     return {
         controller,

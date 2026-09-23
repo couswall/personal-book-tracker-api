@@ -24,15 +24,19 @@ describe('validate-jwt middleware test', () => {
     const mockResponse: Partial<Response> = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
+        locals: {},
     };
     const mockRequest: Partial<Request> = {
         header: jest.fn(),
     };
 
     const mockNextFn: NextFunction = jest.fn();
-    const mockPayload = {id: 1, username: 'test', email: 'any-email@google.com'};
+    const mockPayload = {id: 1};
 
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockResponse.locals = {};
+    });
 
     test('should call next() when token is valid', async () => {
         (mockRequest.header as jest.Mock).mockReturnValue('Bearer any-token');
@@ -42,6 +46,7 @@ describe('validate-jwt middleware test', () => {
         await validateJWT(mockRequest as Request, mockResponse as Response, mockNextFn);
 
         expect(mockNextFn).toHaveBeenCalled();
+        expect(mockResponse.locals).toEqual({userId: mockUserPrisma.id});
         expect(prisma.user.findFirst).toHaveBeenCalledWith({
             where: {id: mockPayload.id, deletedAt: null},
         });
@@ -110,6 +115,7 @@ describe('validate-jwt middleware test', () => {
         await validateJWT(mockRequest as Request, mockResponse as Response, mockNextFn);
 
         expect(mockNextFn).not.toHaveBeenCalled();
+        expect(mockResponse.locals).toEqual({});
         expect(mockResponse.status).toHaveBeenCalledWith(401);
         expect(mockResponse.json).toHaveBeenCalledWith({
             success: false,

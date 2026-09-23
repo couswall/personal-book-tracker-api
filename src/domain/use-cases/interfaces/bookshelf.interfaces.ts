@@ -7,5 +7,8 @@ export interface GetMyBookShelvesUseCase {
 }
 
 export interface GetBookshelvesWithStatusUseCase {
-    execute(dto: GetBookshelvesWithStatusDto): Promise<IBookshelfWithStatus[]>;
+    execute(
+        userId: number,
+        dto: GetBookshelvesWithStatusDto
+    ): Promise<IBookshelfWithStatus[]>;
 }

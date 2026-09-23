@@ -7,19 +7,29 @@ import {
 } from '@domain/dtos';
 
 export interface AddToBookshelfUseCase {
-    execute(addToBookshelfDto: AddToBookshelfDto): Promise<BookshelfBookEntity>;
+    execute(
+        addToBookshelfDto: AddToBookshelfDto,
+        userId: number
+    ): Promise<BookshelfBookEntity>;
 }
 
 export interface UpdateBookshelfUseCase {
-    execute(updateBookshelfDto: UpdateBookshelfDto): Promise<BookshelfBookEntity>;
+    execute(
+        updateBookshelfDto: UpdateBookshelfDto,
+        userId: number
+    ): Promise<BookshelfBookEntity>;
 }
 
 export interface RemoveFromBookshelfUseCase {
-    execute(removeFromBookshelfDto: RemoveFromBookshelfDto): Promise<BookshelfBookEntity>;
+    execute(
+        removeFromBookshelfDto: RemoveFromBookshelfDto,
+        userId: number
+    ): Promise<BookshelfBookEntity>;
 }
 
 export interface UpdateReadingProgressUseCase {
     execute(
-        updateReadingProgressDto: UpdateReadingProgressDto
+        updateReadingProgressDto: UpdateReadingProgressDto,
+        userId: number
     ): Promise<BookshelfBookEntity>;
 }

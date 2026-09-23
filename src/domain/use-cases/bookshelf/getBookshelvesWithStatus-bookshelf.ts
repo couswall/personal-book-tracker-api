@@ -10,8 +10,11 @@ export class GetBookshelvesWithStatus implements GetBookshelvesWithStatusUseCase
         private readonly userRepository: UserRepository
     ) {}
 
-    async execute(dto: GetBookshelvesWithStatusDto): Promise<IBookshelfWithStatus[]> {
-        await this.userRepository.getById({id: dto.userId});
-        return this.repository.getBookshelvesWithStatus(dto.userId, dto.apiBookId);
+    async execute(
+        userId: number,
+        dto: GetBookshelvesWithStatusDto
+    ): Promise<IBookshelfWithStatus[]> {
+        await this.userRepository.getById({id: userId});
+        return this.repository.getBookshelvesWithStatus(userId, dto.apiBookId);
     }
 }

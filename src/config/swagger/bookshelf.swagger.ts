@@ -1,18 +1,9 @@
 export const bookshelfPaths = {
-    '/api/bookshelf/getMyBookshelves/{userId}': {
+    '/api/bookshelf/me': {
         get: {
             tags: ['Bookshelf'],
-            summary: "Get all of a user's bookshelves",
+            summary: "Get all of the authenticated user's bookshelves",
             security: [{bearerAuth: []}],
-            parameters: [
-                {
-                    name: 'userId',
-                    in: 'path',
-                    required: true,
-                    schema: {type: 'integer'},
-                    example: 1,
-                },
-            ],
             responses: {
                 200: {
                     description: 'List of bookshelves',
@@ -42,19 +33,13 @@ export const bookshelfPaths = {
             },
         },
     },
-    '/api/bookshelf/bookStatus/{userId}/{apiBookId}': {
+    '/api/bookshelf/bookStatus/{apiBookId}': {
         get: {
             tags: ['Bookshelf'],
-            summary: 'Get bookshelves with membership status for a specific book',
+            summary:
+                "Get the authenticated user's bookshelves with membership status for a specific book",
             security: [{bearerAuth: []}],
             parameters: [
-                {
-                    name: 'userId',
-                    in: 'path',
-                    required: true,
-                    schema: {type: 'integer'},
-                    example: 1,
-                },
                 {
                     name: 'apiBookId',
                     in: 'path',

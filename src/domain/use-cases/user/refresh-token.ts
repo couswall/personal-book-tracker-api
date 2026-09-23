@@ -21,11 +21,7 @@ export class RefreshToken implements RefreshTokenUseCase {
 
         const user = await this.repository.getById(getUserByIdDto);
 
-        const newToken = await JwtAdapter.generateToken({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-        });
+        const newToken = await JwtAdapter.generateToken({id: user.id});
 
         if (!newToken) throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 

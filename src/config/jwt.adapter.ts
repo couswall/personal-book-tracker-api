@@ -1,4 +1,4 @@
-import jwt, {SignOptions} from 'jsonwebtoken';
+import jwt, {Algorithm, SignOptions} from 'jsonwebtoken';
 import {StringValue} from 'ms';
 import {envs} from '@config/envs';
 import {CustomError} from '@domain/errors/custom.error';
@@ -6,19 +6,17 @@ import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 interface IPayloadJWT {
     id: number;
-    username: string;
-    email: string;
 }
 
 const JWT_SEED = envs.JWT_SEED;
+const JWT_ALGORITHM: Algorithm = 'HS256';
 
 function isIPayloadJWT(decode: unknown): decode is IPayloadJWT {
     return (
         typeof decode === 'object' &&
         decode !== null &&
         'id' in decode &&
-        'username' in decode &&
-        'email' in decode
+        typeof decode.id === 'number'
     );
 }
 
@@ -28,7 +26,7 @@ export class JwtAdapter {
         duration: StringValue = '2h'
     ): Promise<string | undefined> {
         return new Promise((resolve) => {
-            const options: SignOptions = {expiresIn: duration};
+            const options: SignOptions = {expiresIn: duration, algorithm: JWT_ALGORITHM};
             jwt.sign(payload, JWT_SEED, options, (error, token) => {
                 if (error) return resolve(undefined);
 
@@ -39,13 +37,22 @@ export class JwtAdapter {
 
     static async validateToken(token: string): Promise<IPayloadJWT> {
         return new Promise((resolve, reject) => {
-            jwt.verify(token, JWT_SEED, (error, decode) => {
-                if (error)
-                    return reject(CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID));
-                if (!isIPayloadJWT(decode))
-                    return reject(CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID));
-                resolve(decode);
-            });
+            jwt.verify(
+                token,
+                JWT_SEED,
+                {algorithms: [JWT_ALGORITHM]},
+                (error, decode) => {
+                    if (error)
+                        return reject(
+                            CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID)
+                        );
+                    if (!isIPayloadJWT(decode))
+                        return reject(
+                            CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID)
+                        );
+                    resolve(decode);
+                }
+            );
         });
     }
 }

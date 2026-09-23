@@ -48,6 +48,7 @@ export const validateJWT = async (req: Request, res: Response, next: NextFunctio
             return;
         }
 
+        res.locals.userId = user.id;
         next();
     } catch (error) {
         if (error instanceof CustomError) {

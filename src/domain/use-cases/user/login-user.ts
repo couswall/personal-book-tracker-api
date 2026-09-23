@@ -14,11 +14,7 @@ export class LoginUser implements LoginUserUseCase {
     async execute(loginUserDto: LoginUserDto): Promise<LoginResponse> {
         const user = await this.repository.login(loginUserDto);
 
-        const token = await JwtAdapter.generateToken({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-        });
+        const token = await JwtAdapter.generateToken({id: user.id});
 
         if (!token) throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 

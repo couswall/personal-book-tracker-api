@@ -43,11 +43,7 @@ describe('refresh-token use case test', () => {
         expect(result.token).toBe(mockNewToken);
         expect(JwtAdapter.validateToken).toHaveBeenCalledWith(mockToken);
         expect(mockUserRepository.getById).toHaveBeenCalled();
-        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({
-            id: userEntity.id,
-            username: userEntity.username,
-            email: userEntity.email,
-        });
+        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
     test('execute() should throw error when token validation fails', async () => {
