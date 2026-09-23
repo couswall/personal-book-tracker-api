@@ -24,9 +24,10 @@ describe('BookshelfBookController.updateReadingProgress tests', () => {
             value: 150,
         };
 
-        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
             bookshelfBookPrisma
         );
+        (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue({
             ...bookshelfBookPrisma,
             currentPage: 150,
@@ -56,9 +57,10 @@ describe('BookshelfBookController.updateReadingProgress tests', () => {
             value: 60,
         };
 
-        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
             bookshelfBookPrisma
         );
+        (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue({
             ...bookshelfBookPrisma,
             currentPage: 180,

@@ -5,6 +5,7 @@ import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.reposi
 import {BookRepository} from '@domain/repositories/book.repository';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {ReadingSessionRepository} from '@domain/repositories/readingSession.repository';
+import {getOwnedBookshelfBook} from '@domain/use-cases/bookshelfBook/ownership.helpers';
 import {UpdateReadingProgressUseCase} from '@domain/use-cases/interfaces/bookshelfBook.interfaces';
 
 export class UpdateReadingProgress implements UpdateReadingProgressUseCase {
@@ -16,19 +17,31 @@ export class UpdateReadingProgress implements UpdateReadingProgressUseCase {
     ) {}
 
     async execute(
-        updateReadingProgressDto: UpdateReadingProgressDto
+        updateReadingProgressDto: UpdateReadingProgressDto,
+        userId: number
     ): Promise<BookshelfBookEntity> {
+        const {bookshelfBook} = await getOwnedBookshelfBook(
+            this.repository,
+            this.bookshelfRepository,
+            updateReadingProgressDto.bookshelfBookId,
+            userId
+        );
+
         if (!updateReadingProgressDto.isFinished)
             return this.repository.updateReadingProgress(updateReadingProgressDto);
 
-        return this.finish(updateReadingProgressDto.bookshelfBookId);
+        return this.finish(
+            updateReadingProgressDto.bookshelfBookId,
+            bookshelfBook,
+            userId
+        );
     }
 
-    private async finish(bookshelfBookId: number): Promise<BookshelfBookEntity> {
-        const bookshelfBook = await this.repository.getBookshelfBookById(bookshelfBookId);
-        const {userId} = await this.bookshelfRepository.getBookshelfById(
-            bookshelfBook.bookshelfId
-        );
+    private async finish(
+        bookshelfBookId: number,
+        bookshelfBook: BookshelfBookEntity,
+        userId: number
+    ): Promise<BookshelfBookEntity> {
         const readBookshelf = await this.bookshelfRepository.getBookshelfByUserAndType(
             userId,
             BookshelfType.READ

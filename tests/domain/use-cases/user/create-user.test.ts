@@ -46,11 +46,7 @@ describe('create-user use case test', () => {
         expect(result.user).toBeInstanceOf(UserEntity);
         expect(result.token).toBe(mockToken);
         expect(BCryptAdapter.hash).toHaveBeenCalledWith(createUserDto.password);
-        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({
-            id: userEntity.id,
-            username: userEntity.username,
-            email: userEntity.email,
-        });
+        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
     test('execute() should throw a 500 error status when token is undefined', async () => {

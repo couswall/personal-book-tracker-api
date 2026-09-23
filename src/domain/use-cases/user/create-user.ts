@@ -20,11 +20,7 @@ export class CreateUser implements CreateUserUseCase {
             hashPassword
         );
         const user = await this.repository.create(newDto);
-        const token = await JwtAdapter.generateToken({
-            id: user.id,
-            username: user.username,
-            email: user.email,
-        });
+        const token = await JwtAdapter.generateToken({id: user.id});
 
         if (!token) throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 

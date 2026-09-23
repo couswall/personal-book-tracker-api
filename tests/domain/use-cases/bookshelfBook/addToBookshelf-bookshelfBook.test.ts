@@ -37,7 +37,7 @@ describe('addToBookshelf-bookshelfBook use case', () => {
             mockBookRepository,
             mockBookshelfRepository,
             mockReadingSessionRepository
-        ).execute(dto);
+        ).execute(dto, bookshelfEntity.userId);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockBookRepository.findOrCreateByApiId).toHaveBeenCalledWith(
@@ -46,6 +46,29 @@ describe('addToBookshelf-bookshelfBook use case', () => {
         expect(mockBookshelfRepository.getBookshelfById).toHaveBeenCalledWith(
             addToBookshelfDtoObject.bookshelfId
         );
+    });
+
+    test('execute() should not add a book to a bookshelf owned by another user', async () => {
+        const dto = new AddToBookshelfDto(
+            addToBookshelfDtoObject.bookshelfId,
+            addToBookshelfDtoObject.apiBookId
+        );
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(bookshelfEntity);
+
+        await expect(
+            new AddToBookshelf(
+                mockBookshelfBookRepository,
+                mockBookRepository,
+                mockBookshelfRepository,
+                mockReadingSessionRepository
+            ).execute(dto, bookshelfEntity.userId + 1)
+        ).rejects.toThrow(
+            CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)
+        );
+
+        expect(mockBookRepository.findOrCreateByApiId).not.toHaveBeenCalled();
+        expect(mockBookshelfBookRepository.addToBookshelf).not.toHaveBeenCalled();
+        expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
     });
 
     test('execute() should thorw an error when bookshelf with provided ID does not exist', async () => {
@@ -64,7 +87,7 @@ describe('addToBookshelf-bookshelfBook use case', () => {
                 mockBookRepository,
                 mockBookshelfRepository,
                 mockReadingSessionRepository
-            ).execute(dto)
+            ).execute(dto, bookshelfEntity.userId)
         ).rejects.toThrow(
             CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)
         );

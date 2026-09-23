@@ -5,6 +5,10 @@ import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.reposi
 import {BookRepository} from '@domain/repositories/book.repository';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {ReadingSessionRepository} from '@domain/repositories/readingSession.repository';
+import {
+    getOwnedBookshelf,
+    getOwnedBookshelfBook,
+} from '@domain/use-cases/bookshelfBook/ownership.helpers';
 import {UpdateBookshelfUseCase} from '@domain/use-cases/interfaces/bookshelfBook.interfaces';
 
 export class UpdateBookshelf implements UpdateBookshelfUseCase {
@@ -15,11 +19,23 @@ export class UpdateBookshelf implements UpdateBookshelfUseCase {
         public readonly readingSessionRepository: ReadingSessionRepository
     ) {}
 
-    async execute(updateBookshelfDto: UpdateBookshelfDto): Promise<BookshelfBookEntity> {
-        const {bookshelfId} = updateBookshelfDto;
+    async execute(
+        updateBookshelfDto: UpdateBookshelfDto,
+        userId: number
+    ): Promise<BookshelfBookEntity> {
+        const {bookshelfBookId, bookshelfId} = updateBookshelfDto;
 
-        const {type, userId} =
-            await this.bookshelfRepository.getBookshelfById(bookshelfId);
+        await getOwnedBookshelfBook(
+            this.repository,
+            this.bookshelfRepository,
+            bookshelfBookId,
+            userId
+        );
+        const {type} = await getOwnedBookshelf(
+            this.bookshelfRepository,
+            bookshelfId,
+            userId
+        );
 
         updateBookshelfDto.bookshelfType = type;
 

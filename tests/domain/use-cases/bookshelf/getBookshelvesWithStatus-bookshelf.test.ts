@@ -20,7 +20,6 @@ describe('getBookshelvesWithStatus use case tests', () => {
     };
 
     const [, dtoResult] = GetBookshelvesWithStatusDto.create({
-        userId: userObj.id,
         apiBookId: 'abc123',
     });
     const dto = dtoResult as GetBookshelvesWithStatusDto;
@@ -36,13 +35,13 @@ describe('getBookshelvesWithStatus use case tests', () => {
         const result = await new GetBookshelvesWithStatus(
             mockBookshelfRepository,
             mockUserRepository
-        ).execute(dto);
+        ).execute(userObj.id, dto);
 
         expect(Array.isArray(result)).toBeTruthy();
         expect(result[0]).toEqual(bookshelfWithStatus);
-        expect(mockUserRepository.getById).toHaveBeenCalledWith({id: dto.userId});
+        expect(mockUserRepository.getById).toHaveBeenCalledWith({id: userObj.id});
         expect(mockBookshelfRepository.getBookshelvesWithStatus).toHaveBeenCalledWith(
-            dto.userId,
+            userObj.id,
             dto.apiBookId
         );
     });
@@ -56,7 +55,7 @@ describe('getBookshelvesWithStatus use case tests', () => {
             new GetBookshelvesWithStatus(
                 mockBookshelfRepository,
                 mockUserRepository
-            ).execute(dto)
+            ).execute(userObj.id, dto)
         ).rejects.toThrow(
             CustomError.badRequest(ERROR_MESSAGES.USER.GET_BY_ID.NO_EXISTING)
         );

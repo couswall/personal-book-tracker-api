@@ -17,13 +17,9 @@ export class BookshelfRoutes {
             userRepository
         );
 
+        router.get('/me', [validateJWT], bookshelfController.getMyBookshelves);
         router.get(
-            '/getMyBookshelves/:userId',
-            [validateJWT],
-            bookshelfController.getMyBookshelves
-        );
-        router.get(
-            '/bookStatus/:userId/:apiBookId',
+            '/bookStatus/:apiBookId',
             [validateJWT],
             bookshelfController.getBookshelvesWithStatus
         );

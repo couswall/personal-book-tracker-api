@@ -6,6 +6,7 @@ import {ReadingSessionRepository} from '@domain/repositories/readingSession.repo
 import {AddToBookshelfDto} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {AddToBookshelfUseCase} from '@domain/use-cases/interfaces/bookshelfBook.interfaces';
+import {getOwnedBookshelf} from '@domain/use-cases/bookshelfBook/ownership.helpers';
 
 export class AddToBookshelf implements AddToBookshelfUseCase {
     constructor(
@@ -15,12 +16,17 @@ export class AddToBookshelf implements AddToBookshelfUseCase {
         public readonly readingSessionRepository: ReadingSessionRepository
     ) {}
 
-    async execute(addToBookshelfDto: AddToBookshelfDto): Promise<BookshelfBookEntity> {
+    async execute(
+        addToBookshelfDto: AddToBookshelfDto,
+        userId: number
+    ): Promise<BookshelfBookEntity> {
+        const {type} = await getOwnedBookshelf(
+            this.bookshelfRepository,
+            addToBookshelfDto.bookshelfId,
+            userId
+        );
         const {id: bookId, pageCount} = await this.bookRepository.findOrCreateByApiId(
             addToBookshelfDto.apiBookId
-        );
-        const {type, userId} = await this.bookshelfRepository.getBookshelfById(
-            addToBookshelfDto.bookshelfId
         );
 
         addToBookshelfDto.bookId = bookId;

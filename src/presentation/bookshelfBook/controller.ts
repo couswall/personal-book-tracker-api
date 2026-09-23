@@ -14,6 +14,7 @@ import {ReadingSessionRepository} from '@domain/repositories/readingSession.repo
 import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
 import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
 import {UpdateReadingProgressDto} from '@domain/dtos/bookshelfBook/updateReadingProgress-bookshelfBook.dto';
+import {requireAuthUserId} from '@presentation/helpers/auth.helpers';
 
 export class BookshelfBookController {
     constructor(
@@ -24,6 +25,9 @@ export class BookshelfBookController {
     ) {}
 
     public addToBookshelf = (req: Request, res: Response) => {
+        const userId = requireAuthUserId(res);
+        if (!userId) return;
+
         const [errorMsg, dto] = AddToBookshelfDto.create(req.body);
         if (errorMsg || !dto) {
             res.status(400).json({
@@ -39,7 +43,7 @@ export class BookshelfBookController {
             this.bookshelfRepository,
             this.readingSessionRepository
         )
-            .execute(dto)
+            .execute(dto, userId)
             .then((bookshelfBook) => {
                 res.status(201).json({
                     success: true,
@@ -51,6 +55,9 @@ export class BookshelfBookController {
     };
 
     public updateBookshelf = (req: Request, res: Response) => {
+        const userId = requireAuthUserId(res);
+        if (!userId) return;
+
         const [errorMsg, dto] = UpdateBookshelfDto.create(req.body);
         if (errorMsg || !dto) {
             res.status(400).json({
@@ -66,7 +73,7 @@ export class BookshelfBookController {
             this.bookshelfRepository,
             this.readingSessionRepository
         )
-            .execute(dto)
+            .execute(dto, userId)
             .then((bookshelfBook) => {
                 res.status(200).json({
                     success: true,
@@ -78,6 +85,9 @@ export class BookshelfBookController {
     };
 
     public removeFromBookshelf = (req: Request, res: Response) => {
+        const userId = requireAuthUserId(res);
+        if (!userId) return;
+
         const [errorMsg, dto] = RemoveFromBookshelfDto.create({
             bookshelfBookId: req.params.bookshelfBookId,
         });
@@ -89,8 +99,8 @@ export class BookshelfBookController {
             return;
         }
 
-        new RemoveFromBookshelf(this.repository)
-            .execute(dto)
+        new RemoveFromBookshelf(this.repository, this.bookshelfRepository)
+            .execute(dto, userId)
             .then(() =>
                 res.status(200).json({
                     success: true,
@@ -101,6 +111,9 @@ export class BookshelfBookController {
     };
 
     public updateReadingProgress = (req: Request, res: Response) => {
+        const userId = requireAuthUserId(res);
+        if (!userId) return;
+
         const [errorMsg, dto] = UpdateReadingProgressDto.create(req.body);
         if (errorMsg || !dto) {
             res.status(400).json({
@@ -116,7 +129,7 @@ export class BookshelfBookController {
             this.bookshelfRepository,
             this.readingSessionRepository
         )
-            .execute(dto)
+            .execute(dto, userId)
             .then((bookshelfBook) => {
                 res.status(200).json({
                     success: true,

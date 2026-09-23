@@ -148,6 +148,7 @@ describe('BookshelfBookController.addToBookshelf tests', () => {
 
         (prisma.book.findFirst as jest.Mock).mockResolvedValue(null);
         mockHttpAdapter.get.mockRejectedValue(axiosError);
+        (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfObj);
 
         await new Promise<void>((resolve) => {
             controller.addToBookshelf(mockRequest as Request, mockResponse as Response);
@@ -179,6 +180,7 @@ describe('BookshelfBookController.addToBookshelf tests', () => {
 
         (prisma.book.findFirst as jest.Mock).mockResolvedValue(null);
         mockHttpAdapter.get.mockRejectedValue(axiosError);
+        (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfObj);
 
         await new Promise<void>((resolve) => {
             controller.addToBookshelf(mockRequest as Request, mockResponse as Response);

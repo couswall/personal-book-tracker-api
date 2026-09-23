@@ -29,6 +29,9 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockBookshelfBookRepository.getBookshelfBookById.mockResolvedValue(
+            bookshelfBookEntity
+        );
     });
 
     test('execute() should return a BookshelfBookEntity instance', async () => {
@@ -38,7 +41,7 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
             bookshelfBookEntity
         );
 
-        const result = await buildUseCase().execute(dto);
+        const result = await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockBookshelfRepository.getBookshelfById).toHaveBeenCalledWith(1);
@@ -52,11 +55,46 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
             CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)
         );
 
-        await expect(buildUseCase().execute(dto)).rejects.toThrow(
+        await expect(buildUseCase().execute(dto, bookshelfEntity.userId)).rejects.toThrow(
             CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)
         );
 
         expect(mockBookshelfBookRepository.updateBookshelf).not.toHaveBeenCalled();
+    });
+
+    test('execute() should not move a bookshelf book owned by another user', async () => {
+        const dto = new UpdateBookshelfDto(1, 1);
+        const otherUserBookshelf = {
+            ...bookshelfEntity,
+            userId: bookshelfEntity.userId + 1,
+        };
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(otherUserBookshelf);
+
+        await expect(buildUseCase().execute(dto, bookshelfEntity.userId)).rejects.toThrow(
+            CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF_BOOK.NOT_FOUND)
+        );
+
+        expect(mockBookshelfBookRepository.updateBookshelf).not.toHaveBeenCalled();
+        expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
+    });
+
+    test('execute() should not move an own book into a bookshelf owned by another user', async () => {
+        const dto = new UpdateBookshelfDto(1, 99);
+        const otherUserBookshelf = {
+            ...bookshelfEntity,
+            id: 99,
+            userId: bookshelfEntity.userId + 1,
+        };
+        mockBookshelfRepository.getBookshelfById.mockImplementation(async (id) =>
+            id === otherUserBookshelf.id ? otherUserBookshelf : bookshelfEntity
+        );
+
+        await expect(buildUseCase().execute(dto, bookshelfEntity.userId)).rejects.toThrow(
+            CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)
+        );
+
+        expect(mockBookshelfBookRepository.updateBookshelf).not.toHaveBeenCalled();
+        expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
     });
 
     test('execute() should not touch reading sessions when the target shelf is not CURRENTLY_READING or READ', async () => {
@@ -66,7 +104,7 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
             bookshelfBookEntity
         );
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockReadingSessionRepository.findOpenSession).not.toHaveBeenCalled();
         expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
@@ -87,7 +125,7 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
         );
         mockReadingSessionRepository.findOpenSession.mockResolvedValue(null);
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockReadingSessionRepository.findOpenSession).toHaveBeenCalledWith(
             currentlyReadingBookshelf.userId,
@@ -111,7 +149,7 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
         );
         mockReadingSessionRepository.findOpenSession.mockResolvedValue(null);
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockReadingSessionRepository.createSession).toHaveBeenCalledWith({
             userId: readBookshelf.userId,
@@ -138,7 +176,7 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
             readingSessionEntity
         );
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
         expect(mockReadingSessionRepository.finishSession).not.toHaveBeenCalled();
@@ -155,7 +193,7 @@ describe('updateBookshelf-bookshelfBook use case tests', () => {
             readingSessionEntity
         );
 
-        await buildUseCase().execute(dto);
+        await buildUseCase().execute(dto, bookshelfEntity.userId);
 
         expect(mockReadingSessionRepository.finishSession).toHaveBeenCalledWith(
             readingSessionEntity.id

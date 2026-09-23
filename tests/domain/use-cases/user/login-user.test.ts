@@ -37,11 +37,7 @@ describe('login-user use case test', () => {
 
         expect(user).toBeInstanceOf(UserEntity);
         expect(token).toBe(mockToken);
-        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({
-            id: userEntity.id,
-            username: userEntity.username,
-            email: userEntity.email,
-        });
+        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
     test('execute() should throw a 500 error status when token is undefined', async () => {

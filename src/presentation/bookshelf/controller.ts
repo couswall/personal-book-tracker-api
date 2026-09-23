@@ -4,6 +4,7 @@ import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {UserRepository} from '@domain/repositories/user.repository';
 import {GetMyBookShelves, GetBookshelvesWithStatus} from '@domain/use-cases/index';
 import {GetBookshelvesWithStatusDto} from '@domain/dtos/bookshelf/getBookshelvesWithStatus-bookshelf.dto';
+import {requireAuthUserId} from '@presentation/helpers/auth.helpers';
 
 export class BookshelfController {
     constructor(
@@ -12,14 +13,8 @@ export class BookshelfController {
     ) {}
 
     public getMyBookshelves = (req: Request, res: Response) => {
-        const userId = +req.params.userId;
-        if (!userId || isNaN(userId)) {
-            res.status(400).json({
-                success: false,
-                error: {message: 'userId is mandatory and must be a number'},
-            });
-            return;
-        }
+        const userId = requireAuthUserId(res);
+        if (!userId) return;
 
         new GetMyBookShelves(this.repository, this.userRepository)
             .execute(userId)
@@ -42,8 +37,10 @@ export class BookshelfController {
     };
 
     public getBookshelvesWithStatus = (req: Request, res: Response) => {
+        const userId = requireAuthUserId(res);
+        if (!userId) return;
+
         const [errorMsg, dto] = GetBookshelvesWithStatusDto.create({
-            userId: req.params.userId,
             apiBookId: req.params.apiBookId,
         });
         if (errorMsg || !dto) {
@@ -52,7 +49,7 @@ export class BookshelfController {
         }
 
         new GetBookshelvesWithStatus(this.repository, this.userRepository)
-            .execute(dto)
+            .execute(userId, dto)
             .then((bookshelves) =>
                 res.status(200).json({
                     success: true,
