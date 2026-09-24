@@ -21,6 +21,14 @@ describe('readingChallenge.repository tests', () => {
         async delete(_key: IReadingChallengeKey): Promise<ReadingChallengeEntity> {
             return readingChallengeEntity;
         }
+        async findByYear(
+            _key: IReadingChallengeKey
+        ): Promise<ReadingChallengeEntity | null> {
+            return readingChallengeEntity;
+        }
+        async findAllByUser(_userId: number): Promise<ReadingChallengeEntity[]> {
+            return [readingChallengeEntity];
+        }
     }
 
     const repository = new MockReadingChallengeRepository();
@@ -29,13 +37,22 @@ describe('readingChallenge.repository tests', () => {
         expect(typeof repository.create).toBe('function');
         expect(typeof repository.update).toBe('function');
         expect(typeof repository.delete).toBe('function');
+        expect(typeof repository.findByYear).toBe('function');
+        expect(typeof repository.findAllByUser).toBe('function');
     });
 
     test.each([
         ['create', () => repository.create(readingChallengeData)],
         ['update', () => repository.update(readingChallengeData)],
         ['delete', () => repository.delete(readingChallengeKey)],
+        ['findByYear', () => repository.findByYear(readingChallengeKey)],
     ])('%s() should return a ReadingChallengeEntity', async (_name, call) => {
         await expect(call()).resolves.toBeInstanceOf(ReadingChallengeEntity);
+    });
+
+    test('findAllByUser() should return an array of ReadingChallengeEntity', async () => {
+        await expect(
+            repository.findAllByUser(readingChallengeKey.userId)
+        ).resolves.toEqual([readingChallengeEntity]);
     });
 });

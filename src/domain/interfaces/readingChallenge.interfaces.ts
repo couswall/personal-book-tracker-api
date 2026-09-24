@@ -1,3 +1,5 @@
+import {IFinishedReading} from '@domain/interfaces/readingSession.interfaces';
+
 export interface IReadingChallengeFromObject {
     id: number;
     userId: number;
@@ -28,4 +30,33 @@ export interface IUpdateReadingChallengeDto {
 
 export interface IReadingChallengeYearDto {
     year?: number | string;
+}
+
+export type ReadingChallengeStatus = 'AHEAD' | 'ON_TRACK' | 'BEHIND' | 'COMPLETED';
+
+/** Goal-dependent numbers; only present when the user set a goal for that year. */
+export interface IReadingChallengeGoalProgress {
+    remaining: number;
+    percentage: number;
+    expectedByNow: number;
+    status: ReadingChallengeStatus;
+    booksAheadOrBehind: number;
+    booksPerMonthNeeded: number | null;
+}
+
+export interface IReadingChallengeProgress {
+    year: number;
+    goal: number | null;
+    booksRead: number;
+    monthly: number[];
+    books: IFinishedReading[];
+    progress: IReadingChallengeGoalProgress | null;
+}
+
+export interface IReadingChallengeSummary {
+    year: number;
+    goal: number;
+    booksRead: number;
+    percentage: number;
+    completed: boolean;
 }

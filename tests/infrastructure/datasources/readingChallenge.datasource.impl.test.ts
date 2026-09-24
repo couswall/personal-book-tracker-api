@@ -130,4 +130,40 @@ describe('readingChallenge.datasource.impl tests', () => {
             );
         });
     });
+
+    describe('findByYear()', () => {
+        test('should return the user challenge for that year', async () => {
+            (prisma.readingChallenge.findUnique as jest.Mock).mockResolvedValue(
+                readingChallengeObject
+            );
+
+            const result = await datasource.findByYear(readingChallengeKey);
+
+            expect(result).toBeInstanceOf(ReadingChallengeEntity);
+            expect(prisma.readingChallenge.findUnique).toHaveBeenCalledWith({where});
+        });
+
+        test('should return null when no challenge was set that year', async () => {
+            (prisma.readingChallenge.findUnique as jest.Mock).mockResolvedValue(null);
+
+            await expect(datasource.findByYear(readingChallengeKey)).resolves.toBeNull();
+        });
+    });
+
+    describe('findAllByUser()', () => {
+        test('should return every challenge of the user, newest year first', async () => {
+            (prisma.readingChallenge.findMany as jest.Mock).mockResolvedValue([
+                readingChallengeObject,
+            ]);
+
+            const result = await datasource.findAllByUser(readingChallengeKey.userId);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toBeInstanceOf(ReadingChallengeEntity);
+            expect(prisma.readingChallenge.findMany).toHaveBeenCalledWith({
+                where: {userId: readingChallengeKey.userId},
+                orderBy: {year: 'desc'},
+            });
+        });
+    });
 });

@@ -1,3 +1,5 @@
+import {readingChallengeProgressOperations} from '@config/swagger/readingChallenge.progress.swagger';
+
 const yearParameter = {
     name: 'year',
     in: 'path',
@@ -39,6 +41,7 @@ const challengeResponse = (description: string, message: string) => ({
 
 export const readingChallengePaths = {
     '/api/readingChallenge': {
+        get: readingChallengeProgressOperations.history,
         post: {
             tags: ['ReadingChallenge'],
             summary: 'Set a reading challenge (goal) for the current or next year',
@@ -73,7 +76,11 @@ export const readingChallengePaths = {
             },
         },
     },
+    '/api/readingChallenge/current': {
+        get: readingChallengeProgressOperations.current,
+    },
     '/api/readingChallenge/{year}': {
+        get: readingChallengeProgressOperations.byYear,
         patch: {
             tags: ['ReadingChallenge'],
             summary: "Change the goal of the current or next year's reading challenge",

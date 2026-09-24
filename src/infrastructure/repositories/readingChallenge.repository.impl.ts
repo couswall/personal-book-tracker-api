@@ -20,4 +20,12 @@ export class ReadingChallengeRepositoryImpl implements ReadingChallengeRepositor
     delete(key: IReadingChallengeKey): Promise<ReadingChallengeEntity> {
         return this.datasource.delete(key);
     }
+
+    findByYear(key: IReadingChallengeKey): Promise<ReadingChallengeEntity | null> {
+        return this.datasource.findByYear(key);
+    }
+
+    findAllByUser(userId: number): Promise<ReadingChallengeEntity[]> {
+        return this.datasource.findAllByUser(userId);
+    }
 }

@@ -17,6 +17,8 @@ describe('readingChallenge use cases', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        findByYear: jest.fn(),
+        findAllByUser: jest.fn(),
     };
     const {userId, year, goal} = readingChallengeData;
 

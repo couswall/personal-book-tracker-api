@@ -16,3 +16,5 @@ export * from './bookshelfBook/updateReadingProgress-bookshelfBook';
 export * from './readingChallenge/create-readingChallenge';
 export * from './readingChallenge/update-readingChallenge';
 export * from './readingChallenge/delete-readingChallenge';
+export * from './readingChallenge/getProgress-readingChallenge';
+export * from './readingChallenge/getHistory-readingChallenge';

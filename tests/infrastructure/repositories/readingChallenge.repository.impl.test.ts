@@ -11,6 +11,8 @@ describe('readingChallenge.repository.impl tests', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        findByYear: jest.fn(),
+        findAllByUser: jest.fn(),
     };
     const repository = new ReadingChallengeRepositoryImpl(mockDatasource);
 
@@ -43,5 +45,25 @@ describe('readingChallenge.repository.impl tests', () => {
 
         expect(result).toBe(readingChallengeEntity);
         expect(mockDatasource.delete).toHaveBeenCalledWith(readingChallengeKey);
+    });
+
+    test('findByYear() should call datasource.findByYear() and return its result', async () => {
+        mockDatasource.findByYear.mockResolvedValue(readingChallengeEntity);
+
+        const result = await repository.findByYear(readingChallengeKey);
+
+        expect(result).toBe(readingChallengeEntity);
+        expect(mockDatasource.findByYear).toHaveBeenCalledWith(readingChallengeKey);
+    });
+
+    test('findAllByUser() should call datasource.findAllByUser() and return its result', async () => {
+        mockDatasource.findAllByUser.mockResolvedValue([readingChallengeEntity]);
+
+        const result = await repository.findAllByUser(readingChallengeKey.userId);
+
+        expect(result).toEqual([readingChallengeEntity]);
+        expect(mockDatasource.findAllByUser).toHaveBeenCalledWith(
+            readingChallengeKey.userId
+        );
     });
 });

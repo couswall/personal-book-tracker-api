@@ -3,6 +3,8 @@ import {readingChallengeObject} from '@tests/fixtures';
 import {createMockRequest, createMockResponse} from '@tests/setup';
 import {ReadingChallengeDatasourceImpl} from '@infrastructure/datasources/readingChallenge.datasource.impl';
 import {ReadingChallengeRepositoryImpl} from '@infrastructure/repositories/readingChallenge.repository.impl';
+import {ReadingSessionDatasourceImpl} from '@infrastructure/datasources/readingSession.datasource.impl';
+import {ReadingSessionRepositoryImpl} from '@infrastructure/repositories/readingSession.repository.impl';
 import {ReadingChallengeController} from '@presentation/readingChallenge/controller';
 
 export const AUTH_USER_ID = readingChallengeObject.userId;
@@ -17,7 +19,8 @@ interface IReadingChallengeControllerSetup {
 export const createReadingChallengeControllerSetup =
     (): IReadingChallengeControllerSetup => {
         const controller = new ReadingChallengeController(
-            new ReadingChallengeRepositoryImpl(new ReadingChallengeDatasourceImpl())
+            new ReadingChallengeRepositoryImpl(new ReadingChallengeDatasourceImpl()),
+            new ReadingSessionRepositoryImpl(new ReadingSessionDatasourceImpl())
         );
         const mockRequest = createMockRequest();
         const mockResponse = createMockResponse();

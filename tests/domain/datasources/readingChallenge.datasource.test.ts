@@ -21,6 +21,14 @@ describe('readingChallenge.datasource tests', () => {
         async delete(_key: IReadingChallengeKey): Promise<ReadingChallengeEntity> {
             return readingChallengeEntity;
         }
+        async findByYear(
+            _key: IReadingChallengeKey
+        ): Promise<ReadingChallengeEntity | null> {
+            return readingChallengeEntity;
+        }
+        async findAllByUser(_userId: number): Promise<ReadingChallengeEntity[]> {
+            return [readingChallengeEntity];
+        }
     }
 
     const datasource = new MockReadingChallengeDatasource();
@@ -29,13 +37,22 @@ describe('readingChallenge.datasource tests', () => {
         expect(typeof datasource.create).toBe('function');
         expect(typeof datasource.update).toBe('function');
         expect(typeof datasource.delete).toBe('function');
+        expect(typeof datasource.findByYear).toBe('function');
+        expect(typeof datasource.findAllByUser).toBe('function');
     });
 
     test.each([
         ['create', () => datasource.create(readingChallengeData)],
         ['update', () => datasource.update(readingChallengeData)],
         ['delete', () => datasource.delete(readingChallengeKey)],
+        ['findByYear', () => datasource.findByYear(readingChallengeKey)],
     ])('%s() should return a ReadingChallengeEntity', async (_name, call) => {
         await expect(call()).resolves.toBeInstanceOf(ReadingChallengeEntity);
+    });
+
+    test('findAllByUser() should return an array of ReadingChallengeEntity', async () => {
+        await expect(
+            datasource.findAllByUser(readingChallengeKey.userId)
+        ).resolves.toEqual([readingChallengeEntity]);
     });
 });

@@ -1,5 +1,9 @@
 import {ReadingChallengeEntity} from '@domain/entities';
 import {
+    IReadingChallengeProgress,
+    IReadingChallengeSummary,
+} from '@domain/interfaces/readingChallenge.interfaces';
+import {
     CreateReadingChallengeDto,
     ReadingChallengeYearDto,
     UpdateReadingChallengeDto,
@@ -24,4 +28,16 @@ export interface DeleteReadingChallengeUseCase {
         dto: ReadingChallengeYearDto,
         userId: number
     ): Promise<ReadingChallengeEntity>;
+}
+
+export interface GetReadingChallengeProgressUseCase {
+    execute(
+        dto: ReadingChallengeYearDto,
+        userId: number,
+        now?: Date
+    ): Promise<IReadingChallengeProgress>;
+}
+
+export interface GetReadingChallengeHistoryUseCase {
+    execute(userId: number): Promise<IReadingChallengeSummary[]>;
 }

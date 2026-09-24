@@ -54,4 +54,24 @@ export class ReadingChallengeDatasourceImpl implements ReadingChallengeDatasourc
             throw error;
         }
     }
+
+    async findByYear({
+        userId,
+        year,
+    }: IReadingChallengeKey): Promise<ReadingChallengeEntity | null> {
+        const challenge = await prisma.readingChallenge.findUnique({
+            where: {userId_year: {userId, year}},
+        });
+        return challenge ? ReadingChallengeEntity.fromObject(challenge) : null;
+    }
+
+    async findAllByUser(userId: number): Promise<ReadingChallengeEntity[]> {
+        const challenges = await prisma.readingChallenge.findMany({
+            where: {userId},
+            orderBy: {year: 'desc'},
+        });
+        return challenges.map((challenge) =>
+            ReadingChallengeEntity.fromObject(challenge)
+        );
+    }
 }
