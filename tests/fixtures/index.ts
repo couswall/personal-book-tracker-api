@@ -4,3 +4,4 @@ export * from './book.fixtures';
 export * from './apiBooks.fixtures';
 export * from './bookshelfBook.fixtures';
 export * from './readingSession.fixtures';
+export * from './readingChallenge.fixtures';

@@ -12,3 +12,7 @@ export * from './bookshelfBook/addToBookshelf-bookshelfBook.dto';
 export * from './bookshelfBook/updateBookshelf-bookshelfBook.dto';
 export * from './bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
 export * from './bookshelfBook/updateReadingProgress-bookshelfBook.dto';
+
+export * from './readingChallenge/create-readingChallenge.dto';
+export * from './readingChallenge/update-readingChallenge.dto';
+export * from './readingChallenge/readingChallengeYear.dto';

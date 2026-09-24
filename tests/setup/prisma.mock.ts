@@ -28,6 +28,11 @@ jest.mock('@data/postgres', () => {
             update: jest.fn(),
             count: jest.fn(),
         },
+        readingChallenge: {
+            create: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
+        },
     };
     mockPrisma.$transaction = jest.fn((callback: (tx: unknown) => unknown) =>
         callback(mockPrisma)

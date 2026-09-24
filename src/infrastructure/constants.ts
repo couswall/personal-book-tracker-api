@@ -57,6 +57,10 @@ export const ERROR_MESSAGES = {
             NOT_FOUND: BOOKSHELF_BOOK_NOT_FOUND,
         },
     },
+    READING_CHALLENGE: {
+        ALREADY_EXISTS: 'A reading challenge for this year already exists',
+        NOT_FOUND: 'Reading challenge for provided year does not exist',
+    },
     READING_SESSION: {
         FINISHED_BEFORE_STARTED:
             'finishedAt cannot be earlier than the day the book was started',

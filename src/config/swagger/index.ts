@@ -3,6 +3,7 @@ import {bookPaths} from '@config/swagger/book.swagger';
 import {bookshelfPaths} from '@config/swagger/bookshelf.swagger';
 import {bookshelfBookPaths} from '@config/swagger/bookshelfBook/bookshelfBook.swagger';
 import {bookshelfBookReadingProgressPaths} from '@config/swagger/bookshelfBook/bookshelfBook.readingProgress.swagger';
+import {readingChallengePaths} from '@config/swagger/readingChallenge.swagger';
 
 export const swaggerSpec = {
     openapi: '3.0.0',
@@ -135,6 +136,16 @@ export const swaggerSpec = {
                     },
                 },
             },
+            ReadingChallengeResponse: {
+                type: 'object',
+                properties: {
+                    id: {type: 'integer', example: 1},
+                    year: {type: 'integer', example: 2026},
+                    goal: {type: 'integer', example: 20},
+                    createdAt: {type: 'string', format: 'date-time'},
+                    updatedAt: {type: 'string', format: 'date-time', nullable: true},
+                },
+            },
             BookSummary: {
                 type: 'object',
                 properties: {
@@ -170,5 +181,6 @@ export const swaggerSpec = {
         ...bookshelfPaths,
         ...bookshelfBookPaths,
         ...bookshelfBookReadingProgressPaths,
+        ...readingChallengePaths,
     },
 };

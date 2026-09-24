@@ -1,5 +1,10 @@
 import {ICreateUserEntity} from '@domain/interfaces/user.interfaces';
-import {NoteEntity, ReadingSessionEntity, ReviewEntity} from '@domain/entities/index';
+import {
+    NoteEntity,
+    ReadingChallengeEntity,
+    ReadingSessionEntity,
+    ReviewEntity,
+} from '@domain/entities/index';
 
 export class UserEntity {
     constructor(
@@ -13,7 +18,8 @@ export class UserEntity {
         public deletedAt: Date | null,
         public reviews: ReviewEntity[] = [],
         public notes: NoteEntity[] = [],
-        public readingSessions: ReadingSessionEntity[] = []
+        public readingSessions: ReadingSessionEntity[] = [],
+        public readingChallenges: ReadingChallengeEntity[] = []
     ) {}
 
     public static fromObject(userObject: ICreateUserEntity): UserEntity {
