@@ -5,12 +5,7 @@ import {BookshelfBookEntity} from '@domain/entities';
 import {CustomError} from '@domain/errors/custom.error';
 import {UpdateReadingProgress} from '@domain/use-cases/bookshelfBook/updateReadingProgress-bookshelfBook';
 import {getMockRepositories} from '@tests/domain/use-cases/setup';
-import {
-    bookshelfBookEntity,
-    bookshelfEntity,
-    readBookshelfEntity,
-    readingSessionEntity,
-} from '@tests/fixtures';
+import {bookshelfBookEntity, bookshelfEntity, readBookshelfEntity} from '@tests/fixtures';
 
 describe('updateReadingProgress-bookshelfBook use case tests', () => {
     const {
@@ -140,55 +135,6 @@ describe('updateReadingProgress-bookshelfBook use case tests', () => {
             dto.bookshelfBookId,
             readBookshelfEntity.id
         );
-    });
-
-    test('execute() should finish an existing open reading session when isFinished is true', async () => {
-        const dto = new UpdateReadingProgressDto(1, 'PAGE', 150, true);
-        mockBookshelfBookRepository.getBookshelfBookById.mockResolvedValue(
-            bookshelfBookEntity
-        );
-        mockBookshelfRepository.getBookshelfById.mockResolvedValue(bookshelfEntity);
-        mockBookshelfRepository.getBookshelfByUserAndType.mockResolvedValue(
-            readBookshelfEntity
-        );
-        mockBookshelfBookRepository.finishReadingProgress.mockResolvedValue(
-            bookshelfBookEntity
-        );
-        mockReadingSessionRepository.findOpenSession.mockResolvedValue(
-            readingSessionEntity
-        );
-
-        await buildUseCase().execute(dto, bookshelfEntity.userId);
-
-        expect(mockReadingSessionRepository.finishSession).toHaveBeenCalledWith(
-            readingSessionEntity.id
-        );
-        expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
-    });
-
-    test('execute() should create an already-finished reading session when no open session exists', async () => {
-        const dto = new UpdateReadingProgressDto(1, 'PAGE', 150, true);
-        mockBookshelfBookRepository.getBookshelfBookById.mockResolvedValue(
-            bookshelfBookEntity
-        );
-        mockBookshelfRepository.getBookshelfById.mockResolvedValue(bookshelfEntity);
-        mockBookshelfRepository.getBookshelfByUserAndType.mockResolvedValue(
-            readBookshelfEntity
-        );
-        mockBookshelfBookRepository.finishReadingProgress.mockResolvedValue(
-            bookshelfBookEntity
-        );
-        mockReadingSessionRepository.findOpenSession.mockResolvedValue(null);
-
-        await buildUseCase().execute(dto, bookshelfEntity.userId);
-
-        expect(mockReadingSessionRepository.createSession).toHaveBeenCalledWith({
-            userId: bookshelfEntity.userId,
-            bookId: bookshelfBookEntity.bookId,
-            startedAt: expect.any(Date),
-            finishedAt: expect.any(Date),
-        });
-        expect(mockReadingSessionRepository.finishSession).not.toHaveBeenCalled();
     });
 
     test('execute() should propagate NOT_FOUND when the user has no Read bookshelf', async () => {

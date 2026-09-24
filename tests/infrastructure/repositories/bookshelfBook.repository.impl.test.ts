@@ -43,10 +43,7 @@ describe('bookshelfBook.repository.impl tests', () => {
         const result = await repository.updateBookshelf(dto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
-        expect(mockDatasource.updateBookshelf).toHaveBeenCalledWith({
-            bookshelfBookId: 1,
-            bookshelfId: 1,
-        });
+        expect(mockDatasource.updateBookshelf).toHaveBeenCalledWith(dto);
     });
 
     test('removeFromBookshelf() should return a BookshelfBookEntity and call datasource.removeFromBookshelf()', async () => {

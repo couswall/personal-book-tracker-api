@@ -4,6 +4,7 @@ export interface IAddToBookshelfDto {
     bookId?: number;
     totalPages?: number | null;
     bookshelfType?: string;
+    finishedAt?: string | null;
 }
 
 export interface IBookshelfBookFromObject {
@@ -20,6 +21,8 @@ export interface IUpdateBookshelfDto {
     bookshelfBookId?: number | string;
     bookshelfId?: number | string;
     bookshelfType?: string;
+    finishedAt?: string | null;
+    discardLastRead?: boolean;
 }
 
 export interface IRemoveFromBookshelfDto {
@@ -33,4 +36,5 @@ export interface IUpdateReadingProgressDto {
     progressType?: string;
     value?: number | string;
     isFinished?: boolean;
+    finishedAt?: string | null;
 }

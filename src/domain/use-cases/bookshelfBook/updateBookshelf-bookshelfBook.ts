@@ -9,6 +9,11 @@ import {
     getOwnedBookshelf,
     getOwnedBookshelfBook,
 } from '@domain/use-cases/bookshelfBook/ownership.helpers';
+import {
+    discardLatestRead,
+    finishReadingSession,
+    startReadingSession,
+} from '@domain/use-cases/bookshelfBook/readingSession.helpers';
 import {UpdateBookshelfUseCase} from '@domain/use-cases/interfaces/bookshelfBook.interfaces';
 
 export class UpdateBookshelf implements UpdateBookshelfUseCase {
@@ -25,7 +30,7 @@ export class UpdateBookshelf implements UpdateBookshelfUseCase {
     ): Promise<BookshelfBookEntity> {
         const {bookshelfBookId, bookshelfId} = updateBookshelfDto;
 
-        await getOwnedBookshelfBook(
+        const {bookshelf: currentBookshelf} = await getOwnedBookshelfBook(
             this.repository,
             this.bookshelfRepository,
             bookshelfBookId,
@@ -41,36 +46,38 @@ export class UpdateBookshelf implements UpdateBookshelfUseCase {
 
         const bookshelfBook = await this.repository.updateBookshelf(updateBookshelfDto);
 
-        if (type === BookshelfType.CURRENTLY_READING || type === BookshelfType.READ) {
-            await this.syncReadingSession(userId, bookshelfBook.bookId, type);
-        }
+        if (currentBookshelf.id === bookshelfId) return bookshelfBook;
+
+        await this.syncReadingSession(
+            updateBookshelfDto,
+            currentBookshelf.type,
+            userId,
+            bookshelfBook.bookId
+        );
 
         return bookshelfBook;
     }
 
     private async syncReadingSession(
+        {bookshelfType, finishedAt, discardLastRead}: UpdateBookshelfDto,
+        previousType: BookshelfType,
         userId: number,
-        bookId: number,
-        type: BookshelfType
+        bookId: number
     ): Promise<void> {
-        const openSession = await this.readingSessionRepository.findOpenSession(
-            userId,
-            bookId
-        );
+        const repository = this.readingSessionRepository;
 
-        if (!openSession) {
-            const now = new Date();
-            await this.readingSessionRepository.createSession({
-                userId,
-                bookId,
-                startedAt: now,
-                finishedAt: type === BookshelfType.READ ? now : null,
-            });
-            return;
+        if (previousType === BookshelfType.READ) {
+            // READ → CURRENTLY_READING is a re-read unless the user says the
+            // previous read was a mistake; any other move un-finishes the book.
+            const isReread =
+                bookshelfType === BookshelfType.CURRENTLY_READING && !discardLastRead;
+            if (!isReread) await discardLatestRead(repository, userId, bookId);
         }
 
-        if (type === BookshelfType.READ) {
-            await this.readingSessionRepository.finishSession(openSession.id);
-        }
+        if (bookshelfType === BookshelfType.CURRENTLY_READING)
+            await startReadingSession(repository, userId, bookId);
+
+        if (bookshelfType === BookshelfType.READ)
+            await finishReadingSession(repository, userId, bookId, finishedAt);
     }
 }

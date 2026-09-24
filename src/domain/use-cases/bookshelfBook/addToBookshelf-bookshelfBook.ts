@@ -7,6 +7,10 @@ import {AddToBookshelfDto} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {AddToBookshelfUseCase} from '@domain/use-cases/interfaces/bookshelfBook.interfaces';
 import {getOwnedBookshelf} from '@domain/use-cases/bookshelfBook/ownership.helpers';
+import {
+    finishReadingSession,
+    startReadingSession,
+} from '@domain/use-cases/bookshelfBook/readingSession.helpers';
 
 export class AddToBookshelf implements AddToBookshelfUseCase {
     constructor(
@@ -35,21 +39,18 @@ export class AddToBookshelf implements AddToBookshelfUseCase {
 
         const bookshelfBook = await this.repository.addToBookshelf(addToBookshelfDto);
 
-        if (type === BookshelfType.CURRENTLY_READING || type === BookshelfType.READ) {
-            const openSession = await this.readingSessionRepository.findOpenSession(
+        if (type === BookshelfType.CURRENTLY_READING)
+            await startReadingSession(this.readingSessionRepository, userId, bookId);
+
+        // Only count a read when the client says when it happened; never guess.
+        const {finishedAt} = addToBookshelfDto;
+        if (type === BookshelfType.READ && finishedAt)
+            await finishReadingSession(
+                this.readingSessionRepository,
                 userId,
-                bookId
+                bookId,
+                finishedAt
             );
-            if (!openSession) {
-                const now = new Date();
-                await this.readingSessionRepository.createSession({
-                    userId,
-                    bookId,
-                    startedAt: now,
-                    finishedAt: type === BookshelfType.READ ? now : null,
-                });
-            }
-        }
 
         return bookshelfBook;
     }

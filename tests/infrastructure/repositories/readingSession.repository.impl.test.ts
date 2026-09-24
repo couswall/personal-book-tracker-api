@@ -2,8 +2,11 @@ import {ReadingSessionRepositoryImpl} from '@infrastructure/repositories/reading
 import {ReadingSessionDatasource} from '@domain/datasources/readingSession.datasource';
 import {
     createReadingSessionObject,
+    finishedReadingObject,
+    finishSessionDates,
     readingSessionEntity,
     readingSessionObject,
+    yearRange2026,
 } from '@tests/fixtures';
 import {ReadingSessionEntity} from '@domain/entities';
 
@@ -12,6 +15,10 @@ describe('readingSession.repository.impl tests', () => {
         findOpenSession: jest.fn(),
         createSession: jest.fn(),
         finishSession: jest.fn(),
+        findLatestFinishedSession: jest.fn(),
+        discardSession: jest.fn(),
+        getFinishedInRange: jest.fn(),
+        countFinishedInRange: jest.fn(),
     };
 
     beforeEach(() => {
@@ -48,11 +55,71 @@ describe('readingSession.repository.impl tests', () => {
     test('finishSession should return a ReadingSessionEntity and call datasource.finishSession()', async () => {
         mockDatasource.finishSession.mockResolvedValue(readingSessionEntity);
 
-        const result = await repository.finishSession(readingSessionObject.id);
+        const result = await repository.finishSession(
+            readingSessionObject.id,
+            finishSessionDates
+        );
 
         expect(result).toBeInstanceOf(ReadingSessionEntity);
         expect(mockDatasource.finishSession).toHaveBeenCalledWith(
+            readingSessionObject.id,
+            finishSessionDates
+        );
+    });
+
+    test('findLatestFinishedSession should return a ReadingSessionEntity and call datasource.findLatestFinishedSession()', async () => {
+        mockDatasource.findLatestFinishedSession.mockResolvedValue(readingSessionEntity);
+
+        const result = await repository.findLatestFinishedSession(
+            readingSessionObject.userId,
+            readingSessionObject.bookId
+        );
+
+        expect(result).toBeInstanceOf(ReadingSessionEntity);
+        expect(mockDatasource.findLatestFinishedSession).toHaveBeenCalledWith(
+            readingSessionObject.userId,
+            readingSessionObject.bookId
+        );
+    });
+
+    test('discardSession should return a ReadingSessionEntity and call datasource.discardSession()', async () => {
+        mockDatasource.discardSession.mockResolvedValue(readingSessionEntity);
+
+        const result = await repository.discardSession(readingSessionObject.id);
+
+        expect(result).toBeInstanceOf(ReadingSessionEntity);
+        expect(mockDatasource.discardSession).toHaveBeenCalledWith(
             readingSessionObject.id
+        );
+    });
+
+    test('getFinishedInRange should return finished readings and call datasource.getFinishedInRange()', async () => {
+        mockDatasource.getFinishedInRange.mockResolvedValue([finishedReadingObject]);
+
+        const result = await repository.getFinishedInRange(
+            readingSessionObject.userId,
+            yearRange2026
+        );
+
+        expect(result).toEqual([finishedReadingObject]);
+        expect(mockDatasource.getFinishedInRange).toHaveBeenCalledWith(
+            readingSessionObject.userId,
+            yearRange2026
+        );
+    });
+
+    test('countFinishedInRange should return the count and call datasource.countFinishedInRange()', async () => {
+        mockDatasource.countFinishedInRange.mockResolvedValue(3);
+
+        const result = await repository.countFinishedInRange(
+            readingSessionObject.userId,
+            yearRange2026
+        );
+
+        expect(result).toBe(3);
+        expect(mockDatasource.countFinishedInRange).toHaveBeenCalledWith(
+            readingSessionObject.userId,
+            yearRange2026
         );
     });
 });

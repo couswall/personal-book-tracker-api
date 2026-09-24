@@ -24,6 +24,14 @@ export const bookshelfBookReadingProgressPaths = {
                                     default: false,
                                     example: false,
                                 },
+                                finishedAt: {
+                                    type: 'string',
+                                    format: 'date',
+                                    nullable: true,
+                                    example: '2026-03-15',
+                                    description:
+                                        'With isFinished. Omitted means finished now; null means the date is unknown and nothing is counted.',
+                                },
                             },
                         },
                     },

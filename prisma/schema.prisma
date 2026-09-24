@@ -26,6 +26,7 @@ model User{
   notes             Note[]
   reviews           Review[]
   readingSessions   ReadingSession[]
+  readingChallenges ReadingChallenge[]
 }
 
 model Bookshelf{
@@ -76,6 +77,22 @@ model ReadingSession{
   finishedAt      DateTime?
   createdAt       DateTime    @default(now())
   deletedAt       DateTime?
+
+  @@index([userId, finishedAt])
+}
+
+model ReadingChallenge{
+  id              Int         @id @default(autoincrement())
+
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  year            Int
+  goal            Int
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime?   @updatedAt
+
+  @@unique([userId, year])
 }
 
 model Book{

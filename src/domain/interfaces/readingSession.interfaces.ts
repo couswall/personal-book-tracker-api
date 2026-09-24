@@ -14,3 +14,21 @@ export interface ICreateReadingSession {
     startedAt: Date;
     finishedAt: Date | null;
 }
+
+export interface IFinishSessionDates {
+    finishedAt: Date;
+    startedAt?: Date;
+}
+
+export interface IDateRange {
+    from: Date; // inclusive
+    to: Date; // exclusive
+}
+
+export interface IFinishedReading {
+    sessionId: number;
+    bookId: number;
+    title: string;
+    coverImageUrl: string | null;
+    finishedAt: Date;
+}
