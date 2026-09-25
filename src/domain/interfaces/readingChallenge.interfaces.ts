@@ -42,6 +42,8 @@ export interface IReadingChallengeGoalProgress {
     status: ReadingChallengeStatus;
     booksAheadOrBehind: number;
     booksPerMonthNeeded: number | null;
+    /** UTC midnight of the day the goal is reached at the current pace; null if not this year. */
+    projectedFinishDate: Date | null;
 }
 
 export interface IReadingChallengeProgress {

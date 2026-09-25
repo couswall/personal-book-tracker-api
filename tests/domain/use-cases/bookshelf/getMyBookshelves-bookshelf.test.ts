@@ -12,6 +12,8 @@ describe('getMyBookshelves-bookshelf use case tests', () => {
         getBookshelfById: jest.fn(),
         getBookshelfByUserAndType: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
+        getBookshelfCounts: jest.fn(),
+        getShelfBooks: jest.fn(),
     };
     const mockUserRepository: jest.Mocked<UserRepository> = {
         create: jest.fn(),

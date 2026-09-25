@@ -8,6 +8,7 @@ jest.mock('@data/postgres', () => {
         bookshelfBook: {
             findFirst: jest.fn(),
             findUnique: jest.fn(),
+            findMany: jest.fn(),
             create: jest.fn(),
             update: jest.fn(),
             delete: jest.fn(),
@@ -15,6 +16,7 @@ jest.mock('@data/postgres', () => {
         bookshelf: {
             findUnique: jest.fn(),
             findFirst: jest.fn(),
+            findMany: jest.fn(),
             createMany: jest.fn(),
         },
         user: {
