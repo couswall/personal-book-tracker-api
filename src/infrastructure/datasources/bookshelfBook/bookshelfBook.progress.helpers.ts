@@ -1,4 +1,8 @@
-import {ReadingProgressType} from '@domain/interfaces/bookshelfBook.interfaces';
+import {
+    IShelfBookProgress,
+    IShelfReadingProgress,
+    ReadingProgressType,
+} from '@domain/interfaces/bookshelfBook.interfaces';
 
 const clampValue = (value: number, min: number, max: number | null): number => {
     const clampedMin = Math.max(value, min);
@@ -26,3 +30,12 @@ export const computeProgress = (
         : existingCurrentPage;
     return {currentPage, readingProgress};
 };
+
+/** Reading progress is only exposed for the book on the Currently Reading shelf. */
+export const toReadingProgress = (
+    currentlyReadingBook?: IShelfBookProgress
+): IShelfReadingProgress => ({
+    readingProgress: currentlyReadingBook ? currentlyReadingBook.readingProgress : null,
+    currentPage: currentlyReadingBook ? currentlyReadingBook.currentPage : null,
+    progressType: currentlyReadingBook ? currentlyReadingBook.progressType : null,
+});

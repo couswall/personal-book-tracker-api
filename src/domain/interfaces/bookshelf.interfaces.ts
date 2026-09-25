@@ -15,10 +15,13 @@ export interface ICreateBookshelfEntity {
 export interface IBookshelfWithStatus {
     id: number;
     name: string;
+    type: BookshelfType;
     isSelected: boolean;
     bookshelfBookId: number | null;
     bookCount: number;
     readingProgress: number | null;
     currentPage: number | null;
     progressType: ReadingProgressType | null;
+    /** Only on the READ shelf, when the book is on it: its latest finish date (null = unknown). */
+    finishedAt: Date | null;
 }

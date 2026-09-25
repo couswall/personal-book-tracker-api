@@ -38,3 +38,22 @@ export interface IUpdateReadingProgressDto {
     isFinished?: boolean;
     finishedAt?: string | null;
 }
+
+/** Progress fields of a bookshelf book, as stored. */
+export interface IShelfBookProgress {
+    readingProgress: number;
+    currentPage: number | null;
+    progressType: ReadingProgressType | null;
+}
+
+/** Progress fields as exposed per bookshelf; null when not on Currently Reading. */
+export interface IShelfReadingProgress {
+    readingProgress: number | null;
+    currentPage: number | null;
+    progressType: ReadingProgressType | null;
+}
+
+export interface IParsedFinish {
+    isFinished: boolean;
+    finishedAt?: Date | null;
+}
