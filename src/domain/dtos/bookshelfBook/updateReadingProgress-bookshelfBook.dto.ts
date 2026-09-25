@@ -1,6 +1,7 @@
 import {isValidRequiredNumber} from '@domain/dtos/book/helpers';
 import {isReadingProgressType, parseFinishedAt} from '@domain/dtos/bookshelfBook/helpers';
 import {
+    IParsedFinish,
     IUpdateReadingProgressDto,
     ReadingProgressType,
 } from '@domain/interfaces/bookshelfBook.interfaces';
@@ -8,11 +9,6 @@ import {
     INVALID_OBJECT_ERROR,
     BOOKSHELF_BOOK_DTO_ERRORS,
 } from '@domain/constants/bookshelfBook.constants';
-
-interface IParsedFinish {
-    isFinished: boolean;
-    finishedAt?: Date | null;
-}
 
 export class UpdateReadingProgressDto {
     constructor(

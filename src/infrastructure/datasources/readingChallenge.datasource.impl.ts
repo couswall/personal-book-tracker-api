@@ -1,5 +1,4 @@
 import {prisma} from '@data/postgres';
-import {Prisma} from '@/generated/prisma';
 import {CustomError} from '@domain/errors/custom.error';
 import {ReadingChallengeEntity} from '@domain/entities';
 import {ReadingChallengeDatasource} from '@domain/datasources/readingChallenge.datasource';
@@ -8,11 +7,9 @@ import {
     IReadingChallengeKey,
 } from '@domain/interfaces/readingChallenge.interfaces';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {isPrismaError} from '@infrastructure/helpers/prisma.helpers';
 
 const {ALREADY_EXISTS, NOT_FOUND} = ERROR_MESSAGES.READING_CHALLENGE;
-
-const isPrismaError = (error: unknown, code: string): boolean =>
-    error instanceof Prisma.PrismaClientKnownRequestError && error.code === code;
 
 export class ReadingChallengeDatasourceImpl implements ReadingChallengeDatasource {
     async create(data: IReadingChallengeData): Promise<ReadingChallengeEntity> {

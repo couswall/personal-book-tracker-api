@@ -53,6 +53,13 @@ export interface IReadingChallengeProgress {
     progress: IReadingChallengeGoalProgress | null;
 }
 
+export interface IComputeChallengeProgressInput {
+    year: number;
+    goal: number | null;
+    books: IFinishedReading[];
+    now: Date;
+}
+
 export interface IReadingChallengeSummary {
     year: number;
     goal: number;

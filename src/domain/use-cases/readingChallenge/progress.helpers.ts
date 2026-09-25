@@ -1,5 +1,6 @@
 import {ReadingChallengeEntity} from '@domain/entities';
 import {
+    IComputeChallengeProgressInput,
     IReadingChallengeGoalProgress,
     IReadingChallengeProgress,
     IReadingChallengeSummary,
@@ -8,13 +9,6 @@ import {
 import {IDateRange, IFinishedReading} from '@domain/interfaces/readingSession.interfaces';
 
 const MONTHS_IN_YEAR = 12;
-
-interface IComputeChallengeProgressInput {
-    year: number;
-    goal: number | null;
-    books: IFinishedReading[];
-    now: Date;
-}
 
 /** The whole calendar year in UTC, as a half-open range [Jan 1, next Jan 1). */
 export const getYearRange = (year: number): IDateRange => ({
