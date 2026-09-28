@@ -3,7 +3,13 @@ import type {Config} from 'jest';
 const config: Config = {
     collectCoverage: true,
     coverageDirectory: 'coverage',
-    coveragePathIgnorePatterns: ['/node_modules/', '<rootDir>/generated/'],
+    coveragePathIgnorePatterns: [
+        '/node_modules/',
+        '<rootDir>/generated/',
+        '<rootDir>/dist/',
+    ],
+    modulePathIgnorePatterns: ['<rootDir>/dist/'],
+    testPathIgnorePatterns: ['/node_modules/', '<rootDir>/dist/'],
     coverageProvider: 'v8',
     moduleDirectories: ['node_modules', '<rootDir>'],
     moduleFileExtensions: ['ts', 'tsx', 'js', 'json'],
