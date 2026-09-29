@@ -1,6 +1,10 @@
 import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity} from '@domain/entities/index';
-import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
+import {
+    IBookshelfCount,
+    IBookshelfWithStatus,
+    IShelfBook,
+} from '@domain/interfaces/bookshelf.interfaces';
 
 export abstract class BookshelfDatasource {
     abstract getMyBookshelves(userId: number): Promise<BookshelfEntity[]>;
@@ -13,4 +17,10 @@ export abstract class BookshelfDatasource {
         userId: number,
         apiBookId: string
     ): Promise<IBookshelfWithStatus[]>;
+    abstract getBookshelfCounts(userId: number): Promise<IBookshelfCount[]>;
+    abstract getShelfBooks(
+        userId: number,
+        type: BookshelfType,
+        limit: number
+    ): Promise<IShelfBook[]>;
 }

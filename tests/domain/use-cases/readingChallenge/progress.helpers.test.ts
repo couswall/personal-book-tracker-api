@@ -3,6 +3,7 @@ import {
     getBooksPerMonthNeeded,
     getElapsedYearFraction,
     getMonthlyCounts,
+    getProjectedFinishDate,
     getStatus,
     getYearRange,
 } from '@domain/use-cases/readingChallenge/progress.helpers';
@@ -114,6 +115,31 @@ describe('readingChallenge progress helpers', () => {
 
         test('should be null when the year is over and books are still missing', () => {
             expect(getBooksPerMonthNeeded(7, 0)).toBeNull();
+        });
+    });
+
+    describe('getProjectedFinishDate()', () => {
+        test('should extrapolate the pace so far to the day the goal is reached', () => {
+            // 15 of 20 by Jul 2 -> 20 at 2/3 of the year, Sep 1 08:00, truncated to the day
+            expect(getProjectedFinishDate(2026, 20, 15, 0.5)).toEqual(
+                new Date('2026-09-01T00:00:00Z')
+            );
+        });
+
+        test('should be null when the pace would finish after the year ends', () => {
+            expect(getProjectedFinishDate(2026, 20, 8, 0.5)).toBeNull();
+        });
+
+        test('should be null when the pace only reaches the goal as the year ends', () => {
+            expect(getProjectedFinishDate(2026, 20, 10, 0.5)).toBeNull();
+        });
+
+        test('should be null with no books read yet', () => {
+            expect(getProjectedFinishDate(2026, 20, 0, 0.5)).toBeNull();
+        });
+
+        test('should be null once the goal is already met', () => {
+            expect(getProjectedFinishDate(2026, 20, 20, 0.5)).toBeNull();
         });
     });
 });

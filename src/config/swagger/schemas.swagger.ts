@@ -131,22 +131,31 @@ export const swaggerSchemas = {
                 example: [2, 1, 3, 0, 1, 2, 1, 2, 1, 0, 0, 0],
             },
             books: {type: 'array', items: {$ref: '#/components/schemas/FinishedReading'}},
-            progress: {
-                type: 'object',
+            progress: {$ref: '#/components/schemas/ReadingChallengeGoalProgress'},
+        },
+    },
+    ReadingChallengeGoalProgress: {
+        type: 'object',
+        nullable: true,
+        description: 'null when no goal was set for that year',
+        properties: {
+            remaining: {type: 'integer', example: 7},
+            percentage: {type: 'integer', example: 65},
+            expectedByNow: {type: 'integer', example: 14},
+            status: {
+                type: 'string',
+                enum: ['AHEAD', 'ON_TRACK', 'BEHIND', 'COMPLETED'],
+                example: 'ON_TRACK',
+            },
+            booksAheadOrBehind: {type: 'integer', example: -1},
+            booksPerMonthNeeded: {type: 'number', nullable: true, example: 2.3},
+            projectedFinishDate: {
+                type: 'string',
+                format: 'date-time',
                 nullable: true,
-                description: 'null when no goal was set for that year',
-                properties: {
-                    remaining: {type: 'integer', example: 7},
-                    percentage: {type: 'integer', example: 65},
-                    expectedByNow: {type: 'integer', example: 14},
-                    status: {
-                        type: 'string',
-                        enum: ['AHEAD', 'ON_TRACK', 'BEHIND', 'COMPLETED'],
-                        example: 'ON_TRACK',
-                    },
-                    booksAheadOrBehind: {type: 'integer', example: -1},
-                    booksPerMonthNeeded: {type: 'number', nullable: true, example: 2.3},
-                },
+                example: '2026-11-12T00:00:00.000Z',
+                description:
+                    'Day the goal is reached at the current pace; null with no books yet, goal met, or a finish past the year',
             },
         },
     },

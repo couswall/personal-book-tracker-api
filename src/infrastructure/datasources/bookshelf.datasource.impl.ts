@@ -4,7 +4,11 @@ import {CustomError} from '@domain/errors/custom.error';
 import {BookshelfEntity} from '@domain/entities';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
-import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
+import {
+    IBookshelfCount,
+    IBookshelfWithStatus,
+    IShelfBook,
+} from '@domain/interfaces/bookshelf.interfaces';
 import {toReadingProgress} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.progress.helpers';
 
 export class BookshelfDatasourceImpl implements BookshelfDatasource {
@@ -94,6 +98,56 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                 finishedAt: isOnReadShelf ? latestFinishedAt : null,
             };
         });
+    }
+
+    async getBookshelfCounts(userId: number): Promise<IBookshelfCount[]> {
+        const bookshelves = await prisma.bookshelf.findMany({
+            where: {userId, deletedAt: null},
+            orderBy: {id: 'asc'},
+            select: {
+                id: true,
+                name: true,
+                type: true,
+                _count: {select: {books: true}},
+            },
+        });
+
+        return bookshelves.map(({_count, ...shelf}) => ({
+            ...shelf,
+            bookCount: _count.books,
+        }));
+    }
+
+    async getShelfBooks(
+        userId: number,
+        type: BookshelfType,
+        limit: number
+    ): Promise<IShelfBook[]> {
+        const shelfBooks = await prisma.bookshelfBook.findMany({
+            where: {bookshelf: {userId, type, deletedAt: null}},
+            // id breaks ties between rows that predate the updatedAt column
+            orderBy: [{updatedAt: 'desc'}, {id: 'desc'}],
+            take: limit,
+            include: {
+                book: {
+                    select: {
+                        apiBookId: true,
+                        title: true,
+                        authors: true,
+                        coverImageUrl: true,
+                    },
+                },
+            },
+        });
+
+        return shelfBooks.map(({book, ...shelfBook}) => ({
+            bookshelfBookId: shelfBook.id,
+            ...book,
+            readingProgress: shelfBook.readingProgress,
+            currentPage: shelfBook.currentPage,
+            totalPages: shelfBook.totalPages,
+            progressType: shelfBook.progressType,
+        }));
     }
 
     /** When the book was last finished; lets clients tell which year's challenge it counts toward. */

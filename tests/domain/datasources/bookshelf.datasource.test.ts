@@ -1,8 +1,17 @@
 import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity} from '@domain/entities/index';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
-import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
-import {bookshelfEntity, bookshelfWithStatus} from 'tests/fixtures/index';
+import {
+    IBookshelfCount,
+    IBookshelfWithStatus,
+    IShelfBook,
+} from '@domain/interfaces/bookshelf.interfaces';
+import {
+    bookshelfCount,
+    bookshelfEntity,
+    bookshelfWithStatus,
+    shelfBook,
+} from 'tests/fixtures/index';
 
 describe('bookshelf datasource tests', () => {
     class MockBookshelfDatasource implements BookshelfDatasource {
@@ -26,6 +35,18 @@ describe('bookshelf datasource tests', () => {
             _apiBookId: string
         ): Promise<IBookshelfWithStatus[]> {
             return [bookshelfWithStatus];
+        }
+
+        async getBookshelfCounts(_userId: number): Promise<IBookshelfCount[]> {
+            return [bookshelfCount];
+        }
+
+        async getShelfBooks(
+            _userId: number,
+            _type: BookshelfType,
+            _limit: number
+        ): Promise<IShelfBook[]> {
+            return [shelfBook];
         }
     }
 

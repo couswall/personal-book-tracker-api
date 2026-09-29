@@ -5,6 +5,7 @@ import {bookshelfBookPaths} from '@config/swagger/bookshelfBook/bookshelfBook.sw
 import {bookshelfBookReadingProgressPaths} from '@config/swagger/bookshelfBook/bookshelfBook.readingProgress.swagger';
 import {swaggerSchemas} from '@config/swagger/schemas.swagger';
 import {readingChallengePaths} from '@config/swagger/readingChallenge.swagger';
+import {dashboardPaths, dashboardSchemas} from '@config/swagger/dashboard.swagger';
 
 export const swaggerSpec = {
     openapi: '3.0.0',
@@ -82,7 +83,7 @@ export const swaggerSpec = {
                 },
             },
         },
-        schemas: swaggerSchemas,
+        schemas: {...swaggerSchemas, ...dashboardSchemas},
     },
     paths: {
         ...authPaths,
@@ -91,5 +92,6 @@ export const swaggerSpec = {
         ...bookshelfBookPaths,
         ...bookshelfBookReadingProgressPaths,
         ...readingChallengePaths,
+        ...dashboardPaths,
     },
 };

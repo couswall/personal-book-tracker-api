@@ -31,6 +31,8 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
         getBookshelfById: jest.fn(),
         getBookshelfByUserAndType: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
+        getBookshelfCounts: jest.fn(),
+        getShelfBooks: jest.fn(),
     };
     const mockReadingSessionRepository: jest.Mocked<ReadingSessionRepository> = {
         findOpenSession: jest.fn(),

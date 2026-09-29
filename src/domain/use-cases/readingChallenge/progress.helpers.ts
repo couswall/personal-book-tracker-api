@@ -56,7 +56,32 @@ export const getBooksPerMonthNeeded = (
     return Math.round((remaining / monthsLeft) * 10) / 10;
 };
 
+/**
+ * Day the goal is reached if the pace so far holds, as UTC midnight.
+ * null with no pace yet, the goal already met, or a finish that falls past the year.
+ */
+export const getProjectedFinishDate = (
+    year: number,
+    goal: number,
+    booksRead: number,
+    elapsedYearFraction: number
+): Date | null => {
+    if (booksRead === 0 || booksRead >= goal) return null;
+
+    const finishFraction = (elapsedYearFraction * goal) / booksRead;
+    if (finishFraction >= 1) return null;
+
+    const {from, to} = getYearRange(year);
+    const finish = new Date(
+        from.getTime() + finishFraction * (to.getTime() - from.getTime())
+    );
+    return new Date(
+        Date.UTC(finish.getUTCFullYear(), finish.getUTCMonth(), finish.getUTCDate())
+    );
+};
+
 export const computeGoalProgress = (
+    year: number,
     goal: number,
     booksRead: number,
     elapsedYearFraction: number
@@ -74,6 +99,12 @@ export const computeGoalProgress = (
         // `|| 0` turns -0 into 0
         booksAheadOrBehind: Math.trunc(booksAheadOfPace) || 0,
         booksPerMonthNeeded: getBooksPerMonthNeeded(remaining, monthsLeft),
+        projectedFinishDate: getProjectedFinishDate(
+            year,
+            goal,
+            booksRead,
+            elapsedYearFraction
+        ),
     };
 };
 
@@ -91,7 +122,12 @@ export const computeChallengeProgress = ({
     progress:
         goal === null
             ? null
-            : computeGoalProgress(goal, books.length, getElapsedYearFraction(year, now)),
+            : computeGoalProgress(
+                  year,
+                  goal,
+                  books.length,
+                  getElapsedYearFraction(year, now)
+              ),
 });
 
 export const summarizeChallenge = (
