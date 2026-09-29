@@ -99,7 +99,11 @@ export class BookshelfBookController {
             return;
         }
 
-        new RemoveFromBookshelf(this.repository, this.bookshelfRepository)
+        new RemoveFromBookshelf(
+            this.repository,
+            this.bookshelfRepository,
+            this.readingSessionRepository
+        )
             .execute(dto, userId)
             .then(() =>
                 res.status(200).json({

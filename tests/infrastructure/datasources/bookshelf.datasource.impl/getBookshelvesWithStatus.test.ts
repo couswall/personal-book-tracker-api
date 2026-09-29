@@ -11,6 +11,9 @@ jest.mock('@data/postgres', () => ({
         bookshelf: {
             findMany: jest.fn(),
         },
+        readingSession: {
+            findFirst: jest.fn(),
+        },
     },
 }));
 

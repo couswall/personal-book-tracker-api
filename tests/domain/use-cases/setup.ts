@@ -36,6 +36,10 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
         findOpenSession: jest.fn(),
         createSession: jest.fn(),
         finishSession: jest.fn(),
+        findLatestFinishedSession: jest.fn(),
+        discardSession: jest.fn(),
+        getFinishedInRange: jest.fn(),
+        countFinishedInRange: jest.fn(),
     };
 
     return {

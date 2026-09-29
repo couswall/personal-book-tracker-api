@@ -3,6 +3,7 @@ import {AuthRoutes} from '@presentation/auth/routes';
 import {BookRoutes} from '@presentation/book/routes';
 import {BookshelfRoutes} from '@presentation/bookshelf/routes';
 import {BookshelfBookRoutes} from '@presentation/bookshelfBook/routes';
+import {ReadingChallengeRoutes} from '@presentation/readingChallenge/routes';
 
 export class AppRoutes {
     static get routes(): Router {
@@ -12,6 +13,7 @@ export class AppRoutes {
         router.use('/api/book', BookRoutes.routes);
         router.use('/api/bookshelf', BookshelfRoutes.routes);
         router.use('/api/bookshelfBook', BookshelfBookRoutes.routes);
+        router.use('/api/readingChallenge', ReadingChallengeRoutes.routes);
 
         return router;
     }

@@ -1,4 +1,5 @@
 import {isValidRequiredNumber, isValidString} from '@domain/dtos/book/helpers';
+import {parseFinishedAt} from '@domain/dtos/bookshelfBook/helpers';
 import {IAddToBookshelfDto} from '@domain/interfaces/bookshelfBook.interfaces';
 
 export class AddToBookshelfDto {
@@ -7,7 +8,8 @@ export class AddToBookshelfDto {
         public readonly apiBookId: string,
         public bookId?: number,
         public totalPages?: number | null,
-        public bookshelfType?: string
+        public bookshelfType?: string,
+        public readonly finishedAt?: Date | null
     ) {}
 
     private static parseBookId(bookId?: number): [string?, number?] {
@@ -50,6 +52,9 @@ export class AddToBookshelfDto {
         if (bookshelfTypeError) return [bookshelfTypeError];
         bookshelfType = trimmedBookshelfType;
 
+        const [finishedAtError, finishedAt] = parseFinishedAt(object.finishedAt);
+        if (finishedAtError) return [finishedAtError];
+
         return [
             undefined,
             new AddToBookshelfDto(
@@ -57,7 +62,8 @@ export class AddToBookshelfDto {
                 apiBookId,
                 bookId,
                 totalPages,
-                bookshelfType
+                bookshelfType,
+                finishedAt
             ),
         ];
     }

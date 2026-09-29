@@ -5,6 +5,7 @@ import {BookshelfEntity} from '@domain/entities';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {IBookshelfWithStatus} from '@domain/interfaces/bookshelf.interfaces';
+import {toReadingProgress} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.progress.helpers';
 
 export class BookshelfDatasourceImpl implements BookshelfDatasource {
     async getMyBookshelves(userId: number): Promise<BookshelfEntity[]> {
@@ -53,44 +54,58 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
             select: {id: true},
         });
 
-        const bookshelves = await prisma.bookshelf.findMany({
-            where: {userId, deletedAt: null},
-            include: {
-                _count: {
-                    select: {books: true},
+        const [bookshelves, latestFinishedAt] = await Promise.all([
+            prisma.bookshelf.findMany({
+                where: {userId, deletedAt: null},
+                include: {
+                    _count: {
+                        select: {books: true},
+                    },
+                    books: book
+                        ? {
+                              where: {bookId: book.id},
+                              select: {
+                                  id: true,
+                                  readingProgress: true,
+                                  currentPage: true,
+                                  progressType: true,
+                              },
+                          }
+                        : false,
                 },
-                books: book
-                    ? {
-                          where: {bookId: book.id},
-                          select: {
-                              id: true,
-                              readingProgress: true,
-                              currentPage: true,
-                              progressType: true,
-                          },
-                      }
-                    : false,
-            },
-        });
+            }),
+            book ? this.findLatestFinishedAt(userId, book.id) : null,
+        ]);
 
         return bookshelves.map((shelf) => {
-            const bookExists = book && shelf.books.length > 0;
-            const isCurrentlyReading = shelf.type === BookshelfType.CURRENTLY_READING;
+            // `books` is only included (and holds at most this book) when the book exists
+            const shelfBook = book ? shelf.books[0] : undefined;
+            const isOnReadShelf = Boolean(shelfBook) && shelf.type === BookshelfType.READ;
             return {
                 id: shelf.id,
                 name: shelf.name,
-                isSelected: book ? shelf.books.length > 0 : false,
-                bookshelfBookId: bookExists ? shelf.books[0].id : null,
+                type: shelf.type,
+                isSelected: Boolean(shelfBook),
+                bookshelfBookId: shelfBook ? shelfBook.id : null,
                 bookCount: shelf._count.books,
-                readingProgress:
-                    bookExists && isCurrentlyReading
-                        ? shelf.books[0].readingProgress
-                        : null,
-                currentPage:
-                    bookExists && isCurrentlyReading ? shelf.books[0].currentPage : null,
-                progressType:
-                    bookExists && isCurrentlyReading ? shelf.books[0].progressType : null,
+                ...toReadingProgress(
+                    shelf.type === BookshelfType.CURRENTLY_READING ? shelfBook : undefined
+                ),
+                finishedAt: isOnReadShelf ? latestFinishedAt : null,
             };
         });
+    }
+
+    /** When the book was last finished; lets clients tell which year's challenge it counts toward. */
+    private async findLatestFinishedAt(
+        userId: number,
+        bookId: number
+    ): Promise<Date | null> {
+        const session = await prisma.readingSession.findFirst({
+            where: {userId, bookId, finishedAt: {not: null}, deletedAt: null},
+            orderBy: {finishedAt: 'desc'},
+            select: {finishedAt: true},
+        });
+        return session?.finishedAt ?? null;
     }
 }

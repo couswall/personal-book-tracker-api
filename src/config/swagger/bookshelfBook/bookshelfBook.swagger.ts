@@ -21,6 +21,14 @@ export const bookshelfBookPaths = {
                                     example: 320,
                                 },
                                 bookshelfType: {type: 'string', example: 'READING'},
+                                finishedAt: {
+                                    type: 'string',
+                                    format: 'date',
+                                    nullable: true,
+                                    example: '2026-03-15',
+                                    description:
+                                        'READ shelf only. The read counts toward that year; omitted or null means the date is unknown and nothing is counted.',
+                                },
                             },
                         },
                     },
@@ -73,6 +81,20 @@ export const bookshelfBookPaths = {
                                 bookshelfBookId: {type: 'integer', example: 5},
                                 bookshelfId: {type: 'integer', example: 2},
                                 bookshelfType: {type: 'string', example: 'READ'},
+                                finishedAt: {
+                                    type: 'string',
+                                    format: 'date',
+                                    nullable: true,
+                                    example: '2026-03-15',
+                                    description:
+                                        'When moving to READ. Omitted means finished now; null means the date is unknown and nothing is counted.',
+                                },
+                                discardLastRead: {
+                                    type: 'boolean',
+                                    default: false,
+                                    description:
+                                        'When moving from READ to CURRENTLY_READING: true removes the previous read (marked as read by mistake), false keeps it (re-read).',
+                                },
                             },
                         },
                     },

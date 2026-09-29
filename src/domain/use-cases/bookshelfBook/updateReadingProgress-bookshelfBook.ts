@@ -1,11 +1,12 @@
 import {BookshelfType} from '@/generated/prisma';
 import {UpdateReadingProgressDto} from '@domain/dtos';
-import {BookshelfBookEntity} from '@domain/entities';
+import {BookshelfBookEntity, BookshelfEntity} from '@domain/entities';
 import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.repository';
 import {BookRepository} from '@domain/repositories/book.repository';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {ReadingSessionRepository} from '@domain/repositories/readingSession.repository';
 import {getOwnedBookshelfBook} from '@domain/use-cases/bookshelfBook/ownership.helpers';
+import {finishReadingSession} from '@domain/use-cases/bookshelfBook/readingSession.helpers';
 import {UpdateReadingProgressUseCase} from '@domain/use-cases/interfaces/bookshelfBook.interfaces';
 
 export class UpdateReadingProgress implements UpdateReadingProgressUseCase {
@@ -20,7 +21,7 @@ export class UpdateReadingProgress implements UpdateReadingProgressUseCase {
         updateReadingProgressDto: UpdateReadingProgressDto,
         userId: number
     ): Promise<BookshelfBookEntity> {
-        const {bookshelfBook} = await getOwnedBookshelfBook(
+        const {bookshelfBook, bookshelf} = await getOwnedBookshelfBook(
             this.repository,
             this.bookshelfRepository,
             updateReadingProgressDto.bookshelfBookId,
@@ -30,16 +31,13 @@ export class UpdateReadingProgress implements UpdateReadingProgressUseCase {
         if (!updateReadingProgressDto.isFinished)
             return this.repository.updateReadingProgress(updateReadingProgressDto);
 
-        return this.finish(
-            updateReadingProgressDto.bookshelfBookId,
-            bookshelfBook,
-            userId
-        );
+        return this.finish(updateReadingProgressDto, bookshelfBook, bookshelf, userId);
     }
 
     private async finish(
-        bookshelfBookId: number,
+        {bookshelfBookId, finishedAt}: UpdateReadingProgressDto,
         bookshelfBook: BookshelfBookEntity,
+        currentBookshelf: BookshelfEntity,
         userId: number
     ): Promise<BookshelfBookEntity> {
         const readBookshelf = await this.bookshelfRepository.getBookshelfByUserAndType(
@@ -52,28 +50,15 @@ export class UpdateReadingProgress implements UpdateReadingProgressUseCase {
             readBookshelf.id
         );
 
-        await this.syncReadingSession(userId, bookshelfBook.bookId);
+        // Finishing a book that is already on READ must not count it twice.
+        if (currentBookshelf.type !== BookshelfType.READ)
+            await finishReadingSession(
+                this.readingSessionRepository,
+                userId,
+                bookshelfBook.bookId,
+                finishedAt
+            );
 
         return updatedBookshelfBook;
-    }
-
-    private async syncReadingSession(userId: number, bookId: number): Promise<void> {
-        const openSession = await this.readingSessionRepository.findOpenSession(
-            userId,
-            bookId
-        );
-
-        if (openSession) {
-            await this.readingSessionRepository.finishSession(openSession.id);
-            return;
-        }
-
-        const now = new Date();
-        await this.readingSessionRepository.createSession({
-            userId,
-            bookId,
-            startedAt: now,
-            finishedAt: now,
-        });
     }
 }

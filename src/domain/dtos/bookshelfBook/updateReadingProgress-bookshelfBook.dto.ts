@@ -1,6 +1,7 @@
 import {isValidRequiredNumber} from '@domain/dtos/book/helpers';
-import {isReadingProgressType} from '@domain/dtos/bookshelfBook/helpers';
+import {isReadingProgressType, parseFinishedAt} from '@domain/dtos/bookshelfBook/helpers';
 import {
+    IParsedFinish,
     IUpdateReadingProgressDto,
     ReadingProgressType,
 } from '@domain/interfaces/bookshelfBook.interfaces';
@@ -14,14 +15,40 @@ export class UpdateReadingProgressDto {
         public readonly bookshelfBookId: number,
         public readonly progressType: ReadingProgressType,
         public readonly value: number,
-        public readonly isFinished: boolean = false
+        public readonly isFinished: boolean = false,
+        public readonly finishedAt?: Date | null
     ) {}
+
+    private static parseProgressType(
+        progressType?: string
+    ): [string?, ReadingProgressType?] {
+        const {REQUIRED, INVALID} =
+            BOOKSHELF_BOOK_DTO_ERRORS.UPDATE_READING_PROGRESS.PROGRESS_TYPE;
+        if (!progressType) return [REQUIRED];
+        if (!isReadingProgressType(progressType)) return [INVALID];
+        return [undefined, progressType];
+    }
+
+    private static parseFinish({
+        isFinished = false,
+        finishedAt,
+    }: IUpdateReadingProgressDto): [string?, IParsedFinish?] {
+        if (typeof isFinished !== 'boolean')
+            return [
+                BOOKSHELF_BOOK_DTO_ERRORS.UPDATE_READING_PROGRESS.IS_FINISHED.BOOLEAN,
+            ];
+
+        const [finishedAtError, parsedFinishedAt] = parseFinishedAt(finishedAt);
+        if (finishedAtError) return [finishedAtError];
+
+        return [undefined, {isFinished, finishedAt: parsedFinishedAt}];
+    }
 
     static create(
         object?: IUpdateReadingProgressDto
     ): [string?, UpdateReadingProgressDto?] {
         if (!object) return [INVALID_OBJECT_ERROR];
-        const {bookshelfBookId, progressType, value, isFinished = false} = object;
+        const {bookshelfBookId, value} = object;
 
         const [bookshelfBookIdError, parsedBookshelfBookId = 0] = isValidRequiredNumber(
             'bookshelfBookId',
@@ -29,22 +56,16 @@ export class UpdateReadingProgressDto {
         );
         if (bookshelfBookIdError) return [bookshelfBookIdError];
 
-        if (!progressType)
-            return [
-                BOOKSHELF_BOOK_DTO_ERRORS.UPDATE_READING_PROGRESS.PROGRESS_TYPE.REQUIRED,
-            ];
-        if (!isReadingProgressType(progressType))
-            return [
-                BOOKSHELF_BOOK_DTO_ERRORS.UPDATE_READING_PROGRESS.PROGRESS_TYPE.INVALID,
-            ];
+        const [progressTypeError, progressType] =
+            UpdateReadingProgressDto.parseProgressType(object.progressType);
+        if (progressTypeError || !progressType) return [progressTypeError];
 
         const [valueError, parsedValue = 0] = isValidRequiredNumber('value', value);
         if (valueError) return [valueError];
 
-        if (typeof isFinished !== 'boolean')
-            return [
-                BOOKSHELF_BOOK_DTO_ERRORS.UPDATE_READING_PROGRESS.IS_FINISHED.BOOLEAN,
-            ];
+        const [finishError, finish] = UpdateReadingProgressDto.parseFinish(object);
+        if (finishError || !finish) return [finishError];
+        const {isFinished, finishedAt} = finish;
 
         return [
             undefined,
@@ -52,7 +73,8 @@ export class UpdateReadingProgressDto {
                 parsedBookshelfBookId,
                 progressType,
                 parsedValue,
-                isFinished
+                isFinished,
+                finishedAt
             ),
         ];
     }

@@ -31,10 +31,12 @@ export const readBookshelfPrisma = {...readBookshelfObj};
 export const bookshelfWithStatus: IBookshelfWithStatus = {
     id: bookshelfObj.id,
     name: bookshelfObj.name,
+    type: bookshelfObj.type,
     isSelected: true,
     bookshelfBookId: 101,
     bookCount: 3,
     readingProgress: null,
     currentPage: null,
     progressType: null,
+    finishedAt: null,
 };

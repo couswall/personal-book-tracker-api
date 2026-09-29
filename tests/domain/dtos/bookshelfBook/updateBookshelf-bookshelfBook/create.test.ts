@@ -1,6 +1,9 @@
 import {UpdateBookshelfDto} from '@domain/dtos';
 import {updateBookshelfDtoObject} from '@tests/fixtures';
-import {INVALID_OBJECT_ERROR} from '@domain/constants/bookshelfBook.constants';
+import {
+    INVALID_OBJECT_ERROR,
+    BOOKSHELF_BOOK_DTO_ERRORS,
+} from '@domain/constants/bookshelfBook.constants';
 import {IUpdateBookshelfDto} from '@domain/interfaces/bookshelfBook.interfaces';
 
 describe('UpdateBookshelfDto.create() tests', () => {
@@ -92,6 +95,38 @@ describe('UpdateBookshelfDto.create() tests', () => {
             });
 
             expect(error).toBe('bookshelfId must be a number');
+            expect(dto).toBeUndefined();
+        });
+    });
+
+    describe('discardLastRead validation', () => {
+        test('should default discardLastRead to false', () => {
+            const [error, dto] = UpdateBookshelfDto.create(updateBookshelfDtoObject);
+
+            expect(error).toBeUndefined();
+            expect(dto?.discardLastRead).toBe(false);
+        });
+
+        test('should accept discardLastRead when true', () => {
+            const [error, dto] = UpdateBookshelfDto.create({
+                ...updateBookshelfDtoObject,
+                discardLastRead: true,
+            });
+
+            expect(error).toBeUndefined();
+            expect(dto?.discardLastRead).toBe(true);
+        });
+
+        test('should return an error when discardLastRead is not a boolean', () => {
+            const dtoObject: IUpdateBookshelfDto = JSON.parse(
+                JSON.stringify({...updateBookshelfDtoObject, discardLastRead: 'true'})
+            );
+
+            const [error, dto] = UpdateBookshelfDto.create(dtoObject);
+
+            expect(error).toBe(
+                BOOKSHELF_BOOK_DTO_ERRORS.UPDATE_BOOKSHELF.DISCARD_LAST_READ.BOOLEAN
+            );
             expect(dto).toBeUndefined();
         });
     });

@@ -7,16 +7,26 @@ import {getMockRepositories} from '@tests/domain/use-cases/setup';
 import {
     bookshelfBookEntity,
     bookshelfEntity,
+    readBookshelfEntity,
+    readingSessionEntity,
     removeFromBookshelfDtoObject,
 } from '@tests/fixtures';
 
 describe('removeFromBookshelf-bookshelfBook use case', () => {
-    const {mockBookshelfBookRepository, mockBookshelfRepository} = getMockRepositories();
+    const {
+        mockBookshelfBookRepository,
+        mockBookshelfRepository,
+        mockReadingSessionRepository,
+    } = getMockRepositories();
     const [, dto] = RemoveFromBookshelfDto.create(removeFromBookshelfDtoObject);
     const ownerId = bookshelfEntity.userId;
 
     const buildUseCase = () =>
-        new RemoveFromBookshelf(mockBookshelfBookRepository, mockBookshelfRepository);
+        new RemoveFromBookshelf(
+            mockBookshelfBookRepository,
+            mockBookshelfRepository,
+            mockReadingSessionRepository
+        );
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -58,5 +68,38 @@ describe('removeFromBookshelf-bookshelfBook use case', () => {
         await expect(
             buildUseCase().execute(dto as RemoveFromBookshelfDto, ownerId)
         ).rejects.toThrow('DB error');
+        expect(mockReadingSessionRepository.discardSession).not.toHaveBeenCalled();
+    });
+
+    test('execute() should discard the latest read when removing a book from the READ shelf', async () => {
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(readBookshelfEntity);
+        mockBookshelfBookRepository.removeFromBookshelf.mockResolvedValue(
+            bookshelfBookEntity
+        );
+        mockReadingSessionRepository.findLatestFinishedSession.mockResolvedValue(
+            readingSessionEntity
+        );
+
+        await buildUseCase().execute(dto as RemoveFromBookshelfDto, ownerId);
+
+        expect(
+            mockReadingSessionRepository.findLatestFinishedSession
+        ).toHaveBeenCalledWith(ownerId, bookshelfBookEntity.bookId);
+        expect(mockReadingSessionRepository.discardSession).toHaveBeenCalledWith(
+            readingSessionEntity.id
+        );
+    });
+
+    test('execute() should not touch reading sessions when removing from a non-READ shelf', async () => {
+        mockBookshelfBookRepository.removeFromBookshelf.mockResolvedValue(
+            bookshelfBookEntity
+        );
+
+        await buildUseCase().execute(dto as RemoveFromBookshelfDto, ownerId);
+
+        expect(
+            mockReadingSessionRepository.findLatestFinishedSession
+        ).not.toHaveBeenCalled();
+        expect(mockReadingSessionRepository.discardSession).not.toHaveBeenCalled();
     });
 });

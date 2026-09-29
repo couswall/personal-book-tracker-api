@@ -17,6 +17,15 @@ export const BOOKSHELF_BOOK_DTO_ERRORS = {
             BOOLEAN: 'isFinished must be a boolean',
         },
     },
+    UPDATE_BOOKSHELF: {
+        DISCARD_LAST_READ: {
+            BOOLEAN: 'discardLastRead must be a boolean',
+        },
+    },
+    FINISHED_AT: {
+        INVALID: 'finishedAt must be a date in YYYY-MM-DD format or null',
+        FUTURE: 'finishedAt cannot be in the future',
+    },
 };
 
 export const INVALID_OBJECT_ERROR = 'Invalid object';
