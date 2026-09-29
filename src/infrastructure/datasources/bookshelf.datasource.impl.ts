@@ -80,6 +80,9 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
             }),
             book ? this.findLatestFinishedAt(userId, book.id) : null,
         ]);
+        const hasChallenge = latestFinishedAt
+            ? await this.hasChallengeForYearOf(userId, latestFinishedAt)
+            : false;
 
         return bookshelves.map((shelf) => {
             // `books` is only included (and holds at most this book) when the book exists
@@ -96,6 +99,7 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                     shelf.type === BookshelfType.CURRENTLY_READING ? shelfBook : undefined
                 ),
                 finishedAt: isOnReadShelf ? latestFinishedAt : null,
+                hasChallenge: isOnReadShelf && hasChallenge,
             };
         });
     }
@@ -161,5 +165,14 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
             select: {finishedAt: true},
         });
         return session?.finishedAt ?? null;
+    }
+
+    /** Whether the user set a reading challenge for the (UTC) year of the given date. */
+    private async hasChallengeForYearOf(userId: number, date: Date): Promise<boolean> {
+        const challenge = await prisma.readingChallenge.findUnique({
+            where: {userId_year: {userId, year: date.getUTCFullYear()}},
+            select: {id: true},
+        });
+        return challenge !== null;
     }
 }
