@@ -24,6 +24,8 @@ export interface IBookshelfWithStatus {
     progressType: ReadingProgressType | null;
     /** Only on the READ shelf, when the book is on it: its latest finish date (null = unknown). */
     finishedAt: Date | null;
+    /** Only on the READ shelf, when the book is on it: whether finishedAt's year has a reading challenge. */
+    hasChallenge: boolean;
 }
 
 export interface IBookshelfCount {

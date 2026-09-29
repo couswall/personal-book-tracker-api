@@ -43,6 +43,7 @@ export const bookshelfWithStatus: IBookshelfWithStatus = {
     currentPage: null,
     progressType: null,
     finishedAt: null,
+    hasChallenge: false,
 };
 
 export const bookshelfCount: IBookshelfCount = {

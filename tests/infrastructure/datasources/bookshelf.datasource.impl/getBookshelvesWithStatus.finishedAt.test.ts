@@ -8,6 +8,7 @@ jest.mock('@data/postgres', () => ({
         book: {findUnique: jest.fn()},
         bookshelf: {findMany: jest.fn()},
         readingSession: {findFirst: jest.fn()},
+        readingChallenge: {findUnique: jest.fn()},
     },
 }));
 

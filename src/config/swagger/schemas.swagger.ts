@@ -47,6 +47,12 @@ export const swaggerSchemas = {
                 description:
                     'Only on the READ shelf when the book is on it: when it was last finished (null = unknown date, so it counts toward no challenge).',
             },
+            hasChallenge: {
+                type: 'boolean',
+                example: false,
+                description:
+                    "Only true on the READ shelf when the book is on it and the user set a reading challenge for finishedAt's year. Use it to warn that moving or removing the book affects that challenge.",
+            },
         },
     },
     BookshelfBookResponse: {
