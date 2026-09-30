@@ -16,10 +16,8 @@ export abstract class ReadingSessionRepository {
         sessionId: number,
         dates: IFinishSessionDates
     ): Promise<ReadingSessionEntity>;
-    abstract findLatestFinishedSession(
-        userId: number,
-        bookId: number
-    ): Promise<ReadingSessionEntity | null>;
+    /** Soft-deletes every reading record (finished or open) the user has for the book. */
+    abstract discardAllSessions(userId: number, bookId: number): Promise<number>;
     abstract discardSession(sessionId: number): Promise<ReadingSessionEntity>;
     abstract getFinishedInRange(
         userId: number,

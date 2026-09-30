@@ -1,7 +1,7 @@
 import {ReadingSessionEntity} from '@domain/entities';
 import {CustomError} from '@domain/errors/custom.error';
 import {
-    discardLatestRead,
+    discardOpenSession,
     finishReadingSession,
     resolveFinishDates,
     startReadingSession,
@@ -167,25 +167,22 @@ describe('bookshelfBook reading session helpers', () => {
         });
     });
 
-    describe('discardLatestRead()', () => {
-        test('should discard the latest finished session', async () => {
-            repository.findLatestFinishedSession.mockResolvedValue(readingSessionEntity);
+    describe('discardOpenSession()', () => {
+        test('should discard the in-progress record', async () => {
+            repository.findOpenSession.mockResolvedValue(readingSessionEntity);
 
-            await discardLatestRead(repository, userId, bookId);
+            await discardOpenSession(repository, userId, bookId);
 
-            expect(repository.findLatestFinishedSession).toHaveBeenCalledWith(
-                userId,
-                bookId
-            );
+            expect(repository.findOpenSession).toHaveBeenCalledWith(userId, bookId);
             expect(repository.discardSession).toHaveBeenCalledWith(
                 readingSessionEntity.id
             );
         });
 
-        test('should do nothing when the book has never been finished', async () => {
-            repository.findLatestFinishedSession.mockResolvedValue(null);
+        test('should do nothing when no record is in progress', async () => {
+            repository.findOpenSession.mockResolvedValue(null);
 
-            await discardLatestRead(repository, userId, bookId);
+            await discardOpenSession(repository, userId, bookId);
 
             expect(repository.discardSession).not.toHaveBeenCalled();
         });

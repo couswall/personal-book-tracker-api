@@ -16,6 +16,7 @@ describe('bookshelfBook.repository.impl tests', () => {
         removeFromBookshelf: jest.fn(),
         updateReadingProgress: jest.fn(),
         getBookshelfBookById: jest.fn(),
+        isInLibrary: jest.fn(),
         finishReadingProgress: jest.fn(),
     };
 
@@ -63,6 +64,15 @@ describe('bookshelfBook.repository.impl tests', () => {
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockDatasource.updateReadingProgress).toHaveBeenCalledWith(dto);
+    });
+
+    test('isInLibrary() should call datasource.isInLibrary() and return its result', async () => {
+        mockDatasource.isInLibrary.mockResolvedValue(true);
+
+        const result = await repository.isInLibrary(1, 202);
+
+        expect(result).toBe(true);
+        expect(mockDatasource.isInLibrary).toHaveBeenCalledWith(1, 202);
     });
 
     test('getBookshelfBookById() should return a BookshelfBookEntity and call datasource.getBookshelfBookById()', async () => {

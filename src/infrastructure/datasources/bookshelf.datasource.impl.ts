@@ -6,10 +6,11 @@ import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {
     IBookshelfCount,
-    IBookshelfWithStatus,
+    IBookshelvesStatus,
     IShelfBook,
 } from '@domain/interfaces/bookshelf.interfaces';
 import {toReadingProgress} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.progress.helpers';
+import {findBookReads} from '@infrastructure/datasources/bookshelf.reads.helpers';
 
 export class BookshelfDatasourceImpl implements BookshelfDatasource {
     async getMyBookshelves(userId: number): Promise<BookshelfEntity[]> {
@@ -52,13 +53,13 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
     async getBookshelvesWithStatus(
         userId: number,
         apiBookId: string
-    ): Promise<IBookshelfWithStatus[]> {
+    ): Promise<IBookshelvesStatus> {
         const book = await prisma.book.findUnique({
             where: {apiBookId},
             select: {id: true},
         });
 
-        const [bookshelves, latestFinishedAt] = await Promise.all([
+        const [bookshelves, reads] = await Promise.all([
             prisma.bookshelf.findMany({
                 where: {userId, deletedAt: null},
                 include: {
@@ -78,16 +79,12 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                         : false,
                 },
             }),
-            book ? this.findLatestFinishedAt(userId, book.id) : null,
+            book ? findBookReads(userId, book.id) : [],
         ]);
-        const hasChallenge = latestFinishedAt
-            ? await this.hasChallengeForYearOf(userId, latestFinishedAt)
-            : false;
 
-        return bookshelves.map((shelf) => {
+        const shelvesWithStatus = bookshelves.map((shelf) => {
             // `books` is only included (and holds at most this book) when the book exists
             const shelfBook = book ? shelf.books[0] : undefined;
-            const isOnReadShelf = Boolean(shelfBook) && shelf.type === BookshelfType.READ;
             return {
                 id: shelf.id,
                 name: shelf.name,
@@ -98,10 +95,10 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
                 ...toReadingProgress(
                     shelf.type === BookshelfType.CURRENTLY_READING ? shelfBook : undefined
                 ),
-                finishedAt: isOnReadShelf ? latestFinishedAt : null,
-                hasChallenge: isOnReadShelf && hasChallenge,
             };
         });
+
+        return {bookshelves: shelvesWithStatus, reads};
     }
 
     async getBookshelfCounts(userId: number): Promise<IBookshelfCount[]> {
@@ -152,27 +149,5 @@ export class BookshelfDatasourceImpl implements BookshelfDatasource {
             totalPages: shelfBook.totalPages,
             progressType: shelfBook.progressType,
         }));
-    }
-
-    /** When the book was last finished; lets clients tell which year's challenge it counts toward. */
-    private async findLatestFinishedAt(
-        userId: number,
-        bookId: number
-    ): Promise<Date | null> {
-        const session = await prisma.readingSession.findFirst({
-            where: {userId, bookId, finishedAt: {not: null}, deletedAt: null},
-            orderBy: {finishedAt: 'desc'},
-            select: {finishedAt: true},
-        });
-        return session?.finishedAt ?? null;
-    }
-
-    /** Whether the user set a reading challenge for the (UTC) year of the given date. */
-    private async hasChallengeForYearOf(userId: number, date: Date): Promise<boolean> {
-        const challenge = await prisma.readingChallenge.findUnique({
-            where: {userId_year: {userId, year: date.getUTCFullYear()}},
-            select: {id: true},
-        });
-        return challenge !== null;
     }
 }

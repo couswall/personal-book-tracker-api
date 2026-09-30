@@ -3,13 +3,13 @@ import {BookshelfEntity} from '@domain/entities/index';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {
     IBookshelfCount,
-    IBookshelfWithStatus,
+    IBookshelvesStatus,
     IShelfBook,
 } from '@domain/interfaces/bookshelf.interfaces';
 import {
     bookshelfCount,
     bookshelfEntity,
-    bookshelfWithStatus,
+    bookshelvesStatus,
     shelfBook,
 } from 'tests/fixtures/index';
 
@@ -33,8 +33,8 @@ describe('bookshelf datasource tests', () => {
         async getBookshelvesWithStatus(
             _userId: number,
             _apiBookId: string
-        ): Promise<IBookshelfWithStatus[]> {
-            return [bookshelfWithStatus];
+        ): Promise<IBookshelvesStatus> {
+            return bookshelvesStatus;
         }
 
         async getBookshelfCounts(_userId: number): Promise<IBookshelfCount[]> {

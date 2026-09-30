@@ -4,7 +4,7 @@ import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {
     IBookshelfCount,
-    IBookshelfWithStatus,
+    IBookshelvesStatus,
     IShelfBook,
 } from '@domain/interfaces/bookshelf.interfaces';
 
@@ -29,7 +29,7 @@ export class BookshelfRepositoryImpl implements BookshelfRepository {
     getBookshelvesWithStatus(
         userId: number,
         apiBookId: string
-    ): Promise<IBookshelfWithStatus[]> {
+    ): Promise<IBookshelvesStatus> {
         return this.datasource.getBookshelvesWithStatus(userId, apiBookId);
     }
 

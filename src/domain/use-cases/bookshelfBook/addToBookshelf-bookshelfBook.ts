@@ -7,6 +7,8 @@ import {AddToBookshelfDto} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {AddToBookshelfUseCase} from '@domain/use-cases/interfaces/bookshelfBook.interfaces';
 import {getOwnedBookshelf} from '@domain/use-cases/bookshelfBook/ownership.helpers';
+import {CustomError} from '@domain/errors/custom.error';
+import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {
     finishReadingSession,
     startReadingSession,
@@ -32,6 +34,12 @@ export class AddToBookshelf implements AddToBookshelfUseCase {
         const {id: bookId, pageCount} = await this.bookRepository.findOrCreateByApiId(
             addToBookshelfDto.apiBookId
         );
+
+        // A book lives on one shelf at a time; changing shelves is a move, not an add.
+        if (await this.repository.isInLibrary(userId, bookId))
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
+            );
 
         addToBookshelfDto.bookId = bookId;
         addToBookshelfDto.totalPages = pageCount;

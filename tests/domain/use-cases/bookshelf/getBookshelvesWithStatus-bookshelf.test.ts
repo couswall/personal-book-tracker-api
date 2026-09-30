@@ -3,7 +3,7 @@ import {UserRepository} from '@domain/repositories/user.repository';
 import {GetBookshelvesWithStatus} from '@domain/use-cases';
 import {GetBookshelvesWithStatusDto} from '@domain/dtos';
 import {CustomError} from '@domain/errors/custom.error';
-import {bookshelfWithStatus, userEntity, userObj} from '@tests/fixtures';
+import {bookshelvesStatus, userEntity, userObj} from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 describe('getBookshelvesWithStatus use case tests', () => {
@@ -28,19 +28,18 @@ describe('getBookshelvesWithStatus use case tests', () => {
 
     beforeEach(() => jest.clearAllMocks());
 
-    test('execute() should return an array of IBookshelfWithStatus', async () => {
+    test('execute() should return the bookshelves with status and the book reads', async () => {
         mockUserRepository.getById.mockResolvedValue(userEntity);
-        mockBookshelfRepository.getBookshelvesWithStatus.mockResolvedValue([
-            bookshelfWithStatus,
-        ]);
+        mockBookshelfRepository.getBookshelvesWithStatus.mockResolvedValue(
+            bookshelvesStatus
+        );
 
         const result = await new GetBookshelvesWithStatus(
             mockBookshelfRepository,
             mockUserRepository
         ).execute(userObj.id, dto);
 
-        expect(Array.isArray(result)).toBeTruthy();
-        expect(result[0]).toEqual(bookshelfWithStatus);
+        expect(result).toEqual(bookshelvesStatus);
         expect(mockUserRepository.getById).toHaveBeenCalledWith({id: userObj.id});
         expect(mockBookshelfRepository.getBookshelvesWithStatus).toHaveBeenCalledWith(
             userObj.id,

@@ -29,11 +29,8 @@ export class ReadingSessionRepositoryImpl implements ReadingSessionRepository {
         return this.datasource.finishSession(sessionId, dates);
     }
 
-    findLatestFinishedSession(
-        userId: number,
-        bookId: number
-    ): Promise<ReadingSessionEntity | null> {
-        return this.datasource.findLatestFinishedSession(userId, bookId);
+    discardAllSessions(userId: number, bookId: number): Promise<number> {
+        return this.datasource.discardAllSessions(userId, bookId);
     }
 
     discardSession(sessionId: number): Promise<ReadingSessionEntity> {

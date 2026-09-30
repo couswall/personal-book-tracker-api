@@ -80,33 +80,20 @@ describe('readingSession.datasource.impl session lifecycle', () => {
         });
     });
 
-    describe('findLatestFinishedSession()', () => {
-        test('should return the most recently finished, non-deleted session', async () => {
-            (prisma.readingSession.findFirst as jest.Mock).mockResolvedValue(
-                readingSessionObject
-            );
+    describe('discardAllSessions()', () => {
+        test('should soft delete every active record the user has for the book', async () => {
+            (prisma.readingSession.updateMany as jest.Mock).mockResolvedValue({count: 3});
 
-            const result = await readingSessionDatasourceImpl.findLatestFinishedSession(
+            const result = await readingSessionDatasourceImpl.discardAllSessions(
                 userId,
                 bookId
             );
 
-            expect(result).toBeInstanceOf(ReadingSessionEntity);
-            expect(prisma.readingSession.findFirst).toHaveBeenCalledWith({
-                where: {userId, bookId, finishedAt: {not: null}, deletedAt: null},
-                orderBy: {finishedAt: 'desc'},
+            expect(result).toBe(3);
+            expect(prisma.readingSession.updateMany).toHaveBeenCalledWith({
+                where: {userId, bookId, deletedAt: null},
+                data: {deletedAt: expect.any(Date)},
             });
-        });
-
-        test('should return null when the book has never been finished', async () => {
-            (prisma.readingSession.findFirst as jest.Mock).mockResolvedValue(null);
-
-            const result = await readingSessionDatasourceImpl.findLatestFinishedSession(
-                userId,
-                bookId
-            );
-
-            expect(result).toBeNull();
         });
     });
 

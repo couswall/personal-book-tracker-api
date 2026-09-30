@@ -30,6 +30,9 @@ describe('bookshelfBook.repository tests', () => {
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
+        async isInLibrary(_userId: number, _bookId: number): Promise<boolean> {
+            return true;
+        }
         async getBookshelfBookById(
             _bookshelfBookId: number
         ): Promise<BookshelfBookEntity> {
@@ -52,6 +55,7 @@ describe('bookshelfBook.repository tests', () => {
         expect(typeof mockRepository.removeFromBookshelf).toBe('function');
         expect(typeof mockRepository.updateReadingProgress).toBe('function');
         expect(typeof mockRepository.getBookshelfBookById).toBe('function');
+        expect(typeof mockRepository.isInLibrary).toBe('function');
         expect(typeof mockRepository.finishReadingProgress).toBe('function');
     });
 
@@ -85,6 +89,10 @@ describe('bookshelfBook.repository tests', () => {
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(result).toEqual(bookshelfBookEntity);
+    });
+
+    test('isInLibrary() should return a boolean', async () => {
+        await expect(mockRepository.isInLibrary(1, 202)).resolves.toBe(true);
     });
 
     test('getBookshelfBookById() should return a BookshelfBookEntity', async () => {

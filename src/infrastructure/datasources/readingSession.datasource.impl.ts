@@ -35,15 +35,12 @@ export class ReadingSessionDatasourceImpl implements ReadingSessionDatasource {
         return ReadingSessionEntity.fromObject(session);
     }
 
-    async findLatestFinishedSession(
-        userId: number,
-        bookId: number
-    ): Promise<ReadingSessionEntity | null> {
-        const session = await prisma.readingSession.findFirst({
-            where: {userId, bookId, finishedAt: {not: null}, deletedAt: null},
-            orderBy: {finishedAt: 'desc'},
+    async discardAllSessions(userId: number, bookId: number): Promise<number> {
+        const {count} = await prisma.readingSession.updateMany({
+            where: {userId, bookId, deletedAt: null},
+            data: {deletedAt: new Date()},
         });
-        return session ? ReadingSessionEntity.fromObject(session) : null;
+        return count;
     }
 
     async discardSession(sessionId: number): Promise<ReadingSessionEntity> {

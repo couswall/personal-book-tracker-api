@@ -79,11 +79,12 @@ export const finishReadingSession = async (
     );
 };
 
-export const discardLatestRead = async (
+/** Drops the in-progress record of a book the user stopped reading without finishing. */
+export const discardOpenSession = async (
     repository: ReadingSessionRepository,
     userId: number,
     bookId: number
 ): Promise<void> => {
-    const latestRead = await repository.findLatestFinishedSession(userId, bookId);
-    if (latestRead) await repository.discardSession(latestRead.id);
+    const openSession = await repository.findOpenSession(userId, bookId);
+    if (openSession) await repository.discardSession(openSession.id);
 };

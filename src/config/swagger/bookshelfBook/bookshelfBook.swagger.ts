@@ -87,13 +87,7 @@ export const bookshelfBookPaths = {
                                     nullable: true,
                                     example: '2026-03-15',
                                     description:
-                                        'When moving to READ. Omitted means finished now; null means the date is unknown and nothing is counted.',
-                                },
-                                discardLastRead: {
-                                    type: 'boolean',
-                                    default: false,
-                                    description:
-                                        'When moving from READ to CURRENTLY_READING: true removes the previous read (marked as read by mistake), false keeps it (re-read).',
+                                        'When moving to READ. From CURRENTLY_READING, omitted means finished now. From TO_BE_READ, a finish is only recorded when a date is sent. null means the date is unknown and nothing is counted. Moves never delete past finishes; moving CURRENTLY_READING → TO_BE_READ drops the in-progress read.',
                                 },
                             },
                         },

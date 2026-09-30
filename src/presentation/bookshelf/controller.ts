@@ -50,11 +50,11 @@ export class BookshelfController {
 
         new GetBookshelvesWithStatus(this.repository, this.userRepository)
             .execute(userId, dto)
-            .then((bookshelves) =>
+            .then(({bookshelves, reads}) =>
                 res.status(200).json({
                     success: true,
                     message: 'Bookshelves with book status fetched successfully.',
-                    data: {bookshelves},
+                    data: {bookshelves, reads},
                 })
             )
             .catch((error) => CustomError.handleError(error, res));

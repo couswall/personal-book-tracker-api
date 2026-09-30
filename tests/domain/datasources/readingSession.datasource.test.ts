@@ -31,11 +31,8 @@ describe('readingSession.datasource tests', () => {
         ): Promise<ReadingSessionEntity> {
             return readingSessionEntity;
         }
-        async findLatestFinishedSession(
-            _userId: number,
-            _bookId: number
-        ): Promise<ReadingSessionEntity | null> {
-            return readingSessionEntity;
+        async discardAllSessions(_userId: number, _bookId: number): Promise<number> {
+            return 1;
         }
         async discardSession(_sessionId: number): Promise<ReadingSessionEntity> {
             return readingSessionEntity;
@@ -58,9 +55,7 @@ describe('readingSession.datasource tests', () => {
         expect(typeof mockReadingSessionDatasource.findOpenSession).toBe('function');
         expect(typeof mockReadingSessionDatasource.createSession).toBe('function');
         expect(typeof mockReadingSessionDatasource.finishSession).toBe('function');
-        expect(typeof mockReadingSessionDatasource.findLatestFinishedSession).toBe(
-            'function'
-        );
+        expect(typeof mockReadingSessionDatasource.discardAllSessions).toBe('function');
         expect(typeof mockReadingSessionDatasource.discardSession).toBe('function');
         expect(typeof mockReadingSessionDatasource.getFinishedInRange).toBe('function');
         expect(typeof mockReadingSessionDatasource.countFinishedInRange).toBe('function');
