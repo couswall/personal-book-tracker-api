@@ -22,7 +22,6 @@ export interface IUpdateBookshelfDto {
     bookshelfId?: number | string;
     bookshelfType?: string;
     finishedAt?: string | null;
-    discardLastRead?: boolean;
 }
 
 export interface IRemoveFromBookshelfDto {

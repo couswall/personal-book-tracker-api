@@ -12,10 +12,10 @@ jest.mock('@data/postgres', () => ({
             findMany: jest.fn(),
         },
         readingSession: {
-            findFirst: jest.fn(),
+            findMany: jest.fn(),
         },
         readingChallenge: {
-            findUnique: jest.fn(),
+            findMany: jest.fn(),
         },
     },
 }));
@@ -23,6 +23,7 @@ jest.mock('@data/postgres', () => ({
 describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
     beforeEach(() => {
         jest.clearAllMocks();
+        (prisma.readingSession.findMany as jest.Mock).mockResolvedValue([]);
     });
 
     const bookshelfDatasourceImpl = new BookshelfDatasourceImpl();
@@ -66,12 +67,14 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
             apiBookId
         );
 
-        expect(Array.isArray(result)).toBeTruthy();
-        expect(result[0].isSelected).toBe(true);
-        expect(result[0].bookshelfBookId).toBe(bookshelfWithStatus.bookshelfBookId);
-        expect(result[0].bookCount).toBe(bookshelfWithStatus.bookCount);
-        expect(result[0].readingProgress).toBeNull();
-        expect(result[0].currentPage).toBeNull();
+        expect(Array.isArray(result.bookshelves)).toBeTruthy();
+        expect(result.bookshelves[0].isSelected).toBe(true);
+        expect(result.bookshelves[0].bookshelfBookId).toBe(
+            bookshelfWithStatus.bookshelfBookId
+        );
+        expect(result.bookshelves[0].bookCount).toBe(bookshelfWithStatus.bookCount);
+        expect(result.bookshelves[0].readingProgress).toBeNull();
+        expect(result.bookshelves[0].currentPage).toBeNull();
         expect(prisma.book.findUnique).toHaveBeenCalledWith({
             where: {apiBookId},
             select: {id: true},
@@ -89,10 +92,10 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
             apiBookId
         );
 
-        expect(result[0].isSelected).toBe(true);
-        expect(result[0].readingProgress).toBe(50);
-        expect(result[0].currentPage).toBe(120);
-        expect(result[0].progressType).toBe('PAGE');
+        expect(result.bookshelves[0].isSelected).toBe(true);
+        expect(result.bookshelves[0].readingProgress).toBe(50);
+        expect(result.bookshelves[0].currentPage).toBe(120);
+        expect(result.bookshelves[0].progressType).toBe('PAGE');
     });
 
     test('should return null readingProgress and currentPage when book is not in a CURRENTLY_READING shelf', async () => {
@@ -106,9 +109,9 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
             apiBookId
         );
 
-        expect(result[0].isSelected).toBe(false);
-        expect(result[0].readingProgress).toBeNull();
-        expect(result[0].currentPage).toBeNull();
+        expect(result.bookshelves[0].isSelected).toBe(false);
+        expect(result.bookshelves[0].readingProgress).toBeNull();
+        expect(result.bookshelves[0].currentPage).toBeNull();
     });
 
     test('should return bookshelves with isSelected=false and bookshelfBookId=null when book is not in any shelf', async () => {
@@ -122,10 +125,10 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
             apiBookId
         );
 
-        expect(result[0].isSelected).toBe(false);
-        expect(result[0].bookshelfBookId).toBeNull();
-        expect(result[0].readingProgress).toBeNull();
-        expect(result[0].currentPage).toBeNull();
+        expect(result.bookshelves[0].isSelected).toBe(false);
+        expect(result.bookshelves[0].bookshelfBookId).toBeNull();
+        expect(result.bookshelves[0].readingProgress).toBeNull();
+        expect(result.bookshelves[0].currentPage).toBeNull();
     });
 
     test('should return all isSelected=false when book does not exist in the DB', async () => {
@@ -139,10 +142,10 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
             apiBookId
         );
 
-        expect(result[0].isSelected).toBe(false);
-        expect(result[0].bookshelfBookId).toBeNull();
-        expect(result[0].readingProgress).toBeNull();
-        expect(result[0].currentPage).toBeNull();
+        expect(result.bookshelves[0].isSelected).toBe(false);
+        expect(result.bookshelves[0].bookshelfBookId).toBeNull();
+        expect(result.bookshelves[0].readingProgress).toBeNull();
+        expect(result.bookshelves[0].currentPage).toBeNull();
     });
 
     test('should return an empty array when user has no bookshelves', async () => {
@@ -154,6 +157,6 @@ describe('BookshelfDatasourceImpl.getBookshelvesWithStatus', () => {
             apiBookId
         );
 
-        expect(result).toEqual([]);
+        expect(result).toEqual({bookshelves: [], reads: []});
     });
 });

@@ -39,19 +39,19 @@ export const swaggerSchemas = {
                 enum: ['PAGE', 'PERCENTAGE'],
                 example: 'PAGE',
             },
-            finishedAt: {
-                type: 'string',
-                format: 'date-time',
-                nullable: true,
-                example: null,
-                description:
-                    'Only on the READ shelf when the book is on it: when it was last finished (null = unknown date, so it counts toward no challenge).',
-            },
+        },
+    },
+    BookRead: {
+        type: 'object',
+        description:
+            'One finish of the book. Removing the book from any shelf deletes all of its reads.',
+        properties: {
+            finishedAt: {type: 'string', format: 'date-time'},
             hasChallenge: {
                 type: 'boolean',
-                example: false,
+                example: true,
                 description:
-                    "Only true on the READ shelf when the book is on it and the user set a reading challenge for finishedAt's year. Use it to warn that moving or removing the book affects that challenge.",
+                    "Whether the user set a reading challenge for finishedAt's year",
             },
         },
     },

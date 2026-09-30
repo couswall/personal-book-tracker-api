@@ -9,8 +9,8 @@ jest.mock('@data/postgres', () => ({
         user: {findFirst: jest.fn()},
         book: {findUnique: jest.fn()},
         bookshelf: {findMany: jest.fn()},
-        readingSession: {findFirst: jest.fn()},
-        readingChallenge: {findUnique: jest.fn()},
+        readingSession: {findMany: jest.fn()},
+        readingChallenge: {findMany: jest.fn()},
     },
 }));
 
@@ -37,6 +37,7 @@ describe('controller - getBookshelvesWithStatus()', () => {
         (prisma.bookshelf.findMany as jest.Mock).mockResolvedValue([
             bookshelfPrismaWithIncludes,
         ]);
+        (prisma.readingSession.findMany as jest.Mock).mockResolvedValue([]);
 
         await new Promise<void>((resolve) => {
             controller.getBookshelvesWithStatus(
@@ -50,7 +51,7 @@ describe('controller - getBookshelvesWithStatus()', () => {
         expect(mockResponse.json).toHaveBeenCalledWith({
             success: true,
             message: expect.any(String),
-            data: {bookshelves: expect.any(Array)},
+            data: {bookshelves: expect.any(Array), reads: []},
         });
     });
 

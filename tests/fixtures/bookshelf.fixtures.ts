@@ -3,6 +3,7 @@ import {BookshelfEntity} from '@domain/entities';
 import {
     IBookshelfCount,
     IBookshelfWithStatus,
+    IBookshelvesStatus,
     IShelfBook,
 } from '@domain/interfaces/bookshelf.interfaces';
 import {userEntity} from 'tests/fixtures/user.fixtures';
@@ -42,8 +43,11 @@ export const bookshelfWithStatus: IBookshelfWithStatus = {
     readingProgress: null,
     currentPage: null,
     progressType: null,
-    finishedAt: null,
-    hasChallenge: false,
+};
+
+export const bookshelvesStatus: IBookshelvesStatus = {
+    bookshelves: [bookshelfWithStatus],
+    reads: [],
 };
 
 export const bookshelfCount: IBookshelfCount = {

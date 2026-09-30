@@ -15,7 +15,7 @@ describe('readingSession.repository.impl tests', () => {
         findOpenSession: jest.fn(),
         createSession: jest.fn(),
         finishSession: jest.fn(),
-        findLatestFinishedSession: jest.fn(),
+        discardAllSessions: jest.fn(),
         discardSession: jest.fn(),
         getFinishedInRange: jest.fn(),
         countFinishedInRange: jest.fn(),
@@ -67,16 +67,16 @@ describe('readingSession.repository.impl tests', () => {
         );
     });
 
-    test('findLatestFinishedSession should return a ReadingSessionEntity and call datasource.findLatestFinishedSession()', async () => {
-        mockDatasource.findLatestFinishedSession.mockResolvedValue(readingSessionEntity);
+    test('discardAllSessions should return the discarded count and call datasource.discardAllSessions()', async () => {
+        mockDatasource.discardAllSessions.mockResolvedValue(2);
 
-        const result = await repository.findLatestFinishedSession(
+        const result = await repository.discardAllSessions(
             readingSessionObject.userId,
             readingSessionObject.bookId
         );
 
-        expect(result).toBeInstanceOf(ReadingSessionEntity);
-        expect(mockDatasource.findLatestFinishedSession).toHaveBeenCalledWith(
+        expect(result).toBe(2);
+        expect(mockDatasource.discardAllSessions).toHaveBeenCalledWith(
             readingSessionObject.userId,
             readingSessionObject.bookId
         );

@@ -71,6 +71,14 @@ export const bookshelfPaths = {
                                                     $ref: '#/components/schemas/BookshelfWithStatus',
                                                 },
                                             },
+                                            reads: {
+                                                type: 'array',
+                                                description:
+                                                    "The book's finishes, newest first. Empty when it was never finished. Use it to warn before removing the book.",
+                                                items: {
+                                                    $ref: '#/components/schemas/BookRead',
+                                                },
+                                            },
                                         },
                                     },
                                 },

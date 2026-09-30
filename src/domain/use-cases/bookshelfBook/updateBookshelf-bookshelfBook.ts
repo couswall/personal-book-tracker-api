@@ -10,7 +10,7 @@ import {
     getOwnedBookshelfBook,
 } from '@domain/use-cases/bookshelfBook/ownership.helpers';
 import {
-    discardLatestRead,
+    discardOpenSession,
     finishReadingSession,
     startReadingSession,
 } from '@domain/use-cases/bookshelfBook/readingSession.helpers';
@@ -59,25 +59,27 @@ export class UpdateBookshelf implements UpdateBookshelfUseCase {
     }
 
     private async syncReadingSession(
-        {bookshelfType, finishedAt, discardLastRead}: UpdateBookshelfDto,
+        {bookshelfType, finishedAt}: UpdateBookshelfDto,
         previousType: BookshelfType,
         userId: number,
         bookId: number
     ): Promise<void> {
         const repository = this.readingSessionRepository;
+        const wasReading = previousType === BookshelfType.CURRENTLY_READING;
 
-        if (previousType === BookshelfType.READ) {
-            // READ → CURRENTLY_READING is a re-read unless the user says the
-            // previous read was a mistake; any other move un-finishes the book.
-            const isReread =
-                bookshelfType === BookshelfType.CURRENTLY_READING && !discardLastRead;
-            if (!isReread) await discardLatestRead(repository, userId, bookId);
-        }
+        // Moves never delete past finishes; mistakes are fixed by editing the reads.
+        if (wasReading && bookshelfType === BookshelfType.TO_BE_READ)
+            await discardOpenSession(repository, userId, bookId);
 
         if (bookshelfType === BookshelfType.CURRENTLY_READING)
             await startReadingSession(repository, userId, bookId);
 
-        if (bookshelfType === BookshelfType.READ)
+        // Only a book that was being read is known to be finished now; otherwise
+        // a finish is only recorded when the client sends its date.
+        if (
+            bookshelfType === BookshelfType.READ &&
+            (wasReading || finishedAt !== undefined)
+        )
             await finishReadingSession(repository, userId, bookId, finishedAt);
     }
 }

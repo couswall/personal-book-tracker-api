@@ -6,7 +6,7 @@ import {
     bookshelfCount,
     bookshelfEntity,
     bookshelfObj,
-    bookshelfWithStatus,
+    bookshelvesStatus,
     readBookshelfEntity,
     shelfBook,
 } from '@tests/fixtures';
@@ -63,7 +63,7 @@ describe('bookshelf.repository.impl tests', () => {
 
     test('getBookshelvesWithStatus() should call datasource.getBookshelvesWithStatus() and return its result', async () => {
         const apiBookId = 'abc123';
-        mockDatasource.getBookshelvesWithStatus.mockResolvedValue([bookshelfWithStatus]);
+        mockDatasource.getBookshelvesWithStatus.mockResolvedValue(bookshelvesStatus);
 
         const result = await mockRepositoryImpl.getBookshelvesWithStatus(
             bookshelfObj.userId,
@@ -74,7 +74,7 @@ describe('bookshelf.repository.impl tests', () => {
             bookshelfObj.userId,
             apiBookId
         );
-        expect(result).toEqual([bookshelfWithStatus]);
+        expect(result).toEqual(bookshelvesStatus);
     });
 
     test('getBookshelfCounts() should call datasource.getBookshelfCounts() and return its result', async () => {

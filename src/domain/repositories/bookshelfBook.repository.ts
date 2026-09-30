@@ -17,6 +17,8 @@ export abstract class BookshelfBookRepository {
     abstract updateReadingProgress(
         updateReadingProgressDto: UpdateReadingProgressDto
     ): Promise<BookshelfBookEntity>;
+    /** Whether the book is already on any of the user's bookshelves. */
+    abstract isInLibrary(userId: number, bookId: number): Promise<boolean>;
     abstract getBookshelfBookById(bookshelfBookId: number): Promise<BookshelfBookEntity>;
     abstract finishReadingProgress(
         bookshelfBookId: number,

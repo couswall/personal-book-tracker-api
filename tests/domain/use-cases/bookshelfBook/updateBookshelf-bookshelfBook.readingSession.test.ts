@@ -10,6 +10,8 @@ import {
     readingSessionObject,
 } from '@tests/fixtures';
 
+const {READ, CURRENTLY_READING, TO_BE_READ} = BookshelfType;
+
 describe('updateBookshelf-bookshelfBook use case reading sessions', () => {
     const {
         mockBookRepository,
@@ -20,26 +22,16 @@ describe('updateBookshelf-bookshelfBook use case reading sessions', () => {
     const {userId} = bookshelfEntity;
     const {bookId} = bookshelfBookEntity;
     const TARGET_ID = 1;
+    const finishedAt = new Date('2026-03-15T00:00:00Z');
 
     const shelf = (id: number, type: BookshelfType): BookshelfEntity =>
         BookshelfEntity.fromObject({...bookshelfEntity, id, type});
 
-    const move = async (
-        from: BookshelfType,
-        to: BookshelfType,
-        options: {finishedAt?: Date | null; discardLastRead?: boolean} = {}
-    ) => {
+    const move = async (from: BookshelfType, to: BookshelfType, date?: Date | null) => {
         const fromShelf = shelf(bookshelfBookEntity.bookshelfId, from);
         const toShelf = shelf(TARGET_ID, to);
         mockBookshelfRepository.getBookshelfById.mockImplementation(async (id) =>
             id === fromShelf.id ? fromShelf : toShelf
-        );
-        const dto = new UpdateBookshelfDto(
-            bookshelfBookEntity.id,
-            TARGET_ID,
-            undefined,
-            options.finishedAt,
-            options.discardLastRead
         );
 
         await new UpdateBookshelf(
@@ -47,7 +39,17 @@ describe('updateBookshelf-bookshelfBook use case reading sessions', () => {
             mockBookRepository,
             mockBookshelfRepository,
             sessions
-        ).execute(dto, userId);
+        ).execute(
+            new UpdateBookshelfDto(bookshelfBookEntity.id, TARGET_ID, undefined, date),
+            userId
+        );
+    };
+
+    const expectNoSessionChanges = () => {
+        expect(sessions.createSession).not.toHaveBeenCalled();
+        expect(sessions.finishSession).not.toHaveBeenCalled();
+        expect(sessions.discardSession).not.toHaveBeenCalled();
+        expect(sessions.discardAllSessions).not.toHaveBeenCalled();
     };
 
     beforeEach(() => {
@@ -59,16 +61,16 @@ describe('updateBookshelf-bookshelfBook use case reading sessions', () => {
             bookshelfBookEntity
         );
         sessions.findOpenSession.mockResolvedValue(null);
-        sessions.findLatestFinishedSession.mockResolvedValue(readingSessionEntity);
     });
 
-    test('should not touch reading sessions when the book stays on the same bookshelf', async () => {
-        const readShelf = shelf(TARGET_ID, BookshelfType.READ);
+    test('should not touch reading records when the book stays on the same bookshelf', async () => {
         mockBookshelfBookRepository.getBookshelfBookById.mockResolvedValue({
             ...bookshelfBookEntity,
             bookshelfId: TARGET_ID,
         });
-        mockBookshelfRepository.getBookshelfById.mockResolvedValue(readShelf);
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(
+            shelf(TARGET_ID, READ)
+        );
 
         await new UpdateBookshelf(
             mockBookshelfBookRepository,
@@ -78,90 +80,93 @@ describe('updateBookshelf-bookshelfBook use case reading sessions', () => {
         ).execute(new UpdateBookshelfDto(bookshelfBookEntity.id, TARGET_ID), userId);
 
         expect(sessions.findOpenSession).not.toHaveBeenCalled();
-        expect(sessions.createSession).not.toHaveBeenCalled();
-        expect(sessions.findLatestFinishedSession).not.toHaveBeenCalled();
+        expectNoSessionChanges();
     });
 
-    test('should not touch reading sessions when moving between non-READ shelves', async () => {
-        await move(BookshelfType.CURRENTLY_READING, BookshelfType.TO_BE_READ);
+    describe('Currently Reading →', () => {
+        test('Read should finish the open record now', async () => {
+            sessions.findOpenSession.mockResolvedValue(readingSessionEntity);
 
-        expect(sessions.findOpenSession).not.toHaveBeenCalled();
-        expect(sessions.createSession).not.toHaveBeenCalled();
-        expect(sessions.findLatestFinishedSession).not.toHaveBeenCalled();
-    });
+            await move(CURRENTLY_READING, READ);
 
-    test('should open a reading session when moved to CURRENTLY_READING', async () => {
-        await move(BookshelfType.TO_BE_READ, BookshelfType.CURRENTLY_READING);
+            expect(sessions.finishSession).toHaveBeenCalledWith(readingSessionEntity.id, {
+                finishedAt: expect.any(Date),
+            });
+        });
 
-        expect(sessions.createSession).toHaveBeenCalledWith({
-            userId,
-            bookId,
-            startedAt: expect.any(Date),
-            finishedAt: null,
+        test('Read should finish the open record on the given date', async () => {
+            const openSession = ReadingSessionEntity.fromObject({
+                ...readingSessionObject,
+                startedAt: new Date('2026-03-01T10:00:00Z'),
+                finishedAt: null,
+            });
+            sessions.findOpenSession.mockResolvedValue(openSession);
+
+            await move(CURRENTLY_READING, READ, finishedAt);
+
+            expect(sessions.finishSession).toHaveBeenCalledWith(openSession.id, {
+                finishedAt,
+            });
+        });
+
+        test('To Be Read should drop the in-progress record', async () => {
+            sessions.findOpenSession.mockResolvedValue(readingSessionEntity);
+
+            await move(CURRENTLY_READING, TO_BE_READ);
+
+            expect(sessions.discardSession).toHaveBeenCalledWith(readingSessionEntity.id);
+            expect(sessions.discardAllSessions).not.toHaveBeenCalled();
+            expect(sessions.createSession).not.toHaveBeenCalled();
         });
     });
 
-    test('should create a session finished now when moved to READ without a date', async () => {
-        await move(BookshelfType.TO_BE_READ, BookshelfType.READ);
+    describe('To Be Read →', () => {
+        test('Read without a date should not record a finish', async () => {
+            await move(TO_BE_READ, READ);
 
-        const [{startedAt, finishedAt}] = sessions.createSession.mock.calls[0];
-        expect(finishedAt).toEqual(expect.any(Date));
-        expect(startedAt).toBe(finishedAt);
-    });
-
-    test('should finish the open session on the given date when moved to READ', async () => {
-        const finishedAt = new Date('2026-03-15T00:00:00Z');
-        const openSession = ReadingSessionEntity.fromObject({
-            ...readingSessionObject,
-            startedAt: new Date('2026-03-01T10:00:00Z'),
-            finishedAt: null,
-        });
-        sessions.findOpenSession.mockResolvedValue(openSession);
-
-        await move(BookshelfType.CURRENTLY_READING, BookshelfType.READ, {finishedAt});
-
-        expect(sessions.finishSession).toHaveBeenCalledWith(openSession.id, {
-            finishedAt,
-        });
-    });
-
-    test('should discard the open session when moved to READ with an unknown date', async () => {
-        sessions.findOpenSession.mockResolvedValue(readingSessionEntity);
-
-        await move(BookshelfType.CURRENTLY_READING, BookshelfType.READ, {
-            finishedAt: null,
+            expect(sessions.findOpenSession).not.toHaveBeenCalled();
+            expectNoSessionChanges();
         });
 
-        expect(sessions.discardSession).toHaveBeenCalledWith(readingSessionEntity.id);
-        expect(sessions.finishSession).not.toHaveBeenCalled();
-    });
+        test('Read with a date should record a finish on that date', async () => {
+            await move(TO_BE_READ, READ, finishedAt);
 
-    test('should discard the latest read when moved from READ to TO_BE_READ', async () => {
-        await move(BookshelfType.READ, BookshelfType.TO_BE_READ);
-
-        expect(sessions.findLatestFinishedSession).toHaveBeenCalledWith(userId, bookId);
-        expect(sessions.discardSession).toHaveBeenCalledWith(readingSessionEntity.id);
-        expect(sessions.createSession).not.toHaveBeenCalled();
-    });
-
-    test('should keep the previous read and open a new session for a re-read', async () => {
-        await move(BookshelfType.READ, BookshelfType.CURRENTLY_READING);
-
-        expect(sessions.findLatestFinishedSession).not.toHaveBeenCalled();
-        expect(sessions.discardSession).not.toHaveBeenCalled();
-        expect(sessions.createSession).toHaveBeenCalledWith(
-            expect.objectContaining({finishedAt: null})
-        );
-    });
-
-    test('should discard the previous read when it was marked as read by mistake', async () => {
-        await move(BookshelfType.READ, BookshelfType.CURRENTLY_READING, {
-            discardLastRead: true,
+            expect(sessions.createSession).toHaveBeenCalledWith({
+                userId,
+                bookId,
+                startedAt: finishedAt,
+                finishedAt,
+            });
         });
 
-        expect(sessions.discardSession).toHaveBeenCalledWith(readingSessionEntity.id);
-        expect(sessions.createSession).toHaveBeenCalledWith(
-            expect.objectContaining({finishedAt: null})
-        );
+        test('Currently Reading should open a reading record', async () => {
+            await move(TO_BE_READ, CURRENTLY_READING);
+
+            expect(sessions.createSession).toHaveBeenCalledWith({
+                userId,
+                bookId,
+                startedAt: expect.any(Date),
+                finishedAt: null,
+            });
+        });
+    });
+
+    describe('Read →', () => {
+        test('Currently Reading should keep past finishes and open a new record (re-read)', async () => {
+            await move(READ, CURRENTLY_READING);
+
+            expect(sessions.discardSession).not.toHaveBeenCalled();
+            expect(sessions.discardAllSessions).not.toHaveBeenCalled();
+            expect(sessions.createSession).toHaveBeenCalledWith(
+                expect.objectContaining({finishedAt: null})
+            );
+        });
+
+        test('To Be Read should keep past finishes', async () => {
+            await move(READ, TO_BE_READ);
+
+            expect(sessions.findOpenSession).not.toHaveBeenCalled();
+            expectNoSessionChanges();
+        });
     });
 });

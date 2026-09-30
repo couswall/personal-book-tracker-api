@@ -26,6 +26,7 @@ describe('BookshelfBookController.removeFromBookshelf tests', () => {
         );
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
         (prisma.bookshelfBook.delete as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
+        (prisma.readingSession.updateMany as jest.Mock).mockResolvedValue({count: 2});
 
         await new Promise<void>((resolve) => {
             controller.removeFromBookshelf(
@@ -39,6 +40,14 @@ describe('BookshelfBookController.removeFromBookshelf tests', () => {
         expect(mockResponse.json).toHaveBeenCalledWith({
             success: true,
             message: 'Book removed from bookshelf successfully',
+        });
+        expect(prisma.readingSession.updateMany).toHaveBeenCalledWith({
+            where: {
+                userId: bookshelfPrisma.userId,
+                bookId: bookshelfBookPrisma.bookId,
+                deletedAt: null,
+            },
+            data: {deletedAt: expect.any(Date)},
         });
     });
 

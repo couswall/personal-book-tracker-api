@@ -1,5 +1,5 @@
 import {prisma} from '@data/postgres';
-import {Prisma, BookshelfType} from '@/generated/prisma';
+import {BookshelfType} from '@/generated/prisma';
 import {CustomError} from '@domain/errors/custom.error';
 import {BookshelfBookEntity} from '@domain/entities';
 import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-bookshelfBook.dto';
@@ -8,6 +8,7 @@ import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-boo
 import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
 import {UpdateReadingProgressDto} from '@domain/dtos/bookshelfBook/updateReadingProgress-bookshelfBook.dto';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {isPrismaError} from '@infrastructure/helpers/prisma.helpers';
 import {computeProgress} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.progress.helpers';
 
 export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
@@ -31,14 +32,10 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
             });
             return BookshelfBookEntity.fromObject(book);
         } catch (error) {
-            if (
-                error instanceof Prisma.PrismaClientKnownRequestError &&
-                error.code === 'P2002'
-            ) {
+            if (isPrismaError(error, 'P2002'))
                 throw CustomError.badRequest(
                     ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
                 );
-            }
             throw error;
         }
     }
@@ -86,14 +83,10 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
 
             return BookshelfBookEntity.fromObject(updatedBook);
         } catch (error) {
-            if (
-                error instanceof Prisma.PrismaClientKnownRequestError &&
-                error.code === 'P2025'
-            ) {
+            if (isPrismaError(error, 'P2025'))
                 throw CustomError.badRequest(
                     ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_BOOKSHELF.NOT_FOUND
                 );
-            }
             throw error;
         }
     }
@@ -149,16 +142,20 @@ export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
 
             return BookshelfBookEntity.fromObject(updatedBook);
         } catch (error) {
-            if (
-                error instanceof Prisma.PrismaClientKnownRequestError &&
-                error.code === 'P2025'
-            ) {
+            if (isPrismaError(error, 'P2025'))
                 throw CustomError.badRequest(
                     ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
                 );
-            }
             throw error;
         }
+    }
+
+    async isInLibrary(userId: number, bookId: number): Promise<boolean> {
+        const shelved = await prisma.bookshelfBook.findFirst({
+            where: {bookId, bookshelf: {userId, deletedAt: null}},
+            select: {id: true},
+        });
+        return shelved !== null;
     }
 
     async getBookshelfBookById(bookshelfBookId: number): Promise<BookshelfBookEntity> {

@@ -94,4 +94,34 @@ describe('addToBookshelf-bookshelfBook use case', () => {
 
         expect(mockBookshelfBookRepository.addToBookshelf).not.toHaveBeenCalled();
     });
+
+    test('execute() should reject a book that is already on one of the user bookshelves', async () => {
+        const dto = new AddToBookshelfDto(
+            addToBookshelfDtoObject.bookshelfId,
+            addToBookshelfDtoObject.apiBookId
+        );
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(bookshelfEntity);
+        mockBookRepository.findOrCreateByApiId.mockResolvedValue(bookEntity);
+        mockBookshelfBookRepository.isInLibrary.mockResolvedValue(true);
+
+        await expect(
+            new AddToBookshelf(
+                mockBookshelfBookRepository,
+                mockBookRepository,
+                mockBookshelfRepository,
+                mockReadingSessionRepository
+            ).execute(dto, bookshelfEntity.userId)
+        ).rejects.toThrow(
+            CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
+            )
+        );
+
+        expect(mockBookshelfBookRepository.isInLibrary).toHaveBeenCalledWith(
+            bookshelfEntity.userId,
+            bookEntity.id
+        );
+        expect(mockBookshelfBookRepository.addToBookshelf).not.toHaveBeenCalled();
+        expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
+    });
 });

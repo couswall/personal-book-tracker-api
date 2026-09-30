@@ -31,6 +31,10 @@ export class BookshelfBookRepositoryImpl implements BookshelfBookRepository {
         return this.datasource.updateReadingProgress(updateReadingProgressDto);
     }
 
+    isInLibrary(userId: number, bookId: number): Promise<boolean> {
+        return this.datasource.isInLibrary(userId, bookId);
+    }
+
     getBookshelfBookById(bookshelfBookId: number): Promise<BookshelfBookEntity> {
         return this.datasource.getBookshelfBookById(bookshelfBookId);
     }

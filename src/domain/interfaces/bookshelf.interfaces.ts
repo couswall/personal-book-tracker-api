@@ -22,10 +22,18 @@ export interface IBookshelfWithStatus {
     readingProgress: number | null;
     currentPage: number | null;
     progressType: ReadingProgressType | null;
-    /** Only on the READ shelf, when the book is on it: its latest finish date (null = unknown). */
-    finishedAt: Date | null;
-    /** Only on the READ shelf, when the book is on it: whether finishedAt's year has a reading challenge. */
+}
+
+/** One finish of the book; hasChallenge when its (UTC) year has a reading challenge. */
+export interface IBookRead {
+    finishedAt: Date;
     hasChallenge: boolean;
+}
+
+/** Where the book sits on each shelf, plus its reading history (newest first). */
+export interface IBookshelvesStatus {
+    bookshelves: IBookshelfWithStatus[];
+    reads: IBookRead[];
 }
 
 export interface IBookshelfCount {

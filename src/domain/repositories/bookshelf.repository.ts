@@ -2,7 +2,7 @@ import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity} from '@domain/entities/index';
 import {
     IBookshelfCount,
-    IBookshelfWithStatus,
+    IBookshelvesStatus,
     IShelfBook,
 } from '@domain/interfaces/bookshelf.interfaces';
 
@@ -16,7 +16,7 @@ export abstract class BookshelfRepository {
     abstract getBookshelvesWithStatus(
         userId: number,
         apiBookId: string
-    ): Promise<IBookshelfWithStatus[]>;
+    ): Promise<IBookshelvesStatus>;
     abstract getBookshelfCounts(userId: number): Promise<IBookshelfCount[]>;
     /** Most recently updated first, so books just added or just read come first. */
     abstract getShelfBooks(
