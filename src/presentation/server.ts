@@ -3,6 +3,7 @@ import cors, {CorsOptions} from 'cors';
 import {Server as HttpServer} from 'http';
 import swaggerUi from 'swagger-ui-express';
 import {swaggerSpec} from '@config/swagger';
+import {logger} from '@config/index';
 
 interface ServerOptions {
     port: number;
@@ -43,8 +44,7 @@ export class Server {
         this.app.use(this.routes);
 
         this.serverListener = this.app.listen(this.port, () => {
-            // TODO: Replace with a proper logger
-            // console.log(`Server running in port ${this.port}`);
+            logger.info('Server started', {port: this.port});
         });
     }
 
