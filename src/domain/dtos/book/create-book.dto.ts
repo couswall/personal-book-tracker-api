@@ -1,8 +1,12 @@
-import { isValidNullString, isValidString, isValidStringArray } from "@domain/dtos/book/helpers";
-import { BOOK_DTO_ERRORS } from "@domain/constants/book.constants";
-import { ICreateBookDtoObj } from "@domain/interfaces/book.interfaces";
+import {
+    isValidNullString,
+    isValidString,
+    isValidStringArray,
+} from '@domain/dtos/book/helpers';
+import {BOOK_DTO_ERRORS} from '@domain/constants/book.constants';
+import {ICreateBookDtoObj} from '@domain/interfaces/book.interfaces';
 
-export class CreateBookDto{
+export class CreateBookDto {
     constructor(
         public readonly apiBookId: string,
         public readonly title: string,
@@ -14,50 +18,69 @@ export class CreateBookDto{
         public readonly categories: string[],
         public readonly averageRating: number,
         public readonly reviewCount: number,
-        public readonly pageCount: number,
-    ){};
+        public readonly pageCount: number
+    ) {}
 
-    static validate(object: ICreateBookDtoObj): string | undefined{
-
-        const [apiBookIdError] = isValidString('apiBookId', object.apiBookId, 2, 50, true);
-        if(apiBookIdError) return apiBookIdError;
-
-        const [titleError] = isValidString('title', object.title, 1, 80, true);
-        if(titleError) return titleError;
-
-        const subtitleError = isValidNullString('subtitle', object.subtitle, 3, 100);
-        if(subtitleError) return subtitleError;
-
-        const authorsError = isValidStringArray('authors', object.authors);
-        if(authorsError) return authorsError;
-
-        const descriptionError = isValidNullString('description', object.description, 3);
-        if(descriptionError) return descriptionError;
-
-        if(object.publishedDate !== null && !(object.publishedDate instanceof Date))
-            return BOOK_DTO_ERRORS.CREATE_BOOK.PUBLISHED_DATE.REQUIRED;
-        
-        const categoriesError = isValidStringArray('categories', object.categories);
-        if(categoriesError) return categoriesError;
-
-        const coverImageUrlError = isValidNullString('coverImageUrl', object.coverImageUrl, 3);
-        if(coverImageUrlError) return coverImageUrlError;
-        
-        if(object.averageRating === undefined || object.averageRating === null) return BOOK_DTO_ERRORS.CREATE_BOOK.AVERAGE_RATING.REQUIRED;
-        if(typeof object.averageRating !== 'number') return BOOK_DTO_ERRORS.CREATE_BOOK.AVERAGE_RATING.NUMBER;
-        
-        if(object.reviewCount === undefined || object.reviewCount === null) return BOOK_DTO_ERRORS.CREATE_BOOK.REVIEW_COUNT.REQUIRED;
-        if(typeof object.reviewCount !== 'number') return BOOK_DTO_ERRORS.CREATE_BOOK.REVIEW_COUNT.NUMBER;
-        
-        if(object.pageCount === undefined || object.pageCount === null) return BOOK_DTO_ERRORS.CREATE_BOOK.PAGE_COUNT.REQUIRED;
-        if(typeof object.pageCount !== 'number') return BOOK_DTO_ERRORS.CREATE_BOOK.PAGE_COUNT.NUMBER;
-        
+    private static validateNumericField(
+        value: number | undefined | null,
+        requiredError: string,
+        typeError: string
+    ): string | undefined {
+        if (value === undefined || value === null) return requiredError;
+        if (typeof value !== 'number') return typeError;
         return undefined;
-    };
+    }
 
-    static create(object: ICreateBookDtoObj): [string?, CreateBookDto?]{
+    private static validateStrings(object: ICreateBookDtoObj): string | undefined {
+        const [apiBookIdError] = isValidString(
+            'apiBookId',
+            object.apiBookId,
+            2,
+            50,
+            true
+        );
+        if (apiBookIdError) return apiBookIdError;
+        const [titleError] = isValidString('title', object.title, 1, 80, true);
+        if (titleError) return titleError;
+        const subtitleError = isValidNullString('subtitle', object.subtitle, 3, 100);
+        if (subtitleError) return subtitleError;
+        const authorsError = isValidStringArray('authors', object.authors);
+        if (authorsError) return authorsError;
+        const descriptionError = isValidNullString('description', object.description, 3);
+        if (descriptionError) return descriptionError;
+        if (object.publishedDate !== null && !(object.publishedDate instanceof Date))
+            return BOOK_DTO_ERRORS.CREATE_BOOK.PUBLISHED_DATE.REQUIRED;
+        const categoriesError = isValidStringArray('categories', object.categories);
+        if (categoriesError) return categoriesError;
+        return isValidNullString('coverImageUrl', object.coverImageUrl, 3);
+    }
+
+    static validate(object: ICreateBookDtoObj): string | undefined {
+        const strError = CreateBookDto.validateStrings(object);
+        if (strError) return strError;
+
+        return (
+            CreateBookDto.validateNumericField(
+                object.averageRating,
+                BOOK_DTO_ERRORS.CREATE_BOOK.AVERAGE_RATING.REQUIRED,
+                BOOK_DTO_ERRORS.CREATE_BOOK.AVERAGE_RATING.NUMBER
+            ) ??
+            CreateBookDto.validateNumericField(
+                object.reviewCount,
+                BOOK_DTO_ERRORS.CREATE_BOOK.REVIEW_COUNT.REQUIRED,
+                BOOK_DTO_ERRORS.CREATE_BOOK.REVIEW_COUNT.NUMBER
+            ) ??
+            CreateBookDto.validateNumericField(
+                object.pageCount,
+                BOOK_DTO_ERRORS.CREATE_BOOK.PAGE_COUNT.REQUIRED,
+                BOOK_DTO_ERRORS.CREATE_BOOK.PAGE_COUNT.NUMBER
+            )
+        );
+    }
+
+    static create(object: ICreateBookDtoObj): [string?, CreateBookDto?] {
         const error = this.validate(object);
-        if(error) return [error];
+        if (error) return [error];
 
         const createBookDto = new CreateBookDto(
             object.apiBookId,
@@ -70,9 +93,9 @@ export class CreateBookDto{
             object.categories,
             object.averageRating,
             object.reviewCount,
-            object.pageCount,
+            object.pageCount
         );
-        
-        return[undefined, createBookDto];
-    };
+
+        return [undefined, createBookDto];
+    }
 }

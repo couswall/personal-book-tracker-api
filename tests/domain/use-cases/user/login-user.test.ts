@@ -31,15 +31,13 @@ describe('login-user use case test', () => {
         mockUserRepository.login.mockResolvedValue(userEntity);
         (JwtAdapter.generateToken as jest.Mock).mockResolvedValue(mockToken);
 
-        const {user, token} = await new LoginUser(mockUserRepository).execute(dto!);
+        const {user, token} = await new LoginUser(mockUserRepository).execute(
+            dto as LoginUserDto
+        );
 
         expect(user).toBeInstanceOf(UserEntity);
         expect(token).toBe(mockToken);
-        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({
-            id: userEntity.id,
-            username: userEntity.username,
-            email: userEntity.email,
-        });
+        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
     test('execute() should throw a 500 error status when token is undefined', async () => {
@@ -48,8 +46,8 @@ describe('login-user use case test', () => {
         mockUserRepository.login.mockResolvedValue(userEntity);
         (JwtAdapter.generateToken as jest.Mock).mockResolvedValue(undefined);
 
-        await expect(new LoginUser(mockUserRepository).execute(dto!)).rejects.toThrow(
-            new CustomError(500, ERROR_MESSAGES.TOKEN.CREATING)
-        );
+        await expect(
+            new LoginUser(mockUserRepository).execute(dto as LoginUserDto)
+        ).rejects.toThrow(new CustomError(500, ERROR_MESSAGES.TOKEN.CREATING));
     });
 });

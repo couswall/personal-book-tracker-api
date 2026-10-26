@@ -1,4 +1,4 @@
-import { GetBookByIdDto } from "@/src/domain/dtos";
+import {GetBookByIdDto} from '@/src/domain/dtos';
 
 describe('getBookById-book.dto tests', () => {
     test('should create a GetBookById instance from a valid string', () => {

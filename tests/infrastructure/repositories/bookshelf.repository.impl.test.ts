@@ -1,15 +1,24 @@
+import {BookshelfType} from '@/generated/prisma';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
 import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
-import {CreateCustomBookShelfDto} from '@domain/dtos';
 import {BookshelfEntity} from '@domain/entities';
-import {bookshelfEntity, bookshelfObj, bookshelfWithStatus, createCustomBookshelfDto} from '@tests/fixtures';
+import {
+    bookshelfCount,
+    bookshelfEntity,
+    bookshelfObj,
+    bookshelvesStatus,
+    readBookshelfEntity,
+    shelfBook,
+} from '@tests/fixtures';
 
 describe('bookshelf.repository.impl tests', () => {
     const mockDatasource: jest.Mocked<BookshelfDatasource> = {
-        createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
+        getBookshelfByUserAndType: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
+        getBookshelfCounts: jest.fn(),
+        getShelfBooks: jest.fn(),
     };
 
     beforeEach(() => {
@@ -18,27 +27,12 @@ describe('bookshelf.repository.impl tests', () => {
 
     const mockRepositoryImpl = new BookshelfRepositoryImpl(mockDatasource);
 
-    test('createCustom() should call datasource.createCustom() and return a BookshelfEntity', async () => {
-        const [, dto] = CreateCustomBookShelfDto.create(createCustomBookshelfDto);
-
-        mockDatasource.createCustom.mockResolvedValue(bookshelfEntity);
-
-        const result = await mockRepositoryImpl.createCustom(dto!);
-
-        expect(mockDatasource.createCustom).toHaveBeenCalledWith(dto);
-        expect(result).toBeInstanceOf(BookshelfEntity);
-    });
-
     test('getMyBookshelves() should call datasource.getMyBookshelves() and return an array of BookshelfEntity', async () => {
         mockDatasource.getMyBookshelves.mockResolvedValue([bookshelfEntity]);
 
-        const result = await mockRepositoryImpl.getMyBookshelves(
-            createCustomBookshelfDto.userId
-        );
+        const result = await mockRepositoryImpl.getMyBookshelves(bookshelfObj.userId);
 
-        expect(mockDatasource.getMyBookshelves).toHaveBeenCalledWith(
-            createCustomBookshelfDto.userId
-        );
+        expect(mockDatasource.getMyBookshelves).toHaveBeenCalledWith(bookshelfObj.userId);
         expect(Array.isArray(result)).toBeTruthy();
         expect(result[0]).toBeInstanceOf(BookshelfEntity);
     });
@@ -52,13 +46,62 @@ describe('bookshelf.repository.impl tests', () => {
         expect(result).toBeInstanceOf(BookshelfEntity);
     });
 
+    test('getBookshelfByUserAndType() should call datasource.getBookshelfByUserAndType() and return a BookshelfEntity', async () => {
+        mockDatasource.getBookshelfByUserAndType.mockResolvedValue(readBookshelfEntity);
+
+        const result = await mockRepositoryImpl.getBookshelfByUserAndType(
+            bookshelfObj.userId,
+            BookshelfType.READ
+        );
+
+        expect(mockDatasource.getBookshelfByUserAndType).toHaveBeenCalledWith(
+            bookshelfObj.userId,
+            BookshelfType.READ
+        );
+        expect(result).toBeInstanceOf(BookshelfEntity);
+    });
+
     test('getBookshelvesWithStatus() should call datasource.getBookshelvesWithStatus() and return its result', async () => {
         const apiBookId = 'abc123';
-        mockDatasource.getBookshelvesWithStatus.mockResolvedValue([bookshelfWithStatus]);
+        mockDatasource.getBookshelvesWithStatus.mockResolvedValue(bookshelvesStatus);
 
-        const result = await mockRepositoryImpl.getBookshelvesWithStatus(bookshelfObj.userId, apiBookId);
+        const result = await mockRepositoryImpl.getBookshelvesWithStatus(
+            bookshelfObj.userId,
+            apiBookId
+        );
 
-        expect(mockDatasource.getBookshelvesWithStatus).toHaveBeenCalledWith(bookshelfObj.userId, apiBookId);
-        expect(result).toEqual([bookshelfWithStatus]);
+        expect(mockDatasource.getBookshelvesWithStatus).toHaveBeenCalledWith(
+            bookshelfObj.userId,
+            apiBookId
+        );
+        expect(result).toEqual(bookshelvesStatus);
+    });
+
+    test('getBookshelfCounts() should call datasource.getBookshelfCounts() and return its result', async () => {
+        mockDatasource.getBookshelfCounts.mockResolvedValue([bookshelfCount]);
+
+        const result = await mockRepositoryImpl.getBookshelfCounts(bookshelfObj.userId);
+
+        expect(mockDatasource.getBookshelfCounts).toHaveBeenCalledWith(
+            bookshelfObj.userId
+        );
+        expect(result).toEqual([bookshelfCount]);
+    });
+
+    test('getShelfBooks() should call datasource.getShelfBooks() and return its result', async () => {
+        mockDatasource.getShelfBooks.mockResolvedValue([shelfBook]);
+
+        const result = await mockRepositoryImpl.getShelfBooks(
+            bookshelfObj.userId,
+            BookshelfType.CURRENTLY_READING,
+            3
+        );
+
+        expect(mockDatasource.getShelfBooks).toHaveBeenCalledWith(
+            bookshelfObj.userId,
+            BookshelfType.CURRENTLY_READING,
+            3
+        );
+        expect(result).toEqual([shelfBook]);
     });
 });

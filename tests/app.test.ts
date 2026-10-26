@@ -1,10 +1,9 @@
-import { envs } from '@config/envs';
-import { Server } from '@presentation/server';
+import {envs} from '@config/envs';
+import {Server} from '@presentation/server';
 
 jest.mock('@presentation/server');
 
 describe('app.ts tests', () => {
-
     test('should call an instance of Server', async () => {
         await import('@src/app');
 

@@ -1,0 +1,200 @@
+import {prisma} from '@data/postgres';
+import {BookshelfType} from '@/generated/prisma';
+import {CustomError} from '@domain/errors/custom.error';
+import {BookshelfBookEntity} from '@domain/entities';
+import {AddToBookshelfDto} from '@domain/dtos/bookshelfBook/addToBookshelf-bookshelfBook.dto';
+import {BookshelfBookDatasource} from '@domain/datasources/bookshelfbook.datasource';
+import {UpdateBookshelfDto} from '@domain/dtos/bookshelfBook/updateBookshelf-bookshelfBook.dto';
+import {RemoveFromBookshelfDto} from '@domain/dtos/bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
+import {UpdateReadingProgressDto} from '@domain/dtos/bookshelfBook/updateReadingProgress-bookshelfBook.dto';
+import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {isPrismaError} from '@infrastructure/helpers/prisma.helpers';
+import {computeProgress} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.progress.helpers';
+
+export class BookshelfBookDatasourceImpl implements BookshelfBookDatasource {
+    async addToBookshelf(
+        addToBookshelfDto: AddToBookshelfDto
+    ): Promise<BookshelfBookEntity> {
+        const {
+            bookshelfId,
+            bookId,
+            bookshelfType = BookshelfType.TO_BE_READ,
+            totalPages = 0,
+        } = addToBookshelfDto;
+
+        if (!bookId) throw CustomError.internalServer('bookId is required');
+
+        const readingProgress = bookshelfType === BookshelfType.READ ? 100 : 0;
+
+        try {
+            const book = await prisma.bookshelfBook.create({
+                data: {bookshelfId, bookId, readingProgress, totalPages},
+            });
+            return BookshelfBookEntity.fromObject(book);
+        } catch (error) {
+            if (isPrismaError(error, 'P2002'))
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
+                );
+            throw error;
+        }
+    }
+
+    async updateBookshelf(
+        updateBookshelfDto: UpdateBookshelfDto
+    ): Promise<BookshelfBookEntity> {
+        const {bookshelfBookId, bookshelfId, bookshelfType} = updateBookshelfDto;
+
+        const existingBook = await prisma.bookshelfBook.findUnique({
+            where: {id: bookshelfBookId},
+        });
+
+        if (!existingBook)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_BOOKSHELF.NOT_FOUND
+            );
+
+        if (existingBook.bookshelfId === bookshelfId)
+            return BookshelfBookEntity.fromObject(existingBook);
+
+        const updatedReadingProgress =
+            bookshelfType === BookshelfType.CURRENTLY_READING
+                ? 0
+                : bookshelfType === BookshelfType.READ
+                  ? 100
+                  : existingBook.readingProgress;
+
+        const updatedCurrentPage =
+            bookshelfType === BookshelfType.CURRENTLY_READING
+                ? 0
+                : bookshelfType === BookshelfType.READ
+                  ? existingBook.totalPages
+                  : existingBook.currentPage;
+
+        try {
+            const updatedBook = await prisma.bookshelfBook.update({
+                data: {
+                    bookshelfId,
+                    readingProgress: updatedReadingProgress,
+                    currentPage: updatedCurrentPage,
+                },
+                where: {id: existingBook.id},
+            });
+
+            return BookshelfBookEntity.fromObject(updatedBook);
+        } catch (error) {
+            if (isPrismaError(error, 'P2025'))
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_BOOKSHELF.NOT_FOUND
+                );
+            throw error;
+        }
+    }
+
+    async removeFromBookshelf(
+        removeFromBookshelfDto: RemoveFromBookshelfDto
+    ): Promise<BookshelfBookEntity> {
+        const {bookshelfBookId} = removeFromBookshelfDto;
+
+        const existingBook = await prisma.bookshelfBook.findUnique({
+            where: {id: bookshelfBookId},
+        });
+
+        if (!existingBook)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.REMOVE_FROM_BOOKSHELF.NOT_FOUND
+            );
+
+        const deletedBook = await prisma.bookshelfBook.delete({
+            where: {id: bookshelfBookId},
+        });
+
+        return BookshelfBookEntity.fromObject(deletedBook);
+    }
+
+    async updateReadingProgress(
+        updateReadingProgressDto: UpdateReadingProgressDto
+    ): Promise<BookshelfBookEntity> {
+        const {bookshelfBookId, progressType, value} = updateReadingProgressDto;
+
+        const existingBook = await prisma.bookshelfBook.findUnique({
+            where: {id: bookshelfBookId},
+        });
+
+        if (!existingBook)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+            );
+
+        const {currentPage, readingProgress} = computeProgress(
+            progressType,
+            value,
+            existingBook.totalPages,
+            existingBook.currentPage,
+            existingBook.readingProgress
+        );
+
+        try {
+            const updatedBook = await prisma.bookshelfBook.update({
+                data: {currentPage, readingProgress, progressType},
+                where: {id: existingBook.id},
+            });
+
+            return BookshelfBookEntity.fromObject(updatedBook);
+        } catch (error) {
+            if (isPrismaError(error, 'P2025'))
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+                );
+            throw error;
+        }
+    }
+
+    async isInLibrary(userId: number, bookId: number): Promise<boolean> {
+        const shelved = await prisma.bookshelfBook.findFirst({
+            where: {bookId, bookshelf: {userId, deletedAt: null}},
+            select: {id: true},
+        });
+        return shelved !== null;
+    }
+
+    async getBookshelfBookById(bookshelfBookId: number): Promise<BookshelfBookEntity> {
+        const bookshelfBook = await prisma.bookshelfBook.findUnique({
+            where: {id: bookshelfBookId},
+        });
+
+        if (!bookshelfBook)
+            throw CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+            );
+
+        return BookshelfBookEntity.fromObject(bookshelfBook);
+    }
+
+    async finishReadingProgress(
+        bookshelfBookId: number,
+        readBookshelfId: number
+    ): Promise<BookshelfBookEntity> {
+        return prisma.$transaction(async (tx) => {
+            const existingBook = await tx.bookshelfBook.findUnique({
+                where: {id: bookshelfBookId},
+            });
+
+            if (!existingBook)
+                throw CustomError.badRequest(
+                    ERROR_MESSAGES.BOOKSHELF_BOOK.UPDATE_READING_PROGRESS.NOT_FOUND
+                );
+
+            const updatedBook = await tx.bookshelfBook.update({
+                where: {id: bookshelfBookId},
+                data: {
+                    bookshelfId: readBookshelfId,
+                    readingProgress: 100,
+                    currentPage: existingBook.totalPages,
+                },
+            });
+
+            return BookshelfBookEntity.fromObject(updatedBook);
+        });
+    }
+}

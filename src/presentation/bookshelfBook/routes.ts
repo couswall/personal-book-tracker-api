@@ -2,11 +2,13 @@ import {Router} from 'express';
 import {AxiosAdapter} from '@config/axios.adapter';
 import {BookshelfBookController} from '@presentation/bookshelfBook/controller';
 import {BookshelfBookRepositoryImpl} from '@infrastructure/repositories/bookshelfBook.repository.impl';
-import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
+import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.datasource.impl';
 import {BookRepositoryImpl} from '@infrastructure/repositories/book.repository.impl';
-import {BookDatasourceImpl} from '@infrastructure/datasources/book.datasource.impl';
+import {BookDatasourceImpl} from '@/src/infrastructure/datasources/book/book.datasource.impl';
 import {BookshelfRepositoryImpl} from '@infrastructure/repositories/bookshelf.repository.impl';
 import {BookshelfDatasourceImpl} from '@infrastructure/datasources/bookshelf.datasource.impl';
+import {ReadingSessionDatasourceImpl} from '@infrastructure/datasources/readingSession.datasource.impl';
+import {ReadingSessionRepositoryImpl} from '@infrastructure/repositories/readingSession.repository.impl';
 import {validateJWT} from '@presentation/middlewares/validate-jwt';
 
 export class BookshelfBookRoutes {
@@ -21,10 +23,14 @@ export class BookshelfBookRoutes {
         const bookshelfRepository = new BookshelfRepositoryImpl(
             new BookshelfDatasourceImpl()
         );
+        const readingSessionRepository = new ReadingSessionRepositoryImpl(
+            new ReadingSessionDatasourceImpl()
+        );
         const bookshelfController = new BookshelfBookController(
             repository,
             bookRepository,
-            bookshelfRepository
+            bookshelfRepository,
+            readingSessionRepository
         );
 
         router.post('/addToBookshelf', [validateJWT], bookshelfController.addToBookshelf);
@@ -37,6 +43,11 @@ export class BookshelfBookRoutes {
             '/:bookshelfBookId',
             [validateJWT],
             bookshelfController.removeFromBookshelf
+        );
+        router.put(
+            '/updateReadingProgress',
+            [validateJWT],
+            bookshelfController.updateReadingProgress
         );
 
         return router;

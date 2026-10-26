@@ -1,6 +1,6 @@
 import {prisma} from '@tests/setup';
 import {RemoveFromBookshelfDto} from '@domain/dtos';
-import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook.datasource.impl';
+import {BookshelfBookDatasourceImpl} from '@infrastructure/datasources/bookshelfBook/bookshelfBook.datasource.impl';
 import {BookshelfBookEntity} from '@domain/entities';
 import {bookshelfBookPrisma, removeFromBookshelfDtoObject} from '@tests/fixtures';
 import {CustomError} from '@domain/errors/custom.error';
@@ -17,18 +17,23 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
         const [, dto] = RemoveFromBookshelfDto.create(removeFromBookshelfDtoObject);
         const deletedBookshelfBook = {...bookshelfBookPrisma, deletedAt: new Date()};
 
-        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
-        (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(deletedBookshelfBook);
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
+            bookshelfBookPrisma
+        );
+        (prisma.bookshelfBook.delete as jest.Mock).mockResolvedValue(
+            deletedBookshelfBook
+        );
 
-        const result = await datasourceImpl.removeFromBookshelf(dto!);
+        const result = await datasourceImpl.removeFromBookshelf(
+            dto as RemoveFromBookshelfDto
+        );
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(prisma.bookshelfBook.findUnique).toHaveBeenCalledWith({
-            where: {id: dto!.bookshelfBookId, deletedAt: null},
+            where: {id: (dto as RemoveFromBookshelfDto).bookshelfBookId},
         });
-        expect(prisma.bookshelfBook.update).toHaveBeenCalledWith({
-            where: {id: dto!.bookshelfBookId},
-            data: {deletedAt: expect.any(Date)},
+        expect(prisma.bookshelfBook.delete).toHaveBeenCalledWith({
+            where: {id: (dto as RemoveFromBookshelfDto).bookshelfBookId},
         });
     });
 
@@ -37,11 +42,15 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
 
         (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(null);
 
-        await expect(datasourceImpl.removeFromBookshelf(dto!)).rejects.toThrow(
-            CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF_BOOK.REMOVE_FROM_BOOKSHELF.NOT_FOUND)
+        await expect(
+            datasourceImpl.removeFromBookshelf(dto as RemoveFromBookshelfDto)
+        ).rejects.toThrow(
+            CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.REMOVE_FROM_BOOKSHELF.NOT_FOUND
+            )
         );
 
-        expect(prisma.bookshelfBook.update).not.toHaveBeenCalled();
+        expect(prisma.bookshelfBook.delete).not.toHaveBeenCalled();
     });
 
     describe('Error handling for prisma calls', () => {
@@ -52,27 +61,29 @@ describe('BookshelfBookDatasourceImpl.removeFromBookshelf tests', () => {
                 new Error('DB connection failed')
             );
 
-            await expect(datasourceImpl.removeFromBookshelf(dto!)).rejects.toThrow(
-                'DB connection failed'
-            );
+            await expect(
+                datasourceImpl.removeFromBookshelf(dto as RemoveFromBookshelfDto)
+            ).rejects.toThrow('DB connection failed');
 
-            expect(prisma.bookshelfBook.update).not.toHaveBeenCalled();
+            expect(prisma.bookshelfBook.delete).not.toHaveBeenCalled();
         });
 
-        test('should throw an error when prisma.bookshelfBook.update rejects', async () => {
+        test('should throw an error when prisma.bookshelfBook.delete rejects', async () => {
             const [, dto] = RemoveFromBookshelfDto.create(removeFromBookshelfDtoObject);
 
-            (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(bookshelfBookPrisma);
-            (prisma.bookshelfBook.update as jest.Mock).mockRejectedValue(
+            (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
+                bookshelfBookPrisma
+            );
+            (prisma.bookshelfBook.delete as jest.Mock).mockRejectedValue(
                 new Error('DB update failed')
             );
 
-            await expect(datasourceImpl.removeFromBookshelf(dto!)).rejects.toThrow(
-                'DB update failed'
-            );
+            await expect(
+                datasourceImpl.removeFromBookshelf(dto as RemoveFromBookshelfDto)
+            ).rejects.toThrow('DB update failed');
 
             expect(prisma.bookshelfBook.findUnique).toHaveBeenCalled();
-            expect(prisma.bookshelfBook.update).toHaveBeenCalled();
+            expect(prisma.bookshelfBook.delete).toHaveBeenCalled();
         });
     });
 });

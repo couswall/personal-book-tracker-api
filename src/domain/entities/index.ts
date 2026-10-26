@@ -3,3 +3,5 @@ export * from './bookshelf.entity';
 export * from './bookshelfBook.entity';
 export * from './note.entity';
 export * from './review.entity';
+export * from './readingSession.entity';
+export * from './readingChallenge.entity';

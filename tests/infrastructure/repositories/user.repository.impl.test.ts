@@ -15,32 +15,35 @@ describe('user.repository.impl tests', () => {
 
     test('create() should call datasource.create() and return a UserEntity', async () => {
         const [, dto] = CreateUserDto.create(createUserDtoObj);
+        if (!dto) throw new Error();
 
         mockUserDatasource.create.mockResolvedValue(userEntity);
 
-        const result = await userDatasourceImpl.create(dto!);
+        const result = await userDatasourceImpl.create(dto);
 
         expect(result).toBeInstanceOf(UserEntity);
-        expect(mockUserDatasource.create).toHaveBeenCalledWith(dto!);
+        expect(mockUserDatasource.create).toHaveBeenCalledWith(dto);
     });
 
     test('login() should call datasource.login() and return a UserEntity', async () => {
         const [, dto] = LoginUserDto.create(loginUserDtoObj);
+        if (!dto) throw new Error();
 
         mockUserDatasource.login.mockResolvedValue(userEntity);
 
-        const result = await userDatasourceImpl.login(dto!);
+        const result = await userDatasourceImpl.login(dto);
 
         expect(result).toBeInstanceOf(UserEntity);
-        expect(mockUserDatasource.login).toHaveBeenCalledWith(dto!);
+        expect(mockUserDatasource.login).toHaveBeenCalledWith(dto);
     });
 
-    test('getById() method should return an UserEntity instance', async () => {
+    test('getById() should call datasource.getById() and return a UserEntity', async () => {
         const [, dto] = GetUserByIdDto.create(userObj.id);
+        if (!dto) throw new Error();
 
         mockUserDatasource.getById.mockResolvedValue(userEntity);
 
-        const result = await mockUserDatasource.getById(dto!);
+        const result = await userDatasourceImpl.getById(dto);
 
         expect(result).toBeInstanceOf(UserEntity);
         expect(mockUserDatasource.getById).toHaveBeenCalledWith(dto);

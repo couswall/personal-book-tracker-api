@@ -1,14 +1,8 @@
-import { AddToBookshelfDto } from "@domain/dtos";
+import {AddToBookshelfDto} from '@domain/dtos';
 
 describe('AddToBookshelfDto constructor tests', () => {
     test('should create instance with correct properties', () => {
-        const dto = new AddToBookshelfDto(
-            5,
-            'apiBookId123',
-            123,
-            300,
-            'reading'
-        );
+        const dto = new AddToBookshelfDto(5, 'apiBookId123', 123, 300, 'reading');
 
         expect(dto).toBeInstanceOf(AddToBookshelfDto);
         expect(dto.bookshelfId).toBe(5);
@@ -23,7 +17,7 @@ describe('AddToBookshelfDto constructor tests', () => {
 
         expect(dto.bookId).toBeUndefined();
         expect(dto.totalPages).toBeUndefined();
-        expect(dto.bookshelfType).toBeUndefined();  
+        expect(dto.bookshelfType).toBeUndefined();
     });
 
     test('should create instance with null totalPages', () => {

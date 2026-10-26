@@ -5,13 +5,13 @@ import {createUserDtoObj, loginUserDtoObj, userEntity, userObj} from '@tests/fix
 
 describe('user.datasource tests', () => {
     class MockUserDatasource implements UserDatasource {
-        async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+        async create(_createUserDto: CreateUserDto): Promise<UserEntity> {
             return userEntity;
         }
-        async login(loginUserDto: LoginUserDto): Promise<UserEntity> {
+        async login(_loginUserDto: LoginUserDto): Promise<UserEntity> {
             return userEntity;
         }
-        async getById(getUserByIdDto: GetUserByIdDto): Promise<UserEntity> {
+        async getById(_getUserByIdDto: GetUserByIdDto): Promise<UserEntity> {
             return userEntity;
         }
     }
@@ -28,7 +28,7 @@ describe('user.datasource tests', () => {
     test('create method should return an UserEntity instance', async () => {
         const [, dto] = CreateUserDto.create(createUserDtoObj);
 
-        const result = await mockUserDatasource.create(dto!);
+        const result = await mockUserDatasource.create(dto as CreateUserDto);
 
         expect(result).toBeInstanceOf(UserEntity);
     });
@@ -36,7 +36,7 @@ describe('user.datasource tests', () => {
     test('login method should return an UserEntity instance', async () => {
         const [, dto] = LoginUserDto.create(loginUserDtoObj);
 
-        const result = await mockUserDatasource.login(dto!);
+        const result = await mockUserDatasource.login(dto as LoginUserDto);
 
         expect(result).toBeInstanceOf(UserEntity);
     });
@@ -44,7 +44,7 @@ describe('user.datasource tests', () => {
     test('getById() method should return an UserEntity instance', async () => {
         const [, dto] = GetUserByIdDto.create(userObj.id);
 
-        const result = await mockUserDatasource.getById(dto!);
+        const result = await mockUserDatasource.getById(dto as GetUserByIdDto);
 
         expect(result).toBeInstanceOf(UserEntity);
     });

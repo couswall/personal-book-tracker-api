@@ -12,66 +12,71 @@ describe('BookDatasourceImpl.search', () => {
     });
 
     test('should return an array of books when searching successfully', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockResolvedValue(searchAPIResponseObj);
 
-        const result = await bookDatasourceImpl.search(dto!);
+        const result = await bookDatasourceImpl.search(dto);
 
         expect(mockHttpAdapter.get).toHaveBeenCalled();
-        expect(result.maxResults).toBe(dto!.maxResults);
-        expect(result.page).toBe(dto!.page);
+        expect(result.maxResults).toBe(dto.maxResults);
+        expect(result.page).toBe(dto.page);
     });
     test('should call http.get with the correct URL and params', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockResolvedValue(searchAPIResponseObj);
 
-        await bookDatasourceImpl.search(dto!);
+        await bookDatasourceImpl.search(dto);
 
         expect(mockHttpAdapter.get).toHaveBeenCalledWith(
             expect.stringContaining('/volumes'),
             expect.objectContaining({
                 params: {
                     key: expect.any(String),
-                    q: dto!.searchText,
-                    startIndex: (dto!.page - 1) * dto!.maxResults,
-                    printType: dto!.printType,
-                    maxResults: dto!.maxResults,
+                    q: dto.searchText,
+                    startIndex: (dto.page - 1) * dto.maxResults,
+                    printType: dto.printType,
+                    maxResults: dto.maxResults,
                 },
             })
         );
     });
     test('should return an empty books array when API responds with totalItems = 0', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockResolvedValue({
             ...searchAPIResponseObj,
             totalItems: 0,
         });
 
-        const result = await bookDatasourceImpl.search(dto!);
+        const result = await bookDatasourceImpl.search(dto);
 
         expect(result).toEqual({
-            page: dto!.page,
-            maxResults: dto!.maxResults,
+            page: dto.page,
+            maxResults: dto.maxResults,
             books: [],
         });
     });
     test('should return an empty books array when API does not include items', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockResolvedValue({totalItems: undefined});
 
-        const result = await bookDatasourceImpl.search(dto!);
+        const result = await bookDatasourceImpl.search(dto);
 
         expect(result).toEqual({
-            page: dto!.page,
-            maxResults: dto!.maxResults,
+            page: dto.page,
+            maxResults: dto.maxResults,
             books: [],
         });
     });
     test('should map API items into formatted books', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockResolvedValue(searchAPIResponseObj);
 
-        const result = await bookDatasourceImpl.search(dto!);
+        const result = await bookDatasourceImpl.search(dto);
 
         expect(result.books[0]).toHaveProperty('id');
         expect(result.books[0]).toHaveProperty('title');
@@ -79,28 +84,31 @@ describe('BookDatasourceImpl.search', () => {
         expect(result.books[0]).toHaveProperty('imageCover');
     });
     test('should fallback to thumbnail if smallThumbnail is missing', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockResolvedValue(searchAPIResponseObj);
 
-        const result = await bookDatasourceImpl.search(dto!);
+        const result = await bookDatasourceImpl.search(dto);
 
         expect(result.books[2].imageCover).toBe(
             'https://images.example.com/learning-ts-thumb.jpg'
         );
     });
     test('should return undefined for imageCover if no imageLinks exist', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockResolvedValue(searchAPIResponseObj);
 
-        const result = await bookDatasourceImpl.search(dto!);
+        const result = await bookDatasourceImpl.search(dto);
 
         expect(result.books[1].imageCover).toBeUndefined();
     });
     test('should throw a CustomError when http request fails', async () => {
-        const [, dto] = SearchBookDto.create(searchBookDtoObj);
+        const [, dtoResult] = SearchBookDto.create(searchBookDtoObj);
+        const dto = dtoResult as SearchBookDto;
         mockHttpAdapter.get.mockRejectedValue(new Error('Network error'));
 
-        await expect(bookDatasourceImpl.search(dto!)).rejects.toThrow(
+        await expect(bookDatasourceImpl.search(dto)).rejects.toThrow(
             CustomError.internalServer(ERROR_MESSAGES.EXTERNAL_BOOKS_API.INTERNAL)
         );
     });

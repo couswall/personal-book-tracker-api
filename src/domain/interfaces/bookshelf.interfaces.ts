@@ -1,10 +1,6 @@
-import {BookshelfType} from '@prisma/client';
+import {BookshelfType} from '@/generated/prisma';
 import {BookshelfEntity, UserEntity} from '@domain/entities';
-
-export interface ICreateCustomBookShelfDto {
-    userId?: number;
-    shelfName?: string;
-}
+import {ReadingProgressType} from '@domain/interfaces/bookshelfBook.interfaces';
 
 export interface ICreateBookshelfEntity {
     id: number;
@@ -19,8 +15,43 @@ export interface ICreateBookshelfEntity {
 export interface IBookshelfWithStatus {
     id: number;
     name: string;
+    type: BookshelfType;
     isSelected: boolean;
     bookshelfBookId: number | null;
     bookCount: number;
-    isCustom: boolean;
+    readingProgress: number | null;
+    currentPage: number | null;
+    progressType: ReadingProgressType | null;
+}
+
+/** One finish of the book; hasChallenge when its (UTC) year has a reading challenge. */
+export interface IBookRead {
+    finishedAt: Date;
+    hasChallenge: boolean;
+}
+
+/** Where the book sits on each shelf, plus its reading history (newest first). */
+export interface IBookshelvesStatus {
+    bookshelves: IBookshelfWithStatus[];
+    reads: IBookRead[];
+}
+
+export interface IBookshelfCount {
+    id: number;
+    name: string;
+    type: BookshelfType;
+    bookCount: number;
+}
+
+/** A book on a shelf with what a list of that shelf needs to display it. */
+export interface IShelfBook {
+    bookshelfBookId: number;
+    apiBookId: string;
+    title: string;
+    authors: string[];
+    coverImageUrl: string | null;
+    readingProgress: number;
+    currentPage: number | null;
+    totalPages: number | null;
+    progressType: ReadingProgressType | null;
 }

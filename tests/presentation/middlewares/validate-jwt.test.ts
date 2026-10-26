@@ -24,24 +24,29 @@ describe('validate-jwt middleware test', () => {
     const mockResponse: Partial<Response> = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn(),
+        locals: {},
     };
     const mockRequest: Partial<Request> = {
         header: jest.fn(),
     };
 
     const mockNextFn: NextFunction = jest.fn();
-    const mockPayload = {id: 1, username: 'test', email: 'any-email@google.com'};
+    const mockPayload = {id: 1};
 
-    beforeEach(() => jest.clearAllMocks());
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockResponse.locals = {};
+    });
 
     test('should call next() when token is valid', async () => {
         (mockRequest.header as jest.Mock).mockReturnValue('Bearer any-token');
-        (JwtAdapter.validateToken as jest.Mock).mockResolvedValue(mockPayload);
-        (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserPrisma);
+        jest.mocked(JwtAdapter.validateToken).mockResolvedValue(mockPayload);
+        jest.mocked(prisma.user.findFirst).mockResolvedValue(mockUserPrisma);
 
         await validateJWT(mockRequest as Request, mockResponse as Response, mockNextFn);
 
         expect(mockNextFn).toHaveBeenCalled();
+        expect(mockResponse.locals).toEqual({userId: mockUserPrisma.id});
         expect(prisma.user.findFirst).toHaveBeenCalledWith({
             where: {id: mockPayload.id, deletedAt: null},
         });
@@ -88,7 +93,7 @@ describe('validate-jwt middleware test', () => {
 
     test('should throw a 401 error when payload is invalid', async () => {
         (mockRequest.header as jest.Mock).mockReturnValue('Bearer any-token');
-        (JwtAdapter.validateToken as jest.Mock).mockRejectedValue(
+        jest.mocked(JwtAdapter.validateToken).mockRejectedValue(
             CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID)
         );
 
@@ -104,12 +109,13 @@ describe('validate-jwt middleware test', () => {
 
     test('should throw a 401 error when prisma user is not found', async () => {
         (mockRequest.header as jest.Mock).mockReturnValue('Bearer any-token');
-        (JwtAdapter.validateToken as jest.Mock).mockResolvedValue(mockPayload);
-        (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+        jest.mocked(JwtAdapter.validateToken).mockResolvedValue(mockPayload);
+        jest.mocked(prisma.user.findFirst).mockResolvedValue(null);
 
         await validateJWT(mockRequest as Request, mockResponse as Response, mockNextFn);
 
         expect(mockNextFn).not.toHaveBeenCalled();
+        expect(mockResponse.locals).toEqual({});
         expect(mockResponse.status).toHaveBeenCalledWith(401);
         expect(mockResponse.json).toHaveBeenCalledWith({
             success: false,

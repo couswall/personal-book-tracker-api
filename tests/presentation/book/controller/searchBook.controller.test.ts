@@ -1,20 +1,21 @@
-import { Request, Response } from "express";
-import { createBookControllerSetup } from "@tests/presentation/book/controller/setup"
-import { searchAPIResponseObj, searchBookDtoObj } from "@tests/fixtures";
+import {Request, Response} from 'express';
+import {createBookControllerSetup} from '@tests/presentation/book/controller/setup';
+import {searchAPIResponseObj, searchBookDtoObj} from '@tests/fixtures';
 
 describe('BookController.searchBook tests', () => {
-    const {bookController, mockHttpAdapter, mockRequest, mockResponse} = createBookControllerSetup();
+    const {bookController, mockHttpAdapter, mockRequest, mockResponse} =
+        createBookControllerSetup();
     const searchQueries = {
-        ...searchBookDtoObj, 
+        ...searchBookDtoObj,
         page: searchBookDtoObj.page?.toString(),
         maxResults: searchBookDtoObj.maxResults?.toString(),
     };
 
-    test('should return a 200 status and books data when searched successfully', async() => {
+    test('should return a 200 status and books data when searched successfully', async () => {
         mockRequest.query = searchQueries;
 
         mockHttpAdapter.get.mockResolvedValue(searchAPIResponseObj);
-        
+
         await new Promise<void>((resolve) => {
             bookController.searchBook(mockRequest as Request, mockResponse as Response);
             setImmediate(resolve);
@@ -35,12 +36,15 @@ describe('BookController.searchBook tests', () => {
     test('should throw a 400 error if request query is empty', async () => {
         mockRequest.query = {};
 
-        await bookController.searchBook(mockRequest as Request, mockResponse as Response);
+        await new Promise<void>((resolve) => {
+            bookController.searchBook(mockRequest as Request, mockResponse as Response);
+            setImmediate(resolve);
+        });
 
         expect(mockResponse.status).toHaveBeenCalledWith(400);
         expect(mockResponse.json).toHaveBeenCalledWith({
             success: false,
-            error: {message: expect.any(String)}
+            error: {message: expect.any(String)},
         });
     });
 
@@ -57,7 +61,7 @@ describe('BookController.searchBook tests', () => {
         expect(mockResponse.status).toHaveBeenCalledWith(500);
         expect(mockResponse.json).toHaveBeenCalledWith({
             success: false,
-            error: {message: expect.any(String)}
+            error: {message: expect.any(String)},
         });
     });
 });

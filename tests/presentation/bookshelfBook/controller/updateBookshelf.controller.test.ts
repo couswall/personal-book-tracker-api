@@ -10,8 +10,7 @@ import {ERROR_MESSAGES} from '@infrastructure/constants';
 import {INVALID_OBJECT_ERROR} from '@domain/constants/bookshelfBook.constants';
 
 describe('BookshelfBookController.updateBookshelf tests', () => {
-    const {controller, mockRequest, mockResponse, mockHttpAdapter} =
-        createBookshelfBookControllerSetup();
+    const {controller, mockRequest, mockResponse} = createBookshelfBookControllerSetup();
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -26,9 +25,9 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
         };
 
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-        (prisma.bookshelfBook.findFirst as jest.Mock)
-            .mockResolvedValueOnce(bookshelfBookPrisma) // active record
-            .mockResolvedValueOnce(null);               // no soft-deleted in target
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
+            bookshelfBookPrisma
+        );
         (prisma.bookshelfBook.update as jest.Mock).mockResolvedValue(
             updatedBookshelfBook
         );
@@ -53,7 +52,7 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
         };
 
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
             bookshelfBookPrisma
         );
 
@@ -74,10 +73,10 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
     test('should throw a 400 error when body request is undefined', async () => {
         mockRequest.body = undefined;
 
-        await controller.updateBookshelf(
-            mockRequest as Request,
-            mockResponse as Response
-        );
+        await new Promise<void>((resolve) => {
+            controller.updateBookshelf(mockRequest as Request, mockResponse as Response);
+            setImmediate(resolve);
+        });
 
         expect(mockResponse.status).toHaveBeenCalledWith(400);
         expect(mockResponse.json).toHaveBeenCalledWith({
@@ -89,6 +88,9 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
     test('should throw a 400 error status when bookshelf with provided ID does not exist', async () => {
         mockRequest.body = updateBookshelfDtoObject;
 
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(
+            bookshelfBookPrisma
+        );
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(null);
 
         await new Promise<void>((resolve) => {
@@ -107,7 +109,7 @@ describe('BookshelfBookController.updateBookshelf tests', () => {
         mockRequest.body = updateBookshelfDtoObject;
 
         (prisma.bookshelf.findUnique as jest.Mock).mockResolvedValue(bookshelfPrisma);
-        (prisma.bookshelfBook.findFirst as jest.Mock).mockResolvedValueOnce(null);
+        (prisma.bookshelfBook.findUnique as jest.Mock).mockResolvedValue(null);
 
         await new Promise<void>((resolve) => {
             controller.updateBookshelf(mockRequest as Request, mockResponse as Response);

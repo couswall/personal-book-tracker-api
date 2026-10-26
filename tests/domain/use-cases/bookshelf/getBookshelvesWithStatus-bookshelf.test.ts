@@ -3,15 +3,17 @@ import {UserRepository} from '@domain/repositories/user.repository';
 import {GetBookshelvesWithStatus} from '@domain/use-cases';
 import {GetBookshelvesWithStatusDto} from '@domain/dtos';
 import {CustomError} from '@domain/errors/custom.error';
-import {bookshelfWithStatus, userEntity, userObj} from '@tests/fixtures';
+import {bookshelvesStatus, userEntity, userObj} from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 describe('getBookshelvesWithStatus use case tests', () => {
     const mockBookshelfRepository: jest.Mocked<BookshelfRepository> = {
-        createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
+        getBookshelfByUserAndType: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
+        getBookshelfCounts: jest.fn(),
+        getShelfBooks: jest.fn(),
     };
     const mockUserRepository: jest.Mocked<UserRepository> = {
         create: jest.fn(),
@@ -19,25 +21,29 @@ describe('getBookshelvesWithStatus use case tests', () => {
         getById: jest.fn(),
     };
 
-    const [, dto] = GetBookshelvesWithStatusDto.create({userId: userObj.id, apiBookId: 'abc123'});
+    const [, dtoResult] = GetBookshelvesWithStatusDto.create({
+        apiBookId: 'abc123',
+    });
+    const dto = dtoResult as GetBookshelvesWithStatusDto;
 
     beforeEach(() => jest.clearAllMocks());
 
-    test('execute() should return an array of IBookshelfWithStatus', async () => {
+    test('execute() should return the bookshelves with status and the book reads', async () => {
         mockUserRepository.getById.mockResolvedValue(userEntity);
-        mockBookshelfRepository.getBookshelvesWithStatus.mockResolvedValue([bookshelfWithStatus]);
+        mockBookshelfRepository.getBookshelvesWithStatus.mockResolvedValue(
+            bookshelvesStatus
+        );
 
         const result = await new GetBookshelvesWithStatus(
             mockBookshelfRepository,
             mockUserRepository
-        ).execute(dto!);
+        ).execute(userObj.id, dto);
 
-        expect(Array.isArray(result)).toBeTruthy();
-        expect(result[0]).toEqual(bookshelfWithStatus);
-        expect(mockUserRepository.getById).toHaveBeenCalledWith({id: dto!.userId});
+        expect(result).toEqual(bookshelvesStatus);
+        expect(mockUserRepository.getById).toHaveBeenCalledWith({id: userObj.id});
         expect(mockBookshelfRepository.getBookshelvesWithStatus).toHaveBeenCalledWith(
-            dto!.userId,
-            dto!.apiBookId
+            userObj.id,
+            dto.apiBookId
         );
     });
 
@@ -47,8 +53,13 @@ describe('getBookshelvesWithStatus use case tests', () => {
         );
 
         await expect(
-            new GetBookshelvesWithStatus(mockBookshelfRepository, mockUserRepository).execute(dto!)
-        ).rejects.toThrow(CustomError.badRequest(ERROR_MESSAGES.USER.GET_BY_ID.NO_EXISTING));
+            new GetBookshelvesWithStatus(
+                mockBookshelfRepository,
+                mockUserRepository
+            ).execute(userObj.id, dto)
+        ).rejects.toThrow(
+            CustomError.badRequest(ERROR_MESSAGES.USER.GET_BY_ID.NO_EXISTING)
+        );
 
         expect(mockBookshelfRepository.getBookshelvesWithStatus).not.toHaveBeenCalled();
     });

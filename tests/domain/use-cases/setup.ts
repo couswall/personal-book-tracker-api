@@ -1,11 +1,13 @@
 import {BookRepository} from '@domain/repositories/book.repository';
 import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
 import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.repository';
+import {ReadingSessionRepository} from '@domain/repositories/readingSession.repository';
 
 export interface IUseCaseMockRepositories {
     mockBookshelfBookRepository: jest.Mocked<BookshelfBookRepository>;
     mockBookRepository: jest.Mocked<BookRepository>;
     mockBookshelfRepository: jest.Mocked<BookshelfRepository>;
+    mockReadingSessionRepository: jest.Mocked<ReadingSessionRepository>;
 }
 
 export const getMockRepositories = (): IUseCaseMockRepositories => {
@@ -13,6 +15,10 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
         addToBookshelf: jest.fn(),
         updateBookshelf: jest.fn(),
         removeFromBookshelf: jest.fn(),
+        updateReadingProgress: jest.fn(),
+        getBookshelfBookById: jest.fn(),
+        isInLibrary: jest.fn(),
+        finishReadingProgress: jest.fn(),
     };
     const mockBookRepository: jest.Mocked<BookRepository> = {
         search: jest.fn(),
@@ -22,15 +28,27 @@ export const getMockRepositories = (): IUseCaseMockRepositories => {
         findOrCreateByApiId: jest.fn(),
     };
     const mockBookshelfRepository: jest.Mocked<BookshelfRepository> = {
-        createCustom: jest.fn(),
         getMyBookshelves: jest.fn(),
         getBookshelfById: jest.fn(),
+        getBookshelfByUserAndType: jest.fn(),
         getBookshelvesWithStatus: jest.fn(),
+        getBookshelfCounts: jest.fn(),
+        getShelfBooks: jest.fn(),
+    };
+    const mockReadingSessionRepository: jest.Mocked<ReadingSessionRepository> = {
+        findOpenSession: jest.fn(),
+        createSession: jest.fn(),
+        finishSession: jest.fn(),
+        discardAllSessions: jest.fn(),
+        discardSession: jest.fn(),
+        getFinishedInRange: jest.fn(),
+        countFinishedInRange: jest.fn(),
     };
 
     return {
         mockBookshelfBookRepository,
         mockBookRepository,
         mockBookshelfRepository,
+        mockReadingSessionRepository,
     };
 };

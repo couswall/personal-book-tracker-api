@@ -1,44 +1,62 @@
-import { CreateCustomBookShelfDto } from "@domain/dtos";
-import { BookshelfEntity } from "@domain/entities/index";
-import { BookshelfDatasource } from "@domain/datasources/bookshelf.datasource";
-import { IBookshelfWithStatus } from "@domain/interfaces/bookshelf.interfaces";
-import { bookshelfEntity, bookshelfWithStatus, createCustomBookshelfDto } from "tests/fixtures/index";
+import {BookshelfType} from '@/generated/prisma';
+import {BookshelfEntity} from '@domain/entities/index';
+import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
+import {
+    IBookshelfCount,
+    IBookshelvesStatus,
+    IShelfBook,
+} from '@domain/interfaces/bookshelf.interfaces';
+import {
+    bookshelfCount,
+    bookshelfEntity,
+    bookshelvesStatus,
+    shelfBook,
+} from 'tests/fixtures/index';
 
 describe('bookshelf datasource tests', () => {
-
-    class MockBookshelfDatasource implements BookshelfDatasource{
-        async createCustom(createBookShelfDto: CreateCustomBookShelfDto): Promise<BookshelfEntity> {
-            return bookshelfEntity;
-        }
-
-        async getMyBookshelves(userId: number): Promise<BookshelfEntity[]> {
+    class MockBookshelfDatasource implements BookshelfDatasource {
+        async getMyBookshelves(_userId: number): Promise<BookshelfEntity[]> {
             return [bookshelfEntity];
         }
 
-        async getBookshelfById(bookshelfId: number): Promise<BookshelfEntity> {
+        async getBookshelfById(_bookshelfId: number): Promise<BookshelfEntity> {
             return bookshelfEntity;
         }
 
-        async getBookshelvesWithStatus(userId: number, apiBookId: string): Promise<IBookshelfWithStatus[]> {
-            return [bookshelfWithStatus];
+        async getBookshelfByUserAndType(
+            _userId: number,
+            _type: BookshelfType
+        ): Promise<BookshelfEntity> {
+            return bookshelfEntity;
         }
-    };
+
+        async getBookshelvesWithStatus(
+            _userId: number,
+            _apiBookId: string
+        ): Promise<IBookshelvesStatus> {
+            return bookshelvesStatus;
+        }
+
+        async getBookshelfCounts(_userId: number): Promise<IBookshelfCount[]> {
+            return [bookshelfCount];
+        }
+
+        async getShelfBooks(
+            _userId: number,
+            _type: BookshelfType,
+            _limit: number
+        ): Promise<IShelfBook[]> {
+            return [shelfBook];
+        }
+    }
 
     const mockBookshelfDatasource = new MockBookshelfDatasource();
 
     test('abstract class should include all its methods', () => {
         expect(mockBookshelfDatasource).toBeInstanceOf(MockBookshelfDatasource);
-        expect(typeof mockBookshelfDatasource.createCustom).toBe('function');
         expect(typeof mockBookshelfDatasource.getMyBookshelves).toBe('function');
+        expect(typeof mockBookshelfDatasource.getBookshelfByUserAndType).toBe('function');
         expect(typeof mockBookshelfDatasource.getBookshelvesWithStatus).toBe('function');
-    });
-
-    test('createCustom() should return a BookshelfEntity instance', async () => {
-        const [,dto] = CreateCustomBookShelfDto.create(createCustomBookshelfDto);
-
-        const result = await mockBookshelfDatasource.createCustom(dto!);
-
-        expect(result).toBeInstanceOf(BookshelfEntity);
     });
 
     test('getMyBookshelves() should return an array of Bookshelf entities', async () => {
@@ -50,6 +68,15 @@ describe('bookshelf datasource tests', () => {
 
     test('getBookshelfById() should return a BookshelfEntity instance', async () => {
         const result = await mockBookshelfDatasource.getBookshelfById(bookshelfEntity.id);
+
+        expect(result).toBeInstanceOf(BookshelfEntity);
+    });
+
+    test('getBookshelfByUserAndType() should return a BookshelfEntity instance', async () => {
+        const result = await mockBookshelfDatasource.getBookshelfByUserAndType(
+            1,
+            BookshelfType.READ
+        );
 
         expect(result).toBeInstanceOf(BookshelfEntity);
     });

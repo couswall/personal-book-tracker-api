@@ -5,10 +5,18 @@ export * from './user/refresh-token';
 export * from './book/search-book';
 export * from './book/getBookById-book';
 
-export * from './bookshelf/createCustom-bookshelf';
 export * from './bookshelf/getMyBookshelves-bookshelf';
 export * from './bookshelf/getBookshelvesWithStatus-bookshelf';
 
 export * from './bookshelfBook/addToBookshelf-bookshelfBook';
 export * from './bookshelfBook/updateBookshelf-bookshelfBook';
 export * from './bookshelfBook/removeFromBookshelf-bookshelfBook';
+export * from './bookshelfBook/updateReadingProgress-bookshelfBook';
+
+export * from './readingChallenge/create-readingChallenge';
+export * from './readingChallenge/update-readingChallenge';
+export * from './readingChallenge/delete-readingChallenge';
+export * from './readingChallenge/getProgress-readingChallenge';
+export * from './readingChallenge/getHistory-readingChallenge';
+
+export * from './dashboard/getDashboard-dashboard';

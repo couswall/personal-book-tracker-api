@@ -1,17 +1,15 @@
-import { CreateCustomBookShelfDto } from "@/src/domain/dtos";
-import { BookshelfEntity } from "@/src/domain/entities";
-import { BookshelfDatasource } from "@domain/datasources/bookshelf.datasource";
-import { BookshelfRepository } from "@domain/repositories/bookshelf.repository";
-import { IBookshelfWithStatus } from "@domain/interfaces/bookshelf.interfaces";
+import {BookshelfType} from '@/generated/prisma';
+import {BookshelfEntity} from '@/src/domain/entities';
+import {BookshelfDatasource} from '@domain/datasources/bookshelf.datasource';
+import {BookshelfRepository} from '@domain/repositories/bookshelf.repository';
+import {
+    IBookshelfCount,
+    IBookshelvesStatus,
+    IShelfBook,
+} from '@domain/interfaces/bookshelf.interfaces';
 
-export class BookshelfRepositoryImpl implements BookshelfRepository{
-    constructor(
-        private readonly datasource: BookshelfDatasource
-    ){};
-
-    createCustom(createBookShelfDto: CreateCustomBookShelfDto): Promise<BookshelfEntity> {
-        return this.datasource.createCustom(createBookShelfDto);
-    };
+export class BookshelfRepositoryImpl implements BookshelfRepository {
+    constructor(private readonly datasource: BookshelfDatasource) {}
 
     getMyBookshelves(userId: number): Promise<BookshelfEntity[]> {
         return this.datasource.getMyBookshelves(userId);
@@ -21,7 +19,29 @@ export class BookshelfRepositoryImpl implements BookshelfRepository{
         return this.datasource.getBookshelfById(bookshelfId);
     }
 
-    getBookshelvesWithStatus(userId: number, apiBookId: string): Promise<IBookshelfWithStatus[]> {
+    getBookshelfByUserAndType(
+        userId: number,
+        type: BookshelfType
+    ): Promise<BookshelfEntity> {
+        return this.datasource.getBookshelfByUserAndType(userId, type);
+    }
+
+    getBookshelvesWithStatus(
+        userId: number,
+        apiBookId: string
+    ): Promise<IBookshelvesStatus> {
         return this.datasource.getBookshelvesWithStatus(userId, apiBookId);
     }
-};
+
+    getBookshelfCounts(userId: number): Promise<IBookshelfCount[]> {
+        return this.datasource.getBookshelfCounts(userId);
+    }
+
+    getShelfBooks(
+        userId: number,
+        type: BookshelfType,
+        limit: number
+    ): Promise<IShelfBook[]> {
+        return this.datasource.getShelfBooks(userId, type, limit);
+    }
+}

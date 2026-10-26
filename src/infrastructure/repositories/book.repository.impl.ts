@@ -1,13 +1,11 @@
-import { BookEntity } from "@/src/domain/entities/book.entity";
-import { BookDatasource } from "@domain/datasources/book.datasource";
-import { BookRepository } from "@domain/repositories/book.repository";
-import { CreateBookDto, GetBookByIdDto, SearchBookDto } from "@domain/dtos/index";
-import { ISearchBookResponse } from "@domain/interfaces/book.interfaces";
+import {BookEntity} from '@/src/domain/entities/book.entity';
+import {BookDatasource} from '@domain/datasources/book.datasource';
+import {BookRepository} from '@domain/repositories/book.repository';
+import {CreateBookDto, GetBookByIdDto, SearchBookDto} from '@domain/dtos/index';
+import {ISearchBookResponse} from '@domain/interfaces/book.interfaces';
 
-export class BookRepositoryImpl implements BookRepository{
-    constructor(
-        private readonly datasource: BookDatasource,
-    ){};
+export class BookRepositoryImpl implements BookRepository {
+    constructor(private readonly datasource: BookDatasource) {}
 
     search(searchBookDto: SearchBookDto): Promise<ISearchBookResponse> {
         return this.datasource.search(searchBookDto);

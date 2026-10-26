@@ -1,22 +1,46 @@
 import {BookshelfBookRepository} from '@domain/repositories/bookshelfBook.repository';
-import {AddToBookshelfDto, UpdateBookshelfDto, RemoveFromBookshelfDto} from '@domain/dtos';
+import {
+    AddToBookshelfDto,
+    UpdateBookshelfDto,
+    RemoveFromBookshelfDto,
+    UpdateReadingProgressDto,
+} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {bookshelfBookEntity} from '@tests/fixtures';
 
 describe('bookshelfBook.repository tests', () => {
     class MockBookshelfBookRepository implements BookshelfBookRepository {
         async addToBookshelf(
-            addToBookshelfDto: AddToBookshelfDto
+            _addToBookshelfDto: AddToBookshelfDto
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
         async updateBookshelf(
-            updateBookshelfDto: UpdateBookshelfDto
+            _updateBookshelfDto: UpdateBookshelfDto
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
         async removeFromBookshelf(
-            removeFromBookshelfDto: RemoveFromBookshelfDto
+            _removeFromBookshelfDto: RemoveFromBookshelfDto
+        ): Promise<BookshelfBookEntity> {
+            return bookshelfBookEntity;
+        }
+        async updateReadingProgress(
+            _updateReadingProgressDto: UpdateReadingProgressDto
+        ): Promise<BookshelfBookEntity> {
+            return bookshelfBookEntity;
+        }
+        async isInLibrary(_userId: number, _bookId: number): Promise<boolean> {
+            return true;
+        }
+        async getBookshelfBookById(
+            _bookshelfBookId: number
+        ): Promise<BookshelfBookEntity> {
+            return bookshelfBookEntity;
+        }
+        async finishReadingProgress(
+            _bookshelfBookId: number,
+            _readBookshelfId: number
         ): Promise<BookshelfBookEntity> {
             return bookshelfBookEntity;
         }
@@ -29,6 +53,10 @@ describe('bookshelfBook.repository tests', () => {
         expect(typeof mockRepository.addToBookshelf).toBe('function');
         expect(typeof mockRepository.updateBookshelf).toBe('function');
         expect(typeof mockRepository.removeFromBookshelf).toBe('function');
+        expect(typeof mockRepository.updateReadingProgress).toBe('function');
+        expect(typeof mockRepository.getBookshelfBookById).toBe('function');
+        expect(typeof mockRepository.isInLibrary).toBe('function');
+        expect(typeof mockRepository.finishReadingProgress).toBe('function');
     });
 
     test('addToBookshelf() should return a BookshelfBookEntity', async () => {
@@ -50,6 +78,32 @@ describe('bookshelfBook.repository tests', () => {
     test('removeFromBookshelf() should return a BookshelfBookEntity', async () => {
         const dto = new RemoveFromBookshelfDto(101);
         const result = await mockRepository.removeFromBookshelf(dto);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(result).toEqual(bookshelfBookEntity);
+    });
+
+    test('updateReadingProgress() should return a BookshelfBookEntity', async () => {
+        const dto = new UpdateReadingProgressDto(101, 'PAGE', 150);
+        const result = await mockRepository.updateReadingProgress(dto);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(result).toEqual(bookshelfBookEntity);
+    });
+
+    test('isInLibrary() should return a boolean', async () => {
+        await expect(mockRepository.isInLibrary(1, 202)).resolves.toBe(true);
+    });
+
+    test('getBookshelfBookById() should return a BookshelfBookEntity', async () => {
+        const result = await mockRepository.getBookshelfBookById(101);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(result).toEqual(bookshelfBookEntity);
+    });
+
+    test('finishReadingProgress() should return a BookshelfBookEntity', async () => {
+        const result = await mockRepository.finishReadingProgress(101, 2);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(result).toEqual(bookshelfBookEntity);

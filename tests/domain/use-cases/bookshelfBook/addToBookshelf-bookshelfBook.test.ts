@@ -12,8 +12,12 @@ import {
 } from '@tests/fixtures';
 
 describe('addToBookshelf-bookshelfBook use case', () => {
-    const {mockBookRepository, mockBookshelfBookRepository, mockBookshelfRepository} =
-        getMockRepositories();
+    const {
+        mockBookRepository,
+        mockBookshelfBookRepository,
+        mockBookshelfRepository,
+        mockReadingSessionRepository,
+    } = getMockRepositories();
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -31,8 +35,9 @@ describe('addToBookshelf-bookshelfBook use case', () => {
         const result = await new AddToBookshelf(
             mockBookshelfBookRepository,
             mockBookRepository,
-            mockBookshelfRepository
-        ).execute(dto);
+            mockBookshelfRepository,
+            mockReadingSessionRepository
+        ).execute(dto, bookshelfEntity.userId);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockBookRepository.findOrCreateByApiId).toHaveBeenCalledWith(
@@ -41,6 +46,29 @@ describe('addToBookshelf-bookshelfBook use case', () => {
         expect(mockBookshelfRepository.getBookshelfById).toHaveBeenCalledWith(
             addToBookshelfDtoObject.bookshelfId
         );
+    });
+
+    test('execute() should not add a book to a bookshelf owned by another user', async () => {
+        const dto = new AddToBookshelfDto(
+            addToBookshelfDtoObject.bookshelfId,
+            addToBookshelfDtoObject.apiBookId
+        );
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(bookshelfEntity);
+
+        await expect(
+            new AddToBookshelf(
+                mockBookshelfBookRepository,
+                mockBookRepository,
+                mockBookshelfRepository,
+                mockReadingSessionRepository
+            ).execute(dto, bookshelfEntity.userId + 1)
+        ).rejects.toThrow(
+            CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)
+        );
+
+        expect(mockBookRepository.findOrCreateByApiId).not.toHaveBeenCalled();
+        expect(mockBookshelfBookRepository.addToBookshelf).not.toHaveBeenCalled();
+        expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
     });
 
     test('execute() should thorw an error when bookshelf with provided ID does not exist', async () => {
@@ -57,12 +85,43 @@ describe('addToBookshelf-bookshelfBook use case', () => {
             new AddToBookshelf(
                 mockBookshelfBookRepository,
                 mockBookRepository,
-                mockBookshelfRepository
-            ).execute(dto)
+                mockBookshelfRepository,
+                mockReadingSessionRepository
+            ).execute(dto, bookshelfEntity.userId)
         ).rejects.toThrow(
             CustomError.badRequest(ERROR_MESSAGES.BOOKSHELF.GET_BOOKSHELF_BY_ID.NOT_FOUND)
         );
 
         expect(mockBookshelfBookRepository.addToBookshelf).not.toHaveBeenCalled();
+    });
+
+    test('execute() should reject a book that is already on one of the user bookshelves', async () => {
+        const dto = new AddToBookshelfDto(
+            addToBookshelfDtoObject.bookshelfId,
+            addToBookshelfDtoObject.apiBookId
+        );
+        mockBookshelfRepository.getBookshelfById.mockResolvedValue(bookshelfEntity);
+        mockBookRepository.findOrCreateByApiId.mockResolvedValue(bookEntity);
+        mockBookshelfBookRepository.isInLibrary.mockResolvedValue(true);
+
+        await expect(
+            new AddToBookshelf(
+                mockBookshelfBookRepository,
+                mockBookRepository,
+                mockBookshelfRepository,
+                mockReadingSessionRepository
+            ).execute(dto, bookshelfEntity.userId)
+        ).rejects.toThrow(
+            CustomError.badRequest(
+                ERROR_MESSAGES.BOOKSHELF_BOOK.ADD_TO_BOOKSHELF.ALREADY_ADDED
+            )
+        );
+
+        expect(mockBookshelfBookRepository.isInLibrary).toHaveBeenCalledWith(
+            bookshelfEntity.userId,
+            bookEntity.id
+        );
+        expect(mockBookshelfBookRepository.addToBookshelf).not.toHaveBeenCalled();
+        expect(mockReadingSessionRepository.createSession).not.toHaveBeenCalled();
     });
 });

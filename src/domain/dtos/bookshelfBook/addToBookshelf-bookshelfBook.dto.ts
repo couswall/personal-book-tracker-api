@@ -1,4 +1,5 @@
 import {isValidRequiredNumber, isValidString} from '@domain/dtos/book/helpers';
+import {parseFinishedAt} from '@domain/dtos/bookshelfBook/helpers';
 import {IAddToBookshelfDto} from '@domain/interfaces/bookshelfBook.interfaces';
 
 export class AddToBookshelfDto {
@@ -7,11 +8,23 @@ export class AddToBookshelfDto {
         public readonly apiBookId: string,
         public bookId?: number,
         public totalPages?: number | null,
-        public bookshelfType?: string
+        public bookshelfType?: string,
+        public readonly finishedAt?: Date | null
     ) {}
 
+    private static parseBookId(bookId?: number): [string?, number?] {
+        if (!bookId) return [undefined, bookId];
+        return isValidRequiredNumber('bookId', bookId);
+    }
+
+    private static parseBookshelfType(bookshelfType?: string): [string?, string?] {
+        if (!bookshelfType) return [undefined, bookshelfType];
+        return isValidString('bookshelfType', bookshelfType);
+    }
+
     static create(object: IAddToBookshelfDto): [string?, AddToBookshelfDto?] {
-        let {bookshelfId, apiBookId, bookId, bookshelfType, totalPages = null} = object;
+        const {totalPages = null} = object;
+        let {bookshelfId, apiBookId, bookId, bookshelfType} = object;
 
         const [bookshelfIdError, parsedBookshelfId = 0] = isValidRequiredNumber(
             'bookshelfId',
@@ -30,23 +43,17 @@ export class AddToBookshelfDto {
         if (apiBookIdError) return [apiBookIdError];
         apiBookId = trimmedApiBookId;
 
-        if (bookId) {
-            const [bookIdError, parsedBookId = 0] = isValidRequiredNumber(
-                'bookId',
-                bookId
-            );
-            if (bookIdError) return [bookIdError];
-            bookId = parsedBookId;
-        }
+        const [bookIdError, parsedBookId] = AddToBookshelfDto.parseBookId(bookId);
+        if (bookIdError) return [bookIdError];
+        bookId = parsedBookId;
 
-        if (bookshelfType) {
-            const [bookshelfTypeError, trimmedBookshelfType = ''] = isValidString(
-                'bookshelfType',
-                bookshelfType
-            );
-            if (bookshelfTypeError) return [bookshelfTypeError];
-            bookshelfType = trimmedBookshelfType;
-        }
+        const [bookshelfTypeError, trimmedBookshelfType] =
+            AddToBookshelfDto.parseBookshelfType(bookshelfType);
+        if (bookshelfTypeError) return [bookshelfTypeError];
+        bookshelfType = trimmedBookshelfType;
+
+        const [finishedAtError, finishedAt] = parseFinishedAt(object.finishedAt);
+        if (finishedAtError) return [finishedAtError];
 
         return [
             undefined,
@@ -55,7 +62,8 @@ export class AddToBookshelfDto {
                 apiBookId,
                 bookId,
                 totalPages,
-                bookshelfType
+                bookshelfType,
+                finishedAt
             ),
         ];
     }

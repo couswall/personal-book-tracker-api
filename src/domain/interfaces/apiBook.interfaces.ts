@@ -1,95 +1,95 @@
 export interface ISearchFromAPIResponse {
-    kind:       string;
+    kind: string;
     totalItems: number;
-    items:      IBookFromAPI[];
+    items: IBookFromAPI[];
 }
 
 export interface IBookFromAPI {
-    kind:       Kind;
-    id:         string;
-    etag:       string;
-    selfLink:   string;
+    kind: Kind;
+    id: string;
+    etag: string;
+    selfLink: string;
     volumeInfo: VolumeInfo;
-    saleInfo:   SaleInfo;
+    saleInfo: SaleInfo;
     accessInfo: AccessInfo;
     searchInfo: SearchInfo;
 }
 
 export interface AccessInfo {
-    country:                Country;
-    viewability:            Viewability;
-    embeddable:             boolean;
-    publicDomain:           boolean;
+    country: Country;
+    viewability: Viewability;
+    embeddable: boolean;
+    publicDomain: boolean;
     textToSpeechPermission: TextToSpeechPermission;
-    epub:                   Epub;
-    pdf:                    Epub;
-    webReaderLink:          string;
-    accessViewStatus:       AccessViewStatus;
-    quoteSharingAllowed:    boolean;
+    epub: Epub;
+    pdf: Epub;
+    webReaderLink: string;
+    accessViewStatus: AccessViewStatus;
+    quoteSharingAllowed: boolean;
 }
 
 export enum AccessViewStatus {
-    None = "NONE",
-    Sample = "SAMPLE",
+    None = 'NONE',
+    Sample = 'SAMPLE',
 }
 
 export enum Country {
-    MX = "MX",
+    MX = 'MX',
 }
 
 export interface Epub {
-    isAvailable:   boolean;
+    isAvailable: boolean;
     acsTokenLink?: string;
 }
 
 export enum TextToSpeechPermission {
-    Allowed = "ALLOWED",
-    AllowedForAccessibility = "ALLOWED_FOR_ACCESSIBILITY",
+    Allowed = 'ALLOWED',
+    AllowedForAccessibility = 'ALLOWED_FOR_ACCESSIBILITY',
 }
 
 export enum Viewability {
-    NoPages = "NO_PAGES",
-    Partial = "PARTIAL",
+    NoPages = 'NO_PAGES',
+    Partial = 'PARTIAL',
 }
 
 export enum Kind {
-    BooksVolume = "books#volume",
+    BooksVolume = 'books#volume',
 }
 
 export interface SaleInfo {
-    country:      Country;
-    saleability:  Saleability;
-    isEbook:      boolean;
-    listPrice?:   SaleInfoListPrice;
+    country: Country;
+    saleability: Saleability;
+    isEbook: boolean;
+    listPrice?: SaleInfoListPrice;
     retailPrice?: SaleInfoListPrice;
-    buyLink?:     string;
-    offers?:      Offer[];
+    buyLink?: string;
+    offers?: Offer[];
 }
 
 export interface SaleInfoListPrice {
-    amount:       number;
+    amount: number;
     currencyCode: CurrencyCode;
 }
 
 export enum CurrencyCode {
-    Mxn = "MXN",
+    Mxn = 'MXN',
 }
 
 export interface Offer {
     finskyOfferType: number;
-    listPrice:       OfferListPrice;
-    retailPrice:     OfferListPrice;
-    giftable:        boolean;
+    listPrice: OfferListPrice;
+    retailPrice: OfferListPrice;
+    giftable: boolean;
 }
 
 export interface OfferListPrice {
     amountInMicros: number;
-    currencyCode:   CurrencyCode;
+    currencyCode: CurrencyCode;
 }
 
 export enum Saleability {
-    ForSale = "FOR_SALE",
-    NotForSale = "NOT_FOR_SALE",
+    ForSale = 'FOR_SALE',
+    NotForSale = 'NOT_FOR_SALE',
 }
 
 export interface SearchInfo {
@@ -97,28 +97,28 @@ export interface SearchInfo {
 }
 
 export interface VolumeInfo {
-    title:                string;
-    subtitle?:            string;
-    authors:              string[];
-    publisher:            string;
-    publishedDate:        string;
-    description?:         string;
+    title: string;
+    subtitle?: string;
+    authors: string[];
+    publisher: string;
+    publishedDate: string;
+    description?: string;
     industryIdentifiers?: IndustryIdentifier[];
-    readingModes:         ReadingModes;
-    pageCount:            number;
-    printType:            string;
-    categories:           string[];
-    averageRating?:       number;
-    ratingsCount?:        number;
-    maturityRating:       string;
-    allowAnonLogging:     boolean;
-    contentVersion:       string;
-    panelizationSummary:  PanelizationSummary;
-    imageLinks?:          ImageLinks;
-    language:             Language;
-    previewLink:          string;
-    infoLink:             string;
-    canonicalVolumeLink:  string;
+    readingModes: ReadingModes;
+    pageCount: number;
+    printType: string;
+    categories: string[];
+    averageRating?: number;
+    ratingsCount?: number;
+    maturityRating: string;
+    allowAnonLogging: boolean;
+    contentVersion: string;
+    panelizationSummary: PanelizationSummary;
+    imageLinks?: ImageLinks;
+    language: Language;
+    previewLink: string;
+    infoLink: string;
+    canonicalVolumeLink: string;
 }
 
 export interface ImageLinks {
@@ -127,7 +127,7 @@ export interface ImageLinks {
     small?: string;
     medium?: string;
     large?: string;
-    extralarge?: string
+    extralarge?: string;
 }
 
 export interface IndustryIdentifier {
@@ -136,16 +136,16 @@ export interface IndustryIdentifier {
 }
 
 export enum Language {
-    En = "en",
-    Es = "es",
+    En = 'en',
+    Es = 'es',
 }
 
 export interface PanelizationSummary {
-    containsEpubBubbles:  boolean;
+    containsEpubBubbles: boolean;
     containsImageBubbles: boolean;
 }
 
 export interface ReadingModes {
-    text:  boolean;
+    text: boolean;
     image: boolean;
 }

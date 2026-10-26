@@ -1,6 +1,6 @@
 import {Request, Response} from 'express';
 import {prisma} from '@tests/setup';
-import {AxiosError, InternalAxiosRequestConfig} from 'axios';
+import {AxiosError, AxiosHeaders, InternalAxiosRequestConfig} from 'axios';
 import {createBookControllerSetup} from '@tests/presentation/book/controller/setup';
 import {mockBookPrisma, searchAPIResponseObj} from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
@@ -8,6 +8,7 @@ import {ERROR_MESSAGES} from '@infrastructure/constants';
 describe('BookController.getBookById tests', () => {
     const {bookController, mockHttpAdapter, mockRequest, mockResponse} =
         createBookControllerSetup();
+    const axiosConfig: InternalAxiosRequestConfig = {headers: new AxiosHeaders()};
 
     test('should return a 200 status and book data', async () => {
         mockRequest.params = {bookId: 'testBookId'};
@@ -51,14 +52,14 @@ describe('BookController.getBookById tests', () => {
         const axiosError = new AxiosError(
             'Service unavailable',
             '503',
-            {} as InternalAxiosRequestConfig,
+            axiosConfig,
             null,
             {
                 data: {error: {code: 503}},
                 status: 503,
                 statusText: 'Service Unavailable',
                 headers: {},
-                config: {} as InternalAxiosRequestConfig,
+                config: axiosConfig,
             }
         );
 
@@ -82,14 +83,14 @@ describe('BookController.getBookById tests', () => {
         const axiosError = new AxiosError(
             'Service unavailable',
             '500',
-            {} as InternalAxiosRequestConfig,
+            axiosConfig,
             null,
             {
                 data: {error: {code: 500}},
                 status: 500,
                 statusText: 'Service Unavailable',
                 headers: {},
-                config: {} as InternalAxiosRequestConfig,
+                config: axiosConfig,
             }
         );
 

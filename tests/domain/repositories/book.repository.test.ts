@@ -1,24 +1,24 @@
-import { BookRepository } from "@domain/repositories/book.repository";
-import { CreateBookDto, GetBookByIdDto, SearchBookDto } from "@domain/dtos";
-import { BookEntity } from "@domain/entities/book.entity";
-import { bookEntity, bookObj, createBookDtoObj, searchingResponse } from "@tests/fixtures";
-import { ISearchBookResponse } from "@domain/interfaces/book.interfaces";
+import {BookRepository} from '@domain/repositories/book.repository';
+import {CreateBookDto, GetBookByIdDto, SearchBookDto} from '@domain/dtos';
+import {BookEntity} from '@domain/entities/book.entity';
+import {bookEntity, bookObj, createBookDtoObj, searchingResponse} from '@tests/fixtures';
+import {ISearchBookResponse} from '@domain/interfaces/book.interfaces';
 
 describe('book.repository tests', () => {
-    class MockBookRepository implements BookRepository{
-        async search(searchBookDto: SearchBookDto): Promise<ISearchBookResponse> {
+    class MockBookRepository implements BookRepository {
+        async search(_searchBookDto: SearchBookDto): Promise<ISearchBookResponse> {
             return searchingResponse;
         }
-        async getBookById(getBookByIdDto: GetBookByIdDto): Promise<BookEntity> {
+        async getBookById(_getBookByIdDto: GetBookByIdDto): Promise<BookEntity> {
             return bookEntity;
         }
-        async fetchByIdFromAPI(getBookByIdDto: GetBookByIdDto): Promise<BookEntity> {
+        async fetchByIdFromAPI(_getBookByIdDto: GetBookByIdDto): Promise<BookEntity> {
             return bookEntity;
         }
-        async create(createBookDto: CreateBookDto): Promise<BookEntity> {
+        async create(_createBookDto: CreateBookDto): Promise<BookEntity> {
             return bookEntity;
         }
-        async findOrCreateByApiId(apiBookId: string): Promise<BookEntity> {
+        async findOrCreateByApiId(_apiBookId: string): Promise<BookEntity> {
             return bookEntity;
         }
     }
@@ -33,10 +33,10 @@ describe('book.repository tests', () => {
         expect(typeof mockBookRepository.create).toBe('function');
         expect(typeof mockBookRepository.findOrCreateByApiId).toBe('function');
     });
-    test('search() should return an object', async() => {
+    test('search() should return an object', async () => {
         const dto = new SearchBookDto('deep work');
         const result = await mockBookRepository.search(dto);
-        
+
         expect(result).toEqual(searchingResponse);
         expect(result).toHaveProperty('page');
         expect(result).toHaveProperty('maxResults');
@@ -45,19 +45,19 @@ describe('book.repository tests', () => {
     test('getBookById() should return a BookEntity instance', async () => {
         const dto = new GetBookByIdDto(bookObj.apiBookId);
         const result = await mockBookRepository.getBookById(dto);
-        
+
         expect(result).toBeInstanceOf(BookEntity);
     });
     test('fetchByIdFromAPI() should return a BookEntity instance', async () => {
         const dto = new GetBookByIdDto(bookObj.apiBookId);
         const result = await mockBookRepository.fetchByIdFromAPI(dto);
-        
+
         expect(result).toBeInstanceOf(BookEntity);
     });
     test('create() should return a BookEntity instance', async () => {
         const [, dto] = CreateBookDto.create(createBookDtoObj);
-        const result = await mockBookRepository.create(dto!);
-        
+        const result = await mockBookRepository.create(dto as CreateBookDto);
+
         expect(result).toBeInstanceOf(BookEntity);
     });
     test('findOrCreateByApiId() should return a BookEntity instance', async () => {

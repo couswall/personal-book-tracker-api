@@ -6,9 +6,13 @@ export * from './book/search-book.dto';
 export * from './book/getBookById-book.dto';
 export * from './book/create-book.dto';
 
-export * from './bookshelf/createCustom-bookshelf.dto';
 export * from './bookshelf/getBookshelvesWithStatus-bookshelf.dto';
 
 export * from './bookshelfBook/addToBookshelf-bookshelfBook.dto';
 export * from './bookshelfBook/updateBookshelf-bookshelfBook.dto';
 export * from './bookshelfBook/removeFromBookshelf-bookshelfBook.dto';
+export * from './bookshelfBook/updateReadingProgress-bookshelfBook.dto';
+
+export * from './readingChallenge/create-readingChallenge.dto';
+export * from './readingChallenge/update-readingChallenge.dto';
+export * from './readingChallenge/readingChallengeYear.dto';

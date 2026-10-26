@@ -1,4 +1,4 @@
-import { UserEntity } from "@domain/entities/user.entity";
+import {UserEntity} from '@domain/entities/user.entity';
 
 export const userObj = {
     id: 1,
@@ -27,4 +27,4 @@ export const loginUserDtoObj = {
 
 export const mockUserPrisma = {
     ...userObj,
-}
+};

@@ -1,5 +1,10 @@
 import {BookshelfBookDatasource} from '@domain/datasources/bookshelfbook.datasource';
-import {AddToBookshelfDto, UpdateBookshelfDto, RemoveFromBookshelfDto} from '@domain/dtos';
+import {
+    AddToBookshelfDto,
+    UpdateBookshelfDto,
+    RemoveFromBookshelfDto,
+    UpdateReadingProgressDto,
+} from '@domain/dtos';
 import {BookshelfBookEntity} from '@domain/entities';
 import {BookshelfBookRepositoryImpl} from '@infrastructure/repositories/bookshelfBook.repository.impl';
 import {bookshelfBookEntity, removeFromBookshelfDtoObject} from '@tests/fixtures';
@@ -9,6 +14,10 @@ describe('bookshelfBook.repository.impl tests', () => {
         addToBookshelf: jest.fn(),
         updateBookshelf: jest.fn(),
         removeFromBookshelf: jest.fn(),
+        updateReadingProgress: jest.fn(),
+        getBookshelfBookById: jest.fn(),
+        isInLibrary: jest.fn(),
+        finishReadingProgress: jest.fn(),
     };
 
     beforeEach(() => {
@@ -35,18 +44,50 @@ describe('bookshelfBook.repository.impl tests', () => {
         const result = await repository.updateBookshelf(dto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
-        expect(mockDatasource.updateBookshelf).toHaveBeenCalledWith({
-            bookshelfBookId: 1,
-            bookshelfId: 1,
-        });
+        expect(mockDatasource.updateBookshelf).toHaveBeenCalledWith(dto);
     });
 
     test('removeFromBookshelf() should return a BookshelfBookEntity and call datasource.removeFromBookshelf()', async () => {
         const [, dto] = RemoveFromBookshelfDto.create(removeFromBookshelfDtoObject);
         mockDatasource.removeFromBookshelf.mockResolvedValue(bookshelfBookEntity);
-        const result = await repository.removeFromBookshelf(dto!);
+        if (!dto) throw new Error();
+        const result = await repository.removeFromBookshelf(dto);
 
         expect(result).toBeInstanceOf(BookshelfBookEntity);
         expect(mockDatasource.removeFromBookshelf).toHaveBeenCalledWith(dto);
+    });
+
+    test('updateReadingProgress() should return a BookshelfBookEntity and call datasource.updateReadingProgress()', async () => {
+        const dto = new UpdateReadingProgressDto(1, 'PAGE', 150);
+        mockDatasource.updateReadingProgress.mockResolvedValue(bookshelfBookEntity);
+        const result = await repository.updateReadingProgress(dto);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(mockDatasource.updateReadingProgress).toHaveBeenCalledWith(dto);
+    });
+
+    test('isInLibrary() should call datasource.isInLibrary() and return its result', async () => {
+        mockDatasource.isInLibrary.mockResolvedValue(true);
+
+        const result = await repository.isInLibrary(1, 202);
+
+        expect(result).toBe(true);
+        expect(mockDatasource.isInLibrary).toHaveBeenCalledWith(1, 202);
+    });
+
+    test('getBookshelfBookById() should return a BookshelfBookEntity and call datasource.getBookshelfBookById()', async () => {
+        mockDatasource.getBookshelfBookById.mockResolvedValue(bookshelfBookEntity);
+        const result = await repository.getBookshelfBookById(101);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(mockDatasource.getBookshelfBookById).toHaveBeenCalledWith(101);
+    });
+
+    test('finishReadingProgress() should return a BookshelfBookEntity and call datasource.finishReadingProgress()', async () => {
+        mockDatasource.finishReadingProgress.mockResolvedValue(bookshelfBookEntity);
+        const result = await repository.finishReadingProgress(101, 2);
+
+        expect(result).toBeInstanceOf(BookshelfBookEntity);
+        expect(mockDatasource.finishReadingProgress).toHaveBeenCalledWith(101, 2);
     });
 });

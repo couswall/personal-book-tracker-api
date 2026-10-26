@@ -43,7 +43,8 @@ describe('user.datasource.impl tests', () => {
             (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
             (prisma.user.create as jest.Mock).mockResolvedValue(mockUserPrisma);
 
-            const result = await userDatasourceImpl.create(dto!);
+            if (!dto) throw new Error();
+            const result = await userDatasourceImpl.create(dto);
 
             expect(result).toBeInstanceOf(UserEntity);
             expect(prisma.user.create).toHaveBeenCalled();
@@ -56,7 +57,8 @@ describe('user.datasource.impl tests', () => {
                 .mockResolvedValueOnce(mockUserPrisma)
                 .mockResolvedValue(null);
 
-            await expect(userDatasourceImpl.create(dto!)).rejects.toThrow(
+            if (!dto) throw new Error();
+            await expect(userDatasourceImpl.create(dto)).rejects.toThrow(
                 ERROR_MESSAGES.USER.CREATE.EXISTING_USERNAME
             );
         });
@@ -67,7 +69,8 @@ describe('user.datasource.impl tests', () => {
                 .mockResolvedValueOnce(null)
                 .mockResolvedValue(mockUserPrisma);
 
-            await expect(userDatasourceImpl.create(dto!)).rejects.toThrow(
+            if (!dto) throw new Error();
+            await expect(userDatasourceImpl.create(dto)).rejects.toThrow(
                 ERROR_MESSAGES.USER.CREATE.EXISTING_EMAIL
             );
         });
@@ -79,7 +82,8 @@ describe('user.datasource.impl tests', () => {
             (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserPrisma);
             (BCryptAdapter.compare as jest.Mock).mockReturnValue(true);
 
-            const result = await userDatasourceImpl.login(dto!);
+            if (!dto) throw new Error();
+            const result = await userDatasourceImpl.login(dto);
 
             expect(result).toBeInstanceOf(UserEntity);
             expect(prisma.user.findFirst).toHaveBeenCalled();
@@ -89,7 +93,8 @@ describe('user.datasource.impl tests', () => {
 
             (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-            await expect(userDatasourceImpl.login(dto!)).rejects.toThrow(
+            if (!dto) throw new Error();
+            await expect(userDatasourceImpl.login(dto)).rejects.toThrow(
                 ERROR_MESSAGES.USER.LOGIN.INVALID_CREDENTIALS
             );
         });
@@ -99,7 +104,8 @@ describe('user.datasource.impl tests', () => {
             (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserPrisma);
             (BCryptAdapter.compare as jest.Mock).mockReturnValue(false);
 
-            await expect(userDatasourceImpl.login(dto!)).rejects.toThrow(
+            if (!dto) throw new Error();
+            await expect(userDatasourceImpl.login(dto)).rejects.toThrow(
                 ERROR_MESSAGES.USER.LOGIN.INVALID_CREDENTIALS
             );
         });
@@ -111,7 +117,8 @@ describe('user.datasource.impl tests', () => {
 
             (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserPrisma);
 
-            const result = await userDatasourceImpl.getById(dto!);
+            if (!dto) throw new Error();
+            const result = await userDatasourceImpl.getById(dto);
 
             expect(result).toBeInstanceOf(UserEntity);
             expect(prisma.user.findFirst).toHaveBeenCalled();
@@ -121,7 +128,8 @@ describe('user.datasource.impl tests', () => {
 
             (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
 
-            await expect(userDatasourceImpl.getById(dto!)).rejects.toThrow(
+            if (!dto) throw new Error();
+            await expect(userDatasourceImpl.getById(dto)).rejects.toThrow(
                 ERROR_MESSAGES.USER.GET_BY_ID.NO_EXISTING
             );
         });

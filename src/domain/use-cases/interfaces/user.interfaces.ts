@@ -1,16 +1,16 @@
-import { UserEntity } from "@domain/entities/user.entity";
-import { CreateUserDto, LoginUserDto } from "@domain/dtos";
+import {UserEntity} from '@domain/entities/user.entity';
+import {CreateUserDto, LoginUserDto} from '@domain/dtos';
 
-export interface CreateUserUseCase{
+export interface CreateUserUseCase {
     execute(dto: CreateUserDto): Promise<CreateUserResponse>;
 }
 
-export interface CreateUserResponse{
+export interface CreateUserResponse {
     user: UserEntity;
     token: string;
 }
 
-export interface LoginUserUseCase{
+export interface LoginUserUseCase {
     execute(loginUserDto: LoginUserDto): Promise<LoginResponse>;
 }
 

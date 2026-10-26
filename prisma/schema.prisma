@@ -6,31 +6,33 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
 }
 
 model User{
-  id          Int         @id @default(autoincrement())
-  fullName    String      
-  username    String      @unique
-  email       String      @unique
-  password    String
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime?   @updatedAt
-  deletedAt   DateTime?
-  bookshelves Bookshelf[]
-  notes       Note[]
-  reviews     Review[]
+  id                Int         @id @default(autoincrement())
+  fullName          String      
+  username          String      @unique
+  email             String      @unique
+  password          String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime?   @updatedAt
+  deletedAt         DateTime?
+  bookshelves       Bookshelf[]
+  notes             Note[]
+  reviews           Review[]
+  readingSessions   ReadingSession[]
+  readingChallenges ReadingChallenge[]
 }
 
 model Bookshelf{
   id          Int             @id @default(autoincrement())
   name        String
-  type        BookshelfType   @default(CUSTOM)    
+  type        BookshelfType
   userId      Int
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   books       BookshelfBook[]
@@ -41,23 +43,58 @@ enum BookshelfType {
   READ
   CURRENTLY_READING
   TO_BE_READ
-  CUSTOM
 }
 
 model BookshelfBook{
-  id                Int           @id @default(autoincrement())
+  id                Int                 @id @default(autoincrement())
   bookshelfId       Int
-  bookshelf         Bookshelf     @relation(fields: [bookshelfId], references: [id])
+  bookshelf         Bookshelf           @relation(fields: [bookshelfId], references: [id])
   bookId            Int
-  book              Book          @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  readingProgress   Int           @default(0)
+  book              Book                @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  readingProgress   Int                 @default(0)
   currentPage       Int?
   totalPages        Int?
-  startReadingDate  DateTime?
-  endReadingDate    DateTime?
-  deletedAt         DateTime?
-  
+  progressType      ReadingProgressType?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now()) @updatedAt
+
   @@unique([bookshelfId, bookId])
+}
+
+enum ReadingProgressType {
+  PAGE
+  PERCENTAGE
+}
+
+model ReadingSession{
+  id              Int         @id @default(autoincrement())
+
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bookId          Int
+  book            Book        @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  startedAt       DateTime
+  finishedAt      DateTime?
+  createdAt       DateTime    @default(now())
+  deletedAt       DateTime?
+
+  @@index([userId, finishedAt])
+}
+
+model ReadingChallenge{
+  id              Int         @id @default(autoincrement())
+
+  userId          Int
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  year            Int
+  goal            Int
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime?   @updatedAt
+
+  @@unique([userId, year])
 }
 
 model Book{
@@ -77,6 +114,7 @@ model Book{
   bookshelves       BookshelfBook[]
   notes             Note[]
   deletedAt         DateTime?
+  readingSessions   ReadingSession[]
 }
 
 model Review{

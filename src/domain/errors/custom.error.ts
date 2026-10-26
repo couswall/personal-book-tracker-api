@@ -36,8 +36,7 @@ export class CustomError extends Error {
             });
             return;
         }
-
-        console.log(`${error}`);
+        // TODO: Log the error in a more robust way
         res.status(500).json({error: {message: 'Internal server error'}});
     }
 }
