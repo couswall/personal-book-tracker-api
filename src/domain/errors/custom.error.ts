@@ -1,4 +1,5 @@
 import {Response} from 'express';
+import {logger} from '@config/logger';
 
 export class CustomError extends Error {
     constructor(
@@ -36,7 +37,8 @@ export class CustomError extends Error {
             });
             return;
         }
-        // TODO: Log the error in a more robust way
+
+        logger.error('Unexpected error', {err: error});
         res.status(500).json({error: {message: 'Internal server error'}});
     }
 }
