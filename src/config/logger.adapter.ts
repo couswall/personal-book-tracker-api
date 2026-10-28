@@ -23,4 +23,8 @@ export class PinoLoggerAdapter implements Logger {
     debug(message: string, context?: Record<string, unknown>): void {
         this.instance.debug(context ?? {}, message);
     }
+
+    fatal(message: string, context?: Record<string, unknown>): void {
+        this.instance.fatal(context ?? {}, message);
+    }
 }

@@ -45,7 +45,8 @@ export class Server {
         this.app.use(requestLogger);
         this.app.use(this.routes);
 
-        this.serverListener = this.app.listen(this.port, () => {
+        this.serverListener = this.app.listen(this.port, (error?: Error) => {
+            if (error) throw error;
             logger.info('Server started', {port: this.port});
         });
     }
