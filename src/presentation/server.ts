@@ -4,6 +4,7 @@ import {Server as HttpServer} from 'http';
 import swaggerUi from 'swagger-ui-express';
 import {swaggerSpec} from '@config/swagger';
 import {logger} from '@config/index';
+import {requestLogger} from '@presentation/middlewares/request-logger';
 
 interface ServerOptions {
     port: number;
@@ -41,6 +42,7 @@ export class Server {
 
         this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+        this.app.use(requestLogger);
         this.app.use(this.routes);
 
         this.serverListener = this.app.listen(this.port, () => {
