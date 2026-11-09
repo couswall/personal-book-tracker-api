@@ -4,6 +4,10 @@ import {BCryptAdapter, JwtAdapter} from '@src/config';
 import {createAuthControllerSetup} from './setup';
 import {loginUserDtoObj, mockUserPrisma} from '@tests/fixtures';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {
+    REFRESH_COOKIE_NAME,
+    refreshCookieOptions,
+} from '@presentation/auth/cookie-options';
 
 jest.mock('@config/bcrypt.adapter', () => ({
     BCryptAdapter: {
@@ -14,12 +18,14 @@ jest.mock('@config/bcrypt.adapter', () => ({
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
         generateToken: jest.fn(),
+        generateRefreshToken: jest.fn(),
     },
 }));
 
 describe('AuthController.loginUser tests', () => {
     const {authController, mockRequest, mockResponse} = createAuthControllerSetup();
     const mockToken = 'any-token';
+    const mockRefreshToken = 'any-refresh-token';
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -29,9 +35,10 @@ describe('AuthController.loginUser tests', () => {
     test('should return a 200 status, user data and token when login succeeds', async () => {
         mockRequest.body = {...loginUserDtoObj};
 
-        (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserPrisma);
-        (BCryptAdapter.compare as jest.Mock).mockReturnValue(true);
-        (JwtAdapter.generateToken as jest.Mock).mockResolvedValue(mockToken);
+        jest.mocked(prisma.user.findFirst).mockResolvedValue(mockUserPrisma);
+        jest.mocked(BCryptAdapter.compare).mockReturnValue(true);
+        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
         await new Promise<void>((resolve) => {
             authController.loginUser(mockRequest as Request, mockResponse as Response);
@@ -47,6 +54,11 @@ describe('AuthController.loginUser tests', () => {
                 token: mockToken,
             }),
         });
+        expect(mockResponse.cookie).toHaveBeenCalledWith(
+            REFRESH_COOKIE_NAME,
+            mockRefreshToken,
+            refreshCookieOptions
+        );
     });
 
     test('should throw a 400 error status when body request is empty', async () => {
@@ -67,7 +79,7 @@ describe('AuthController.loginUser tests', () => {
     test('should throw a 400 error status when user does not exist', async () => {
         mockRequest.body = {...loginUserDtoObj};
 
-        (prisma.user.findFirst as jest.Mock).mockResolvedValue(null);
+        jest.mocked(prisma.user.findFirst).mockResolvedValue(null);
 
         await new Promise<void>((resolve) => {
             authController.loginUser(mockRequest as Request, mockResponse as Response);
@@ -84,8 +96,8 @@ describe('AuthController.loginUser tests', () => {
     test('should throw a 400 error status if password is invalid', async () => {
         mockRequest.body = {...loginUserDtoObj};
 
-        (prisma.user.findFirst as jest.Mock).mockResolvedValue(mockUserPrisma);
-        (BCryptAdapter.compare as jest.Mock).mockReturnValue(false);
+        jest.mocked(prisma.user.findFirst).mockResolvedValue(mockUserPrisma);
+        jest.mocked(BCryptAdapter.compare).mockReturnValue(false);
 
         await new Promise<void>((resolve) => {
             authController.loginUser(mockRequest as Request, mockResponse as Response);

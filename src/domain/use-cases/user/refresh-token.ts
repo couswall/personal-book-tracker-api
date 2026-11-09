@@ -11,8 +11,8 @@ import {ERROR_MESSAGES} from '@infrastructure/constants';
 export class RefreshToken implements RefreshTokenUseCase {
     constructor(private readonly repository: UserRepository) {}
 
-    async execute(token: string): Promise<RefreshTokenResponse> {
-        const payload = await JwtAdapter.validateToken(token);
+    async execute(refreshToken: string): Promise<RefreshTokenResponse> {
+        const payload = await JwtAdapter.validateRefreshToken(refreshToken);
 
         const [error, getUserByIdDto] = GetUserByIdDto.create(payload.id);
         if (error) throw CustomError.badRequest(error);
@@ -21,10 +21,14 @@ export class RefreshToken implements RefreshTokenUseCase {
 
         const user = await this.repository.getById(getUserByIdDto);
 
-        const newToken = await JwtAdapter.generateToken({id: user.id});
+        const [newToken, newRefreshToken] = await Promise.all([
+            JwtAdapter.generateToken({id: user.id}),
+            JwtAdapter.generateRefreshToken({id: user.id}),
+        ]);
 
-        if (!newToken) throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
+        if (!newToken || !newRefreshToken)
+            throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 
-        return {user, token: newToken};
+        return {user, token: newToken, refreshToken: newRefreshToken};
     }
 }

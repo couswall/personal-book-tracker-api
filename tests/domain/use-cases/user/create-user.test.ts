@@ -17,6 +17,7 @@ jest.mock('@config/bcrypt.adapter', () => ({
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
         generateToken: jest.fn(),
+        generateRefreshToken: jest.fn(),
     },
 }));
 
@@ -27,36 +28,53 @@ describe('create-user use case test', () => {
         getById: jest.fn(),
     };
 
+    const mockToken = 'any-token';
+    const mockRefreshToken = 'any-refresh-token';
+    const dto = new CreateUserDto(
+        createUserDtoObj.fullName,
+        createUserDtoObj.username,
+        createUserDtoObj.email,
+        createUserDtoObj.password
+    );
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     test('execute() should return an UserEntity instance and token', async () => {
-        const [, dto] = CreateUserDto.create(createUserDtoObj);
         const hashPassoword = 'hashedPassword';
-        const mockToken = 'any-token';
 
-        (BCryptAdapter.hash as jest.Mock).mockReturnValue(hashPassoword);
+        jest.mocked(BCryptAdapter.hash).mockReturnValue(hashPassoword);
         mockUserRepository.create.mockResolvedValue(userEntity);
-        (JwtAdapter.generateToken as jest.Mock).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
-        const createUserDto = dto as CreateUserDto;
-        const result = await new CreateUser(mockUserRepository).execute(createUserDto);
+        const result = await new CreateUser(mockUserRepository).execute(dto);
 
         expect(result.user).toBeInstanceOf(UserEntity);
         expect(result.token).toBe(mockToken);
-        expect(BCryptAdapter.hash).toHaveBeenCalledWith(createUserDto.password);
+        expect(BCryptAdapter.hash).toHaveBeenCalledWith(dto.password);
         expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
+        expect(JwtAdapter.generateRefreshToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
     test('execute() should throw a 500 error status when token is undefined', async () => {
-        const [, dto] = CreateUserDto.create(createUserDtoObj);
-
         mockUserRepository.create.mockResolvedValue(userEntity);
-        (JwtAdapter.generateToken as jest.Mock).mockResolvedValue(undefined);
+        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(undefined);
+        jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
-        await expect(
-            new CreateUser(mockUserRepository).execute(dto as CreateUserDto)
-        ).rejects.toThrow(new CustomError(500, ERROR_MESSAGES.TOKEN.CREATING));
+        await expect(new CreateUser(mockUserRepository).execute(dto)).rejects.toThrow(
+            new CustomError(500, ERROR_MESSAGES.TOKEN.CREATING)
+        );
+    });
+
+    test('execute() should throw a 500 error status when refresh token is undefined', async () => {
+        mockUserRepository.create.mockResolvedValue(userEntity);
+        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(undefined);
+
+        await expect(new CreateUser(mockUserRepository).execute(dto)).rejects.toThrow(
+            new CustomError(500, ERROR_MESSAGES.TOKEN.CREATING)
+        );
     });
 });

@@ -20,10 +20,14 @@ export class CreateUser implements CreateUserUseCase {
             hashPassword
         );
         const user = await this.repository.create(newDto);
-        const token = await JwtAdapter.generateToken({id: user.id});
+        const [token, refreshToken] = await Promise.all([
+            JwtAdapter.generateToken({id: user.id}),
+            JwtAdapter.generateRefreshToken({id: user.id}),
+        ]);
 
-        if (!token) throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
+        if (!token || !refreshToken)
+            throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 
-        return {user, token};
+        return {user, token, refreshToken};
     }
 }

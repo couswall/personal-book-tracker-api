@@ -8,6 +8,7 @@ export interface CreateUserUseCase {
 export interface CreateUserResponse {
     user: UserEntity;
     token: string;
+    refreshToken: string;
 }
 
 export interface LoginUserUseCase {
@@ -17,13 +18,15 @@ export interface LoginUserUseCase {
 export interface LoginResponse {
     user: UserEntity;
     token: string;
+    refreshToken: string;
 }
 
 export interface RefreshTokenUseCase {
-    execute(token: string): Promise<RefreshTokenResponse>;
+    execute(refreshToken: string): Promise<RefreshTokenResponse>;
 }
 
 export interface RefreshTokenResponse {
     user: UserEntity;
     token: string;
+    refreshToken: string;
 }

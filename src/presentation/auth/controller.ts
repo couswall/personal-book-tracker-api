@@ -3,6 +3,10 @@ import {CreateUserDto, LoginUserDto} from '@domain/dtos';
 import {UserRepository} from '@domain/repositories/user.repository';
 import {CreateUser, LoginUser, RefreshToken} from '@domain/use-cases';
 import {CustomError} from '@domain/errors/custom.error';
+import {
+    REFRESH_COOKIE_NAME,
+    refreshCookieOptions,
+} from '@presentation/auth/cookie-options';
 
 export class AuthController {
     constructor(private readonly repository: UserRepository) {}
@@ -21,12 +25,14 @@ export class AuthController {
 
         new LoginUser(this.repository)
             .execute(dto)
-            .then(({user, token}) => {
+            .then(({user, token, refreshToken}) => {
                 const {
                     password: _password,
                     deletedAt: _deletedAt,
                     ...responseUser
                 } = user;
+
+                res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
 
                 res.status(200).json({
                     success: true,
@@ -54,12 +60,14 @@ export class AuthController {
 
         new CreateUser(this.repository)
             .execute(dto)
-            .then(({user, token}) => {
+            .then(({user, token, refreshToken}) => {
                 const {
                     password: _password,
                     deletedAt: _deletedAt,
                     ...responseUser
                 } = user;
+
+                res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
 
                 res.status(201).json({
                     success: true,
@@ -74,10 +82,9 @@ export class AuthController {
     };
 
     public refreshToken = (req: Request, res: Response) => {
-        const authHeader = req.header('Authorization');
-        const token = authHeader?.split(' ')[1];
+        const token = req.cookies[REFRESH_COOKIE_NAME];
 
-        if (!token) {
+        if (!token || typeof token !== 'string') {
             res.status(401).json({
                 success: false,
                 error: {message: 'No token provided'},
@@ -87,12 +94,14 @@ export class AuthController {
 
         new RefreshToken(this.repository)
             .execute(token)
-            .then(({user, token}) => {
+            .then(({user, token, refreshToken}) => {
                 const {
                     password: _password,
                     deletedAt: _deletedAt,
                     ...responseUser
                 } = user;
+
+                res.cookie(REFRESH_COOKIE_NAME, refreshToken, refreshCookieOptions);
 
                 res.status(200).json({
                     success: true,
@@ -104,5 +113,13 @@ export class AuthController {
                 });
             })
             .catch((error) => CustomError.handleError(error, res));
+    };
+
+    public logoutUser = (req: Request, res: Response) => {
+        res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions);
+        res.status(200).json({
+            success: true,
+            message: 'Logout successfully',
+        });
     };
 }
