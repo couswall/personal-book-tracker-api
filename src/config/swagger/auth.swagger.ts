@@ -1,3 +1,13 @@
+const refreshCookieHeader = {
+    'Set-Cookie': {
+        description: 'httpOnly refresh token cookie (7 days)',
+        schema: {
+            type: 'string',
+            example: 'refreshToken=abc123; Path=/api/auth; HttpOnly; SameSite=Lax',
+        },
+    },
+};
+
 export const authPaths = {
     '/api/auth/login': {
         post: {
@@ -21,6 +31,7 @@ export const authPaths = {
             responses: {
                 200: {
                     description: 'Login successful',
+                    headers: refreshCookieHeader,
                     content: {
                         'application/json': {
                             schema: {
@@ -78,6 +89,7 @@ export const authPaths = {
             responses: {
                 201: {
                     description: 'User created successfully',
+                    headers: refreshCookieHeader,
                     content: {
                         'application/json': {
                             schema: {
@@ -109,11 +121,12 @@ export const authPaths = {
     '/api/auth/refresh': {
         post: {
             tags: ['Auth'],
-            summary: 'Refresh JWT token',
-            security: [{bearerAuth: []}],
+            summary: 'Get a new access token using the refresh token cookie',
+            security: [{refreshCookie: []}],
             responses: {
                 200: {
                     description: 'Token refreshed successfully',
+                    headers: refreshCookieHeader,
                     content: {
                         'application/json': {
                             schema: {
@@ -139,6 +152,31 @@ export const authPaths = {
                     },
                 },
                 401: {$ref: '#/components/responses/Unauthorized'},
+            },
+        },
+    },
+    '/api/auth/logout': {
+        post: {
+            tags: ['Auth'],
+            summary: 'Logout and clear the refresh token cookie',
+            responses: {
+                200: {
+                    description: 'Logout successfully',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    success: {type: 'boolean', example: true},
+                                    message: {
+                                        type: 'string',
+                                        example: 'Logout successfully',
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
             },
         },
     },
