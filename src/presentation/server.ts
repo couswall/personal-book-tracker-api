@@ -31,7 +31,7 @@ export class Server {
     async start() {
         const corsOptions: CorsOptions = {
             origin: ['http://localhost:5173'],
-            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
             allowedHeaders: ['Authorization', 'Content-Type'],
             credentials: true,
         };
