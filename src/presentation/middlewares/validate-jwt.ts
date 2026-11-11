@@ -26,7 +26,7 @@ export const validateJWT = async (req: Request, res: Response, next: NextFunctio
     }
 
     try {
-        const payload = await JwtAdapter.validateToken(token);
+        const payload = await JwtAdapter.validateAccessToken(token);
 
         if (!payload) {
             res.status(401).json({

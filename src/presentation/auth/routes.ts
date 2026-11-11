@@ -2,7 +2,6 @@ import {Router} from 'express';
 import {AuthController} from '@presentation/auth/controller';
 import {UserDatasourceImpl} from '@infrastructure/datasources/user.datasource.impl';
 import {UserRepositoryImpl} from '@infrastructure/repositories/user.repository.impl';
-import {validateJWT} from '@presentation/middlewares/validate-jwt';
 
 export class AuthRoutes {
     static get routes(): Router {
@@ -13,7 +12,8 @@ export class AuthRoutes {
 
         router.post('/login', authController.loginUser);
         router.post('/register', authController.registerUser);
-        router.post('/refresh', validateJWT, authController.refreshToken);
+        router.post('/refresh', authController.refreshToken);
+        router.post('/logout', authController.logoutUser);
 
         return router;
     }
