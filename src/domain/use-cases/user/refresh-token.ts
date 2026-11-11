@@ -3,15 +3,16 @@ import {GetUserByIdDto} from '@domain/dtos';
 import {UserRepository} from '@domain/repositories/user.repository';
 import {CustomError} from '@domain/errors/custom.error';
 import {
-    RefreshTokenResponse,
+    AuthResponse,
     RefreshTokenUseCase,
 } from '@domain/use-cases/interfaces/user.interfaces';
+import {generateAuthTokens} from '@domain/use-cases/user/auth-tokens.helpers';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 
 export class RefreshToken implements RefreshTokenUseCase {
     constructor(private readonly repository: UserRepository) {}
 
-    async execute(refreshToken: string): Promise<RefreshTokenResponse> {
+    async execute(refreshToken: string): Promise<AuthResponse> {
         const payload = await JwtAdapter.validateRefreshToken(refreshToken);
 
         const [error, getUserByIdDto] = GetUserByIdDto.create(payload.id);
@@ -20,15 +21,8 @@ export class RefreshToken implements RefreshTokenUseCase {
             throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
 
         const user = await this.repository.getById(getUserByIdDto);
+        const tokens = await generateAuthTokens(user.id);
 
-        const [newToken, newRefreshToken] = await Promise.all([
-            JwtAdapter.generateToken({id: user.id}),
-            JwtAdapter.generateRefreshToken({id: user.id}),
-        ]);
-
-        if (!newToken || !newRefreshToken)
-            throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
-
-        return {user, token: newToken, refreshToken: newRefreshToken};
+        return {user, ...tokens};
     }
 }

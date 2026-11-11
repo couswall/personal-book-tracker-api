@@ -16,7 +16,7 @@ jest.mock('@config/bcrypt.adapter', () => ({
 
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
-        generateToken: jest.fn(),
+        generateAccessToken: jest.fn(),
         generateRefreshToken: jest.fn(),
     },
 }));
@@ -46,21 +46,21 @@ describe('create-user use case test', () => {
 
         jest.mocked(BCryptAdapter.hash).mockReturnValue(hashPassoword);
         mockUserRepository.create.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
         const result = await new CreateUser(mockUserRepository).execute(dto);
 
         expect(result.user).toBeInstanceOf(UserEntity);
-        expect(result.token).toBe(mockToken);
+        expect(result.accessToken).toBe(mockToken);
         expect(BCryptAdapter.hash).toHaveBeenCalledWith(dto.password);
-        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
+        expect(JwtAdapter.generateAccessToken).toHaveBeenCalledWith({id: userEntity.id});
         expect(JwtAdapter.generateRefreshToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
     test('execute() should throw a 500 error status when token is undefined', async () => {
         mockUserRepository.create.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(undefined);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(undefined);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
         await expect(new CreateUser(mockUserRepository).execute(dto)).rejects.toThrow(
@@ -70,7 +70,7 @@ describe('create-user use case test', () => {
 
     test('execute() should throw a 500 error status when refresh token is undefined', async () => {
         mockUserRepository.create.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(undefined);
 
         await expect(new CreateUser(mockUserRepository).execute(dto)).rejects.toThrow(

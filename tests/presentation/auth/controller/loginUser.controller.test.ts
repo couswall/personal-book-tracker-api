@@ -17,7 +17,7 @@ jest.mock('@config/bcrypt.adapter', () => ({
 }));
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
-        generateToken: jest.fn(),
+        generateAccessToken: jest.fn(),
         generateRefreshToken: jest.fn(),
     },
 }));
@@ -37,7 +37,7 @@ describe('AuthController.loginUser tests', () => {
 
         jest.mocked(prisma.user.findFirst).mockResolvedValue(mockUserPrisma);
         jest.mocked(BCryptAdapter.compare).mockReturnValue(true);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
         await new Promise<void>((resolve) => {

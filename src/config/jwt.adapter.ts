@@ -1,6 +1,7 @@
 import jwt, {Algorithm, SignOptions} from 'jsonwebtoken';
 import {StringValue} from 'ms';
 import {envs} from '@config/envs';
+import {REFRESH_TOKEN_DURATION} from '@config/token-lifetimes';
 import {CustomError} from '@domain/errors/custom.error';
 import {ERROR_MESSAGES} from '@infrastructure/constants';
 
@@ -49,21 +50,18 @@ export class JwtAdapter {
         });
     }
 
-    static async generateToken(
+    static async generateAccessToken(
         payload: IPayloadJWT,
         duration: StringValue = '15m'
     ): Promise<string | undefined> {
         return this.sign(payload, JWT_SEED, duration);
     }
 
-    static async generateRefreshToken(
-        payload: IPayloadJWT,
-        duration: StringValue = '7d'
-    ): Promise<string | undefined> {
-        return this.sign(payload, JWT_REFRESH_SEED, duration);
+    static async generateRefreshToken(payload: IPayloadJWT): Promise<string | undefined> {
+        return this.sign(payload, JWT_REFRESH_SEED, REFRESH_TOKEN_DURATION);
     }
 
-    static async validateToken(token: string): Promise<IPayloadJWT> {
+    static async validateAccessToken(token: string): Promise<IPayloadJWT> {
         return this.verify(token, JWT_SEED);
     }
 

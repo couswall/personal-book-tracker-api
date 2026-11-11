@@ -1,6 +1,8 @@
+import {REFRESH_TOKEN_DAYS} from '@config/token-lifetimes';
+
 const refreshCookieHeader = {
     'Set-Cookie': {
-        description: 'httpOnly refresh token cookie (7 days)',
+        description: `httpOnly refresh token cookie (${REFRESH_TOKEN_DAYS} days)`,
         schema: {
             type: 'string',
             example: 'refreshToken=abc123; Path=/api/auth; HttpOnly; SameSite=Lax',

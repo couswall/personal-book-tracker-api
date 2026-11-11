@@ -1,17 +1,16 @@
-import {BCryptAdapter, JwtAdapter} from '@src/config';
+import {BCryptAdapter} from '@src/config';
 import {UserRepository} from '@domain/repositories/user.repository';
 import {CreateUserDto} from '@domain/dtos';
-import {CustomError} from '@domain/errors/custom.error';
 import {
-    CreateUserResponse,
+    AuthResponse,
     CreateUserUseCase,
 } from '@domain/use-cases/interfaces/user.interfaces';
-import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {generateAuthTokens} from '@domain/use-cases/user/auth-tokens.helpers';
 
 export class CreateUser implements CreateUserUseCase {
     constructor(private readonly repository: UserRepository) {}
 
-    async execute(dto: CreateUserDto): Promise<CreateUserResponse> {
+    async execute(dto: CreateUserDto): Promise<AuthResponse> {
         const hashPassword = BCryptAdapter.hash(dto.password);
         const newDto = new CreateUserDto(
             dto.fullName,
@@ -20,14 +19,8 @@ export class CreateUser implements CreateUserUseCase {
             hashPassword
         );
         const user = await this.repository.create(newDto);
-        const [token, refreshToken] = await Promise.all([
-            JwtAdapter.generateToken({id: user.id}),
-            JwtAdapter.generateRefreshToken({id: user.id}),
-        ]);
+        const tokens = await generateAuthTokens(user.id);
 
-        if (!token || !refreshToken)
-            throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
-
-        return {user, token, refreshToken};
+        return {user, ...tokens};
     }
 }

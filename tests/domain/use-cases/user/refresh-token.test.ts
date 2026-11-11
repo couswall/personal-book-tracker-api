@@ -9,7 +9,7 @@ import {userEntity} from '@tests/fixtures';
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
         validateRefreshToken: jest.fn(),
-        generateToken: jest.fn(),
+        generateAccessToken: jest.fn(),
         generateRefreshToken: jest.fn(),
     },
 }));
@@ -37,7 +37,7 @@ describe('refresh-token use case test', () => {
     test('execute() should return a UserEntity and new token when token is valid', async () => {
         jest.mocked(JwtAdapter.validateRefreshToken).mockResolvedValue(mockPayload);
         mockUserRepository.getById.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockNewToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockNewToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(
             mockNewRefreshToken
         );
@@ -45,11 +45,11 @@ describe('refresh-token use case test', () => {
         const result = await new RefreshToken(mockUserRepository).execute(mockToken);
 
         expect(result.user).toBeInstanceOf(UserEntity);
-        expect(result.token).toBe(mockNewToken);
+        expect(result.accessToken).toBe(mockNewToken);
         expect(result.refreshToken).toBe(mockNewRefreshToken);
         expect(JwtAdapter.validateRefreshToken).toHaveBeenCalledWith(mockToken);
         expect(mockUserRepository.getById).toHaveBeenCalled();
-        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
+        expect(JwtAdapter.generateAccessToken).toHaveBeenCalledWith({id: userEntity.id});
         expect(JwtAdapter.generateRefreshToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
@@ -61,7 +61,7 @@ describe('refresh-token use case test', () => {
             new RefreshToken(mockUserRepository).execute(mockToken)
         ).rejects.toThrow(tokenError);
         expect(mockUserRepository.getById).not.toHaveBeenCalled();
-        expect(JwtAdapter.generateToken).not.toHaveBeenCalled();
+        expect(JwtAdapter.generateAccessToken).not.toHaveBeenCalled();
         expect(JwtAdapter.generateRefreshToken).not.toHaveBeenCalled();
     });
 
@@ -75,14 +75,14 @@ describe('refresh-token use case test', () => {
         await expect(
             new RefreshToken(mockUserRepository).execute(mockToken)
         ).rejects.toThrow(userNotFoundError);
-        expect(JwtAdapter.generateToken).not.toHaveBeenCalled();
+        expect(JwtAdapter.generateAccessToken).not.toHaveBeenCalled();
         expect(JwtAdapter.generateRefreshToken).not.toHaveBeenCalled();
     });
 
     test('execute() should throw a 500 error when new token generation fails', async () => {
         jest.mocked(JwtAdapter.validateRefreshToken).mockResolvedValue(mockPayload);
         mockUserRepository.getById.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(undefined);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(undefined);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(
             mockNewRefreshToken
         );
@@ -95,7 +95,7 @@ describe('refresh-token use case test', () => {
     test('execute() should throw a 500 error when refresh token fails', async () => {
         jest.mocked(JwtAdapter.validateRefreshToken).mockResolvedValue(mockPayload);
         mockUserRepository.getById.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(undefined);
 
         await expect(

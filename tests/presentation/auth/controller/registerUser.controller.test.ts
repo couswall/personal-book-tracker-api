@@ -17,7 +17,7 @@ jest.mock('@config/bcrypt.adapter', () => ({
 }));
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
-        generateToken: jest.fn(),
+        generateAccessToken: jest.fn(),
         generateRefreshToken: jest.fn(),
     },
 }));
@@ -39,7 +39,7 @@ describe('AuthController.registerUser tests', () => {
         jest.mocked(prisma.user.create).mockResolvedValue(mockUserPrisma);
         jest.mocked(prisma.bookshelf.createMany).mockResolvedValue({count: 1});
         jest.mocked(BCryptAdapter.hash).mockReturnValue('hashed-password');
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
         await new Promise<void>((resolve) => {
@@ -83,7 +83,7 @@ describe('AuthController.registerUser tests', () => {
             .mockResolvedValue(null);
 
         jest.mocked(BCryptAdapter.hash).mockReturnValue('hashed-password');
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
 
         await new Promise<void>((resolve) => {
             authController.registerUser(mockRequest as Request, mockResponse as Response);
@@ -105,7 +105,7 @@ describe('AuthController.registerUser tests', () => {
             .mockResolvedValue(mockUserPrisma);
 
         jest.mocked(BCryptAdapter.hash).mockReturnValue('hashed-password');
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
 
         await new Promise<void>((resolve) => {
             authController.registerUser(mockRequest as Request, mockResponse as Response);

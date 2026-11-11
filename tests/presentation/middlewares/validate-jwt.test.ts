@@ -8,7 +8,7 @@ import {mockUserPrisma} from '@tests/fixtures';
 
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
-        validateToken: jest.fn(),
+        validateAccessToken: jest.fn(),
     },
 }));
 
@@ -40,7 +40,7 @@ describe('validate-jwt middleware test', () => {
 
     test('should call next() when token is valid', async () => {
         (mockRequest.header as jest.Mock).mockReturnValue('Bearer any-token');
-        jest.mocked(JwtAdapter.validateToken).mockResolvedValue(mockPayload);
+        jest.mocked(JwtAdapter.validateAccessToken).mockResolvedValue(mockPayload);
         jest.mocked(prisma.user.findFirst).mockResolvedValue(mockUserPrisma);
 
         await validateJWT(mockRequest as Request, mockResponse as Response, mockNextFn);
@@ -93,7 +93,7 @@ describe('validate-jwt middleware test', () => {
 
     test('should throw a 401 error when payload is invalid', async () => {
         (mockRequest.header as jest.Mock).mockReturnValue('Bearer any-token');
-        jest.mocked(JwtAdapter.validateToken).mockRejectedValue(
+        jest.mocked(JwtAdapter.validateAccessToken).mockRejectedValue(
             CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID)
         );
 
@@ -109,7 +109,7 @@ describe('validate-jwt middleware test', () => {
 
     test('should throw a 401 error when prisma user is not found', async () => {
         (mockRequest.header as jest.Mock).mockReturnValue('Bearer any-token');
-        jest.mocked(JwtAdapter.validateToken).mockResolvedValue(mockPayload);
+        jest.mocked(JwtAdapter.validateAccessToken).mockResolvedValue(mockPayload);
         jest.mocked(prisma.user.findFirst).mockResolvedValue(null);
 
         await validateJWT(mockRequest as Request, mockResponse as Response, mockNextFn);

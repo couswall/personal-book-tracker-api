@@ -19,46 +19,46 @@ describe('jwt.adapter tests', () => {
         jest.clearAllMocks();
     });
 
-    test('generateToken() should return a token', async () => {
+    test('generateAccessToken() should return a token', async () => {
         mockSign.mockImplementation((payload, seed, options, callback) =>
             callback(null, mockToken)
         );
 
-        const result = await JwtAdapter.generateToken(mockPayload);
+        const result = await JwtAdapter.generateAccessToken(mockPayload);
 
         expect(mockSign).toHaveBeenCalled();
         expect(result).toBe(mockToken);
     });
 
-    test('generateToken() should resolve undefined if an error exists', async () => {
+    test('generateAccessToken() should resolve undefined if an error exists', async () => {
         mockSign.mockImplementation((payload, seed, options, callback) =>
             callback(new Error('Error while generating token'))
         );
 
-        const result = await JwtAdapter.generateToken(mockPayload);
+        const result = await JwtAdapter.generateAccessToken(mockPayload);
 
         expect(result).toBeUndefined();
         expect(mockSign).toHaveBeenCalled();
     });
 
-    test('validateToken() should return decoded payload', async () => {
+    test('validateAccessToken() should return decoded payload', async () => {
         mockVerify.mockImplementation((token, seed, options, callback) =>
             callback(null, mockPayload)
         );
 
-        const result = await JwtAdapter.validateToken(mockToken);
+        const result = await JwtAdapter.validateAccessToken(mockToken);
 
         expect(mockVerify).toHaveBeenCalled();
         expect(result).not.toBeUndefined();
         expect(result).toHaveProperty('id');
     });
 
-    test('validateToken() should throw an error when token is invalid', async () => {
+    test('validateAccessToken() should throw an error when token is invalid', async () => {
         mockVerify.mockImplementation((token, seed, options, callback) =>
             callback(new Error('Invalid token'))
         );
 
-        await expect(JwtAdapter.validateToken(mockToken)).rejects.toThrow(
+        await expect(JwtAdapter.validateAccessToken(mockToken)).rejects.toThrow(
             CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID)
         );
     });
@@ -112,12 +112,12 @@ describe('jwt.adapter tests', () => {
 describe('jwt.adapter security settings', () => {
     beforeEach(() => jest.clearAllMocks());
 
-    test('generateToken() should sign with HS256 and only the user id', async () => {
+    test('generateAccessToken() should sign with HS256 and only the user id', async () => {
         mockSign.mockImplementation((payload, seed, options, callback) =>
             callback(null, 'token')
         );
 
-        await JwtAdapter.generateToken({id: 1});
+        await JwtAdapter.generateAccessToken({id: 1});
 
         expect(mockSign).toHaveBeenCalledWith(
             {id: 1},
@@ -127,12 +127,12 @@ describe('jwt.adapter security settings', () => {
         );
     });
 
-    test('validateToken() should only accept HS256 tokens', async () => {
+    test('validateAccessToken() should only accept HS256 tokens', async () => {
         mockVerify.mockImplementation((token, seed, options, callback) =>
             callback(null, {id: 1})
         );
 
-        await JwtAdapter.validateToken('token');
+        await JwtAdapter.validateAccessToken('token');
 
         expect(mockVerify).toHaveBeenCalledWith(
             'token',
@@ -146,22 +146,28 @@ describe('jwt.adapter security settings', () => {
         ['a missing id', {username: 'test'}],
         ['a non-numeric id', {id: '1'}],
         ['a string payload', 'not-an-object'],
-    ])('validateToken() should reject a payload with %s', async (_label, decoded) => {
-        mockVerify.mockImplementation((token, seed, options, callback) =>
-            callback(null, decoded)
-        );
+    ])(
+        'validateAccessToken() should reject a payload with %s',
+        async (_label, decoded) => {
+            mockVerify.mockImplementation((token, seed, options, callback) =>
+                callback(null, decoded)
+            );
 
-        await expect(JwtAdapter.validateToken('token')).rejects.toThrow(
-            CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID)
-        );
-    });
+            await expect(JwtAdapter.validateAccessToken('token')).rejects.toThrow(
+                CustomError.unauthorized(ERROR_MESSAGES.TOKEN.INVALID)
+            );
+        }
+    );
 
-    test('validateToken() should still accept legacy tokens carrying username and email', async () => {
+    test('validateAccessToken() should still accept legacy tokens carrying username and email', async () => {
         const legacyPayload = {id: 1, username: 'test_user', email: 'test@google.com'};
         mockVerify.mockImplementation((token, seed, options, callback) =>
             callback(null, legacyPayload)
         );
 
-        await expect(JwtAdapter.validateToken('token')).resolves.toHaveProperty('id', 1);
+        await expect(JwtAdapter.validateAccessToken('token')).resolves.toHaveProperty(
+            'id',
+            1
+        );
     });
 });

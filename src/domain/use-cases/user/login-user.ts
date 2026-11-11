@@ -1,27 +1,18 @@
-import {JwtAdapter} from '@src/config';
 import {LoginUserDto} from '@domain/dtos';
 import {UserRepository} from '@domain/repositories/user.repository';
-import {CustomError} from '@domain/errors/custom.error';
 import {
-    LoginResponse,
+    AuthResponse,
     LoginUserUseCase,
 } from '@domain/use-cases/interfaces/user.interfaces';
-import {ERROR_MESSAGES} from '@infrastructure/constants';
+import {generateAuthTokens} from '@domain/use-cases/user/auth-tokens.helpers';
 
 export class LoginUser implements LoginUserUseCase {
     constructor(private readonly repository: UserRepository) {}
 
-    async execute(loginUserDto: LoginUserDto): Promise<LoginResponse> {
+    async execute(loginUserDto: LoginUserDto): Promise<AuthResponse> {
         const user = await this.repository.login(loginUserDto);
+        const tokens = await generateAuthTokens(user.id);
 
-        const [token, refreshToken] = await Promise.all([
-            JwtAdapter.generateToken({id: user.id}),
-            JwtAdapter.generateRefreshToken({id: user.id}),
-        ]);
-
-        if (!token || !refreshToken)
-            throw CustomError.internalServer(ERROR_MESSAGES.TOKEN.CREATING);
-
-        return {user, token, refreshToken};
+        return {user, ...tokens};
     }
 }

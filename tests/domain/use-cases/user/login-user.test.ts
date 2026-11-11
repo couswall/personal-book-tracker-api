@@ -9,7 +9,7 @@ import {loginUserDtoObj, userEntity} from '@tests/fixtures';
 
 jest.mock('@config/jwt.adapter', () => ({
     JwtAdapter: {
-        generateToken: jest.fn(),
+        generateAccessToken: jest.fn(),
         generateRefreshToken: jest.fn(),
     },
 }));
@@ -33,23 +33,23 @@ describe('login-user use case test', () => {
 
     test('execute() should return an UserEntity and token', async () => {
         mockUserRepository.login.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
-        const {user, token, refreshToken} = await new LoginUser(
+        const {user, accessToken, refreshToken} = await new LoginUser(
             mockUserRepository
         ).execute(dto);
 
         expect(user).toBeInstanceOf(UserEntity);
-        expect(token).toBe(mockToken);
+        expect(accessToken).toBe(mockToken);
         expect(refreshToken).toBe(mockRefreshToken);
-        expect(JwtAdapter.generateToken).toHaveBeenCalledWith({id: userEntity.id});
+        expect(JwtAdapter.generateAccessToken).toHaveBeenCalledWith({id: userEntity.id});
         expect(JwtAdapter.generateRefreshToken).toHaveBeenCalledWith({id: userEntity.id});
     });
 
     test('execute() should throw a 500 error status when token is undefined', async () => {
         mockUserRepository.login.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(undefined);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(undefined);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(mockRefreshToken);
 
         await expect(new LoginUser(mockUserRepository).execute(dto)).rejects.toThrow(
@@ -59,7 +59,7 @@ describe('login-user use case test', () => {
 
     test('execute() should throw a 500 error status when refresh token is undefined', async () => {
         mockUserRepository.login.mockResolvedValue(userEntity);
-        jest.mocked(JwtAdapter.generateToken).mockResolvedValue(mockToken);
+        jest.mocked(JwtAdapter.generateAccessToken).mockResolvedValue(mockToken);
         jest.mocked(JwtAdapter.generateRefreshToken).mockResolvedValue(undefined);
 
         await expect(new LoginUser(mockUserRepository).execute(dto)).rejects.toThrow(
