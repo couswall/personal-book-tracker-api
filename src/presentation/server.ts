@@ -2,7 +2,10 @@ import express, {Router} from 'express';
 import cors, {CorsOptions} from 'cors';
 import {Server as HttpServer} from 'http';
 import swaggerUi from 'swagger-ui-express';
+import cookieParser from 'cookie-parser';
 import {swaggerSpec} from '@config/swagger';
+import {logger} from '@config/index';
+import {requestLogger} from '@presentation/middlewares/request-logger';
 
 interface ServerOptions {
     port: number;
@@ -28,23 +31,26 @@ export class Server {
     async start() {
         const corsOptions: CorsOptions = {
             origin: ['http://localhost:5173'],
-            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
             allowedHeaders: ['Authorization', 'Content-Type'],
+            credentials: true,
         };
 
         this.app.use(cors(corsOptions));
         this.app.use(express.json());
+        this.app.use(cookieParser());
         this.app.use(express.urlencoded({extended: true}));
 
         this.app.use(express.static(this.publicPath));
 
         this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+        this.app.use(requestLogger);
         this.app.use(this.routes);
 
-        this.serverListener = this.app.listen(this.port, () => {
-            // TODO: Replace with a proper logger
-            // console.log(`Server running in port ${this.port}`);
+        this.serverListener = this.app.listen(this.port, (error?: Error) => {
+            if (error) throw error;
+            logger.info('Server started', {port: this.port});
         });
     }
 

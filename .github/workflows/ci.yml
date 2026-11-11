@@ -56,6 +56,7 @@ jobs:
                   POSTGRES_PORT=5432
                   POSTGRES_PASSWORD=postgres
                   JWT_SEED=ci-test-seed
+                  JWT_REFRESH_SEED=ci-test-refresh-seed
                   BOOKS_API=https://www.googleapis.com/books/v1
                   GOOGLE_BOOKS_API_KEY=ci-dummy-key
                   EOF

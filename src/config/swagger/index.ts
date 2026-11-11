@@ -22,6 +22,11 @@ export const swaggerSpec = {
                 scheme: 'bearer',
                 bearerFormat: 'JWT',
             },
+            refreshCookie: {
+                type: 'apiKey',
+                in: 'cookie',
+                name: 'refreshToken',
+            },
         },
         responses: {
             BadRequest: {

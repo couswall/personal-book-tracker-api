@@ -1,29 +1,23 @@
 import {UserEntity} from '@domain/entities/user.entity';
 import {CreateUserDto, LoginUserDto} from '@domain/dtos';
 
-export interface CreateUserUseCase {
-    execute(dto: CreateUserDto): Promise<CreateUserResponse>;
+export interface AuthTokens {
+    accessToken: string;
+    refreshToken: string;
 }
 
-export interface CreateUserResponse {
+export interface AuthResponse extends AuthTokens {
     user: UserEntity;
-    token: string;
+}
+
+export interface CreateUserUseCase {
+    execute(dto: CreateUserDto): Promise<AuthResponse>;
 }
 
 export interface LoginUserUseCase {
-    execute(loginUserDto: LoginUserDto): Promise<LoginResponse>;
-}
-
-export interface LoginResponse {
-    user: UserEntity;
-    token: string;
+    execute(loginUserDto: LoginUserDto): Promise<AuthResponse>;
 }
 
 export interface RefreshTokenUseCase {
-    execute(token: string): Promise<RefreshTokenResponse>;
-}
-
-export interface RefreshTokenResponse {
-    user: UserEntity;
-    token: string;
+    execute(refreshToken: string): Promise<AuthResponse>;
 }
